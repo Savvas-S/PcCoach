@@ -21,7 +21,7 @@ help:
 	@echo ""
 	@echo "  make test             Run backend tests"
 	@echo "  make lint             Run backend linters"
-	@echo "  make lock             Generate/update uv.lock"
+	@echo "  make lock             Generate/update uv.lock and package-lock.json"
 
 # --- Production ---
 
@@ -77,3 +77,4 @@ lint:
 
 lock:
 	cd backend && uv lock
+	cd frontend && npm install --package-lock-only
