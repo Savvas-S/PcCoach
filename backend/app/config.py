@@ -7,7 +7,6 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None  # required when AI features are enabled
     cors_origins: list[str] = ["http://localhost:3000"]
     environment: str = "development"
-    database_url: str  # required — app will not start without this
 
 
 settings = Settings()

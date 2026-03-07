@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl, model_validator
 
 
 class UserGoal(str, Enum):
@@ -56,6 +56,7 @@ class ComponentCategory(str, Enum):
 class BuildStatus(str, Enum):
     pending = "pending"
     completed = "completed"
+    failed = "failed"
 
 
 class BuildRequest(BaseModel):
@@ -72,7 +73,7 @@ class BuildRequest(BaseModel):
         default_factory=list,
         description="Categories the customer already owns and wants to exclude",
     )
-    notes: str | None = Field(None, max_length=500)
+    notes: str | None = Field(None, min_length=3, max_length=500)
 
 
 class ComponentRecommendation(BaseModel):
@@ -80,12 +81,12 @@ class ComponentRecommendation(BaseModel):
     category: ComponentCategory
     name: str
     brand: str
-    price_eur: float
+    price_eur: float = Field(..., gt=0)
     specs: dict[str, str] = Field(
         default_factory=dict,
         description="Key specs e.g. {'cores': '8', 'tdp': '65W'}",
     )
-    affiliate_url: str | None = None
+    affiliate_url: HttpUrl | None = None
     affiliate_source: str | None = Field(
         None, description="e.g. 'skroutz', 'amazon'"
     )
@@ -94,10 +95,15 @@ class ComponentRecommendation(BaseModel):
 class BuildResult(BaseModel):
     """The full build recommendation returned to the user."""
     id: int
-    request: BuildRequest
     components: list[ComponentRecommendation] = []
     total_price_eur: float | None = None
     summary: str | None = Field(
         None, description="Claude's explanation of the build choices"
     )
     status: BuildStatus = BuildStatus.pending
+
+    @model_validator(mode="after")
+    def compute_total_price(self) -> "BuildResult":
+        if self.components:
+            self.total_price_eur = sum(c.price_eur for c in self.components)
+        return self

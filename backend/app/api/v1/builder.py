@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from app.models.builder import BuildRequest, BuildResult, BuildStatus
+from app.models.builder import BuildRequest, BuildResult
 
 router = APIRouter(prefix="/build", tags=["build"])
 
@@ -13,7 +13,7 @@ _next_id = 1
 async def create_build(payload: BuildRequest) -> BuildResult:
     """Submit build requirements — Claude will generate recommendations (coming soon)."""
     global _next_id
-    build = BuildResult(id=_next_id, request=payload, status=BuildStatus.pending)
+    build = BuildResult(id=_next_id)
     _builds[_next_id] = build
     _next_id += 1
     return build

@@ -1,14 +1,11 @@
 ### Health check
 GET http://localhost:8000/health
 
-### Ping
-GET http://localhost:8000/api/v1/ping
-
 ###
 # BUILD RECOMMENDATIONS
 ###
 
-### Submit a build request
+### Submit a build - mid range gaming, AMD CPU, Nvidia GPU
 POST http://localhost:8000/api/v1/build
 Content-Type: application/json
 
@@ -21,6 +18,36 @@ Content-Type: application/json
   "include_peripherals": false,
   "existing_parts": [],
   "notes": "Prefer quiet components"
+}
+
+### Submit a build - high end gaming, no preference, with peripherals
+POST http://localhost:8000/api/v1/build
+Content-Type: application/json
+
+{
+  "goal": "high_end_gaming",
+  "budget_range": "2000_3000",
+  "form_factor": "atx",
+  "cpu_brand": "no_preference",
+  "gpu_brand": "no_preference",
+  "include_peripherals": true,
+  "existing_parts": [],
+  "notes": null
+}
+
+### Submit a build - designer, already has GPU and case
+POST http://localhost:8000/api/v1/build
+Content-Type: application/json
+
+{
+  "goal": "designer",
+  "budget_range": "1500_2000",
+  "form_factor": "micro_atx",
+  "cpu_brand": "intel",
+  "gpu_brand": "no_preference",
+  "include_peripherals": false,
+  "existing_parts": ["gpu", "case"],
+  "notes": "Need lots of RAM for large files"
 }
 
 ### List all builds
