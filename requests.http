@@ -1,0 +1,52 @@
+### Health check
+GET http://localhost:8000/health
+
+### Ping
+GET http://localhost:8000/api/v1/ping
+
+###
+# SERVICE BOOKINGS
+###
+
+### Create a booking
+POST http://localhost:8000/api/v1/service/bookings
+Content-Type: application/json
+
+{
+  "service_type": "cleaning",
+  "description": "My PC is overheating and needs a full dust clean",
+  "preferred_date": "2026-03-15",
+  "preferred_time": "10:00:00",
+  "full_name": "Savvas Savva",
+  "email": "savvas@example.com",
+  "phone": "99123456"
+}
+
+### List all bookings
+GET http://localhost:8000/api/v1/service/bookings
+
+### Get a booking by ID
+GET http://localhost:8000/api/v1/service/bookings/1
+
+###
+# BUILDER
+###
+
+### Create a manual build
+POST http://localhost:8000/api/v1/builder/builds
+Content-Type: application/json
+
+{
+  "component_ids": [1, 2, 3],
+  "include_peripherals": false,
+  "notes": "Please double check compatibility before ordering"
+}
+
+### List all builds
+GET http://localhost:8000/api/v1/builder/builds
+
+### Get a build by ID
+GET http://localhost:8000/api/v1/builder/builds/1
+
+### Update build status
+PATCH http://localhost:8000/api/v1/builder/builds/1/status?status=cancelled

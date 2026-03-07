@@ -77,4 +77,4 @@ lint:
 
 lock:
 	cd backend && uv lock
-	cd frontend && npm install --package-lock-only
+	docker run --rm -v $(CURDIR)/frontend:/app -w /app node:20-alpine npm install --package-lock-only
