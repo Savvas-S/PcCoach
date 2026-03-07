@@ -1,10 +1,9 @@
 from fastapi import APIRouter
 
-from app.api.v1 import bookings, builder
+from app.api.v1 import builder
 
 router = APIRouter()
 
-router.include_router(bookings.router)
 router.include_router(builder.router)
 
 

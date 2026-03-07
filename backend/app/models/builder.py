@@ -39,15 +39,27 @@ class GPUBrand(str, Enum):
     no_preference = "no_preference"
 
 
+class ComponentCategory(str, Enum):
+    cpu = "cpu"
+    gpu = "gpu"
+    motherboard = "motherboard"
+    ram = "ram"
+    storage = "storage"
+    psu = "psu"
+    case = "case"
+    cooling = "cooling"
+    monitor = "monitor"
+    keyboard = "keyboard"
+    mouse = "mouse"
+
+
 class BuildStatus(str, Enum):
     pending = "pending"
-    quoted = "quoted"
-    ordered = "ordered"
-    cancelled = "cancelled"
+    completed = "completed"
 
 
-class BuildRequestAI(BaseModel):
-    """Sent to Claude — high-level preferences, AI figures out the components."""
+class BuildRequest(BaseModel):
+    """User's requirements — passed to Claude to generate a build recommendation."""
     goal: UserGoal
     budget_range: BudgetRange
     form_factor: FormFactor = FormFactor.atx
@@ -56,25 +68,36 @@ class BuildRequestAI(BaseModel):
     include_peripherals: bool = Field(
         False, description="Include monitor, keyboard, and mouse"
     )
-    existing_parts: list[str] = Field(
+    existing_parts: list[ComponentCategory] = Field(
         default_factory=list,
-        description="Parts the customer already owns e.g. ['GPU', 'Case']",
+        description="Categories the customer already owns and wants to exclude",
     )
     notes: str | None = Field(None, max_length=500)
 
 
-class BuildRequest(BaseModel):
-    """Manual build — customer picks specific components by ID."""
-    component_ids: list[int] = Field(
-        ..., min_length=1, description="IDs of selected components"
+class ComponentRecommendation(BaseModel):
+    """A single recommended component with affiliate link."""
+    category: ComponentCategory
+    name: str
+    brand: str
+    price_eur: float
+    specs: dict[str, str] = Field(
+        default_factory=dict,
+        description="Key specs e.g. {'cores': '8', 'tdp': '65W'}",
     )
-    include_peripherals: bool = Field(
-        False, description="Include monitor, keyboard, and mouse"
+    affiliate_url: str | None = None
+    affiliate_source: str | None = Field(
+        None, description="e.g. 'skroutz', 'amazon'"
     )
-    notes: str | None = Field(None, max_length=500)
 
 
-class Build(BuildRequest):
+class BuildResult(BaseModel):
+    """The full build recommendation returned to the user."""
     id: int
+    request: BuildRequest
+    components: list[ComponentRecommendation] = []
+    total_price_eur: float | None = None
+    summary: str | None = Field(
+        None, description="Claude's explanation of the build choices"
+    )
     status: BuildStatus = BuildStatus.pending
-    total_price: float | None = None
