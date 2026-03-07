@@ -46,7 +46,7 @@ Content-Type: application/json
   "cpu_brand": "intel",
   "gpu_brand": "no_preference",
   "include_peripherals": false,
-  "existing_parts": ["gpu", "case"],
+  "existing_parts": ["case"],
   "notes": "Need lots of RAM for large files"
 }
 

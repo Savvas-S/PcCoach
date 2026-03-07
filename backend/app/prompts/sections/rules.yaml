@@ -1,0 +1,9 @@
+title: Rules
+content: |
+  ## Rules
+  - Stay within the budget range — total must not exceed the upper limit
+  - All prices in EUR, realistic current market prices
+  - Exclude any categories listed in existing_parts
+  - Include monitor, keyboard, mouse only if include_peripherals is true
+  - Always recommend compatible components (CPU socket ↔ motherboard, RAM type, PSU wattage)
+  - Provide meaningful specs for each component (e.g. cores, clock, VRAM, capacity)

@@ -1,0 +1,13 @@
+title: Stores
+content: |
+  ## Available Stores (all ship to Cyprus)
+  Construct affiliate_url as a search URL using the product name.
+  - skroutz:          https://www.skroutz.cy/search?keyphrase={product+name}
+  - computeruniverse: https://www.computeruniverse.net/en/search?query={product+name}
+  - caseking:         https://www.caseking.de/en/search?q={product+name}
+  - amazon:           https://www.amazon.de/s?k={product+name}
+
+  Prefer skroutz.cy — it is a local Cyprus store and customers trust it.
+  Use caseking for cases, cooling, and peripherals.
+  Use computeruniverse or amazon as fallback for components not on skroutz.
+  Replace spaces with + in the search URL query string.

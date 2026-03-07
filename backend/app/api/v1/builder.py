@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
-from app.models.builder import BuildRequest, BuildResult
+from app.models.builder import BuildRequest, BuildResult, BuildStatus
+from app.services.claude import get_claude_service
 
 router = APIRouter(prefix="/build", tags=["build"])
 
@@ -11,11 +12,25 @@ _next_id = 1
 
 @router.post("", response_model=BuildResult, status_code=201)
 async def create_build(payload: BuildRequest) -> BuildResult:
-    """Submit build requirements — Claude will generate recommendations (coming soon)."""
     global _next_id
-    build = BuildResult(id=_next_id)
-    _builds[_next_id] = build
+    build_id = _next_id
     _next_id += 1
+
+    try:
+        claude = get_claude_service()
+        components, summary = await claude.generate_build(payload)
+        build = BuildResult(
+            id=build_id,
+            components=components,
+            summary=summary,
+            status=BuildStatus.completed,
+        )
+    except Exception as e:
+        build = BuildResult(id=build_id, status=BuildStatus.failed)
+        _builds[build_id] = build
+        raise HTTPException(status_code=502, detail=f"Failed to generate build: {str(e)}")
+
+    _builds[build_id] = build
     return build
 
 
