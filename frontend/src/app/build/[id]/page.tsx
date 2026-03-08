@@ -21,7 +21,6 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const SOURCE_LABELS: Record<string, string> = {
-  skroutz: "Skroutz",
   amazon: "Amazon",
   computeruniverse: "ComputerUniverse",
   caseking: "Caseking",
@@ -162,15 +161,9 @@ export default function BuildResultPage() {
           </div>
         )}
 
-        {build.status === "failed" && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl p-4 mb-6 text-sm">
-            Build generation failed. Please try again.
-          </div>
-        )}
-
         <div className="space-y-3">
           {build.components.map((c) => (
-            <ComponentCard key={c.category} component={c} />
+            <ComponentCard key={c.name} component={c} />
           ))}
         </div>
 
