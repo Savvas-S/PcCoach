@@ -1,3 +1,4 @@
+import html
 import logging
 import os
 
@@ -274,23 +275,27 @@ async def _generate_and_reply(chat_id: int, context) -> None:
         return
 
     lines = [
-        f"✅ *Your PC Build — €{build['total_price_eur']:.0f} total*\n",
-        f"_{build['summary']}_\n",
+        f"✅ <b>Your PC Build — €{build['total_price_eur']:.0f} total</b>\n",
+        f"<i>{html.escape(build['summary'])}</i>\n",
     ]
     for c in build["components"]:
         emoji = CATEGORY_EMOJI.get(c["category"], "•")
         lines.append(
-            f"{emoji} *{c['name']}* — €{c['price_eur']:.0f}\n"
-            f"   [{c['affiliate_source']}]({c['affiliate_url']})"
+            f"{emoji} <b>{html.escape(c['name'])}</b> — €{c['price_eur']:.0f}\n"
+            f"   <a href='{c['affiliate_url']}'>{c['affiliate_source']}</a>"
         )
-    lines.append("\n_Tap any link to buy the component\\._")
+    lines.append("\n<i>Tap any link to buy the component.</i>")
 
-    await context.bot.send_message(
-        chat_id,
-        "\n".join(lines),
-        parse_mode="MarkdownV2",
-        disable_web_page_preview=True,
-    )
+    try:
+        await context.bot.send_message(
+            chat_id,
+            "\n".join(lines),
+            parse_mode="HTML",
+            disable_web_page_preview=True,
+        )
+    except Exception as e:
+        logger.error("Failed to send build result: %s", e)
+        await context.bot.send_message(chat_id, "❌ Failed to send result. Please try /build again.")
 
 
 async def cancel(update: Update, context) -> int:
