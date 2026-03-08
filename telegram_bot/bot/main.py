@@ -274,8 +274,10 @@ async def _generate_and_reply(chat_id: int, context) -> None:
         )
         return
 
+    total = build.get("total_price_eur") or sum(c["price_eur"] for c in build["components"])
+
     lines = [
-        f"✅ <b>Your PC Build — €{build['total_price_eur']:.0f} total</b>\n",
+        "✅ <b>Your PC Build</b>\n",
         f"<i>{html.escape(build['summary'])}</i>\n",
     ]
     for c in build["components"]:
@@ -284,7 +286,8 @@ async def _generate_and_reply(chat_id: int, context) -> None:
             f"{emoji} <b>{html.escape(c['name'])}</b> — €{c['price_eur']:.0f}\n"
             f"   <a href='{c['affiliate_url']}'>{c['affiliate_source']}</a>"
         )
-    lines.append("\n<i>Tap any link to buy the component.</i>")
+    lines.append(f"\n💰 <b>Total: €{total:.0f}</b>")
+    lines.append("<i>Tap any link to buy the component.</i>")
 
     try:
         await context.bot.send_message(
