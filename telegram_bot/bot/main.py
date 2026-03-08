@@ -23,13 +23,13 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 GOAL, BUDGET, FORM_FACTOR, CPU_BRAND, GPU_BRAND, PERIPHERALS, EXISTING_PARTS, NOTES = range(8)
 
 GOALS = [
-    ("🎮 Gaming — Play the latest games at max quality", "high_end_gaming"),
-    ("🎮 Gaming — Great performance, smart budget", "mid_range_gaming"),
-    ("🎮 Gaming — Casual games (Fortnite, Minecraft, CS2…)", "low_end_gaming"),
-    ("💼 Everyday use — Web, email, Office, Netflix", "light_work"),
-    ("⚡ Demanding work — Video editing, coding, many apps", "heavy_work"),
-    ("🎨 Creative — Photoshop, Illustrator, Premiere Pro", "designer"),
-    ("🏗️ Engineering — AutoCAD, 3D rendering, large files", "architecture"),
+    ("🎮 Gaming — Max settings, latest titles", "high_end_gaming"),
+    ("🎮 Gaming — Great performance, smart price", "mid_range_gaming"),
+    ("🎮 Casual gaming — Fortnite, CS2, Minecraft", "low_end_gaming"),
+    ("💼 Everyday — Web, Office, Netflix", "light_work"),
+    ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
+    ("🎨 Creative — Photoshop, Illustrator", "designer"),
+    ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
 ]
 
 BUDGETS = [
@@ -41,21 +41,21 @@ BUDGETS = [
 ]
 
 FORM_FACTORS = [
-    ("🖥️ Standard — Most popular, easiest to upgrade later", "atx"),
+    ("🖥️ Standard — Most popular, easy to upgrade", "atx"),
     ("📦 Compact — Smaller, still very capable", "micro_atx"),
-    ("🤏 Mini — Tiny like a console, harder to upgrade", "mini_itx"),
+    ("🤏 Mini — Console-size, harder to upgrade", "mini_itx"),
 ]
 
 CPU_BRANDS = [
-    ("🤖 Best for my budget — let us decide (recommended)", "no_preference"),
+    ("🤖 Let us choose — best for your budget ★", "no_preference"),
     ("🔴 AMD Ryzen — great value & multitasking", "amd"),
-    ("🔵 Intel Core — strong gaming & speed", "intel"),
+    ("🔵 Intel Core — great for productivity", "intel"),
 ]
 
 GPU_BRANDS = [
-    ("🤖 Best for my budget — let us decide (recommended)", "no_preference"),
-    ("🟢 NVIDIA GeForce — best for gaming & AI features", "nvidia"),
-    ("🔴 AMD Radeon — solid alternative, great value", "amd"),
+    ("🤖 Let us choose — best for your budget ★", "no_preference"),
+    ("🟢 NVIDIA GeForce — best gaming & AI", "nvidia"),
+    ("🔴 AMD Radeon — solid, great value", "amd"),
 ]
 
 COMPONENT_CATEGORIES = [
@@ -69,13 +69,14 @@ COMPONENT_CATEGORIES = [
     ("CPU Cooler", "cooling"),
 ]
 
+# (display label, note text sent to Claude)
 COMMON_NOTES = [
-    ("🔇 Keep it as quiet as possible", "Prefer quiet components, prioritise low noise"),
-    ("📶 Must have built-in Wi-Fi", "Must include Wi-Fi"),
+    ("🔇 Quiet — minimal fan noise", "Quiet/silent components, low noise"),
+    ("📶 Must have built-in Wi-Fi", "Must include built-in Wi-Fi"),
     ("💡 I want RGB lighting", "RGB lighting preferred"),
     ("❄️ Water cooling is fine", "Water cooling is acceptable"),
-    ("⚡ Push performance as far as possible", "Maximise performance, stay within budget"),
-    ("💰 Squeeze every euro — best value only", "Best value for money, avoid overpriced parts"),
+    ("⚡ Max performance", "Maximise performance within budget"),
+    ("💰 Best value only", "Best value, avoid overpriced parts"),
 ]
 
 CATEGORY_EMOJI = {
@@ -101,6 +102,18 @@ def _existing_parts_keyboard(selected: list[str]) -> InlineKeyboardMarkup:
         for label, value in COMPONENT_CATEGORIES
     ]
     buttons.append([InlineKeyboardButton("I don't own any / Continue →", callback_data="ep_done")])
+    return InlineKeyboardMarkup(buttons)
+
+
+def _notes_keyboard(selected: list[int]) -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(
+            f"{'✅ ' if i in selected else ''}{label}",
+            callback_data=f"note_{i}",
+        )]
+        for i, (label, _) in enumerate(COMMON_NOTES)
+    ]
+    buttons.append([InlineKeyboardButton("No special preferences →", callback_data="notes_done")])
     return InlineKeyboardMarkup(buttons)
 
 
@@ -216,17 +229,13 @@ async def existing_parts_toggle(update: Update, context) -> int:
     await query.answer()
 
     if query.data == "ep_done":
-        buttons = [
-            [InlineKeyboardButton(label, callback_data=f"note_{value}")]
-            for label, value in COMMON_NOTES
-        ]
-        buttons.append([InlineKeyboardButton("No special preferences →", callback_data="notes_skip")])
+        context.user_data["selected_notes"] = []
         await query.edit_message_text(
             "📝 <b>Any special preferences?</b>\n\n"
-            "Pick one below, or just type your own preference in plain text.\n\n"
-            "This is optional — if nothing applies just tap the last button.",
+            "Tap to select any that apply — you can pick multiple.\n\n"
+            "Or just type your own in plain text. Tap <b>Continue</b> if nothing applies.",
             parse_mode="HTML",
-            reply_markup=InlineKeyboardMarkup(buttons),
+            reply_markup=_notes_keyboard([]),
         )
         return NOTES
 
@@ -253,22 +262,28 @@ async def notes_received(update: Update, context) -> int:
     return ConversationHandler.END
 
 
-async def note_picked(update: Update, context) -> int:
+async def notes_toggle(update: Update, context) -> int:
     query = update.callback_query
     await query.answer()
-    context.user_data["notes"] = query.data.removeprefix("note_")
-    await query.edit_message_text(
-        "⚙️ <b>Building your PC recommendation…</b>\n\nThis usually takes 10–20 seconds.",
-        parse_mode="HTML",
-    )
-    await _generate_and_reply(query.message.chat_id, context)
-    return ConversationHandler.END
+    idx = int(query.data.removeprefix("note_"))
+    selected = context.user_data.setdefault("selected_notes", [])
+    if idx in selected:
+        selected.remove(idx)
+    else:
+        selected.append(idx)
+    await query.edit_message_reply_markup(reply_markup=_notes_keyboard(selected))
+    return NOTES
 
 
-async def notes_skipped(update: Update, context) -> int:
+async def notes_done(update: Update, context) -> int:
     query = update.callback_query
     await query.answer()
-    context.user_data["notes"] = None
+    selected = context.user_data.get("selected_notes", [])
+    if selected:
+        notes = ", ".join(COMMON_NOTES[i][1] for i in sorted(selected))
+    else:
+        notes = None
+    context.user_data["notes"] = notes
     await query.edit_message_text(
         "⚙️ <b>Building your PC recommendation…</b>\n\nThis usually takes 10–20 seconds.",
         parse_mode="HTML",
@@ -365,8 +380,8 @@ def main() -> None:
             EXISTING_PARTS: [CallbackQueryHandler(existing_parts_toggle, pattern="^ep_")],
             NOTES: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, notes_received),
-                CallbackQueryHandler(note_picked, pattern="^note_"),
-                CallbackQueryHandler(notes_skipped, pattern="^notes_skip$"),
+                CallbackQueryHandler(notes_toggle, pattern=r"^note_\d+$"),
+                CallbackQueryHandler(notes_done, pattern="^notes_done$"),
             ],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
