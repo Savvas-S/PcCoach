@@ -52,11 +52,22 @@ export interface ComponentRecommendation {
   affiliate_source?: string;
 }
 
+export interface UpgradeSuggestion {
+  component_category: ComponentCategory;
+  current_name: string;
+  upgrade_name: string;
+  extra_cost_eur: number;
+  reason: string;
+  affiliate_url?: string;
+  affiliate_source?: string;
+}
+
 export interface BuildResult {
   id: string;
   components: ComponentRecommendation[];
   total_price_eur?: number;
   summary?: string;
+  upgrade_suggestion?: UpgradeSuggestion;
   status: "pending" | "completed" | "failed";
 }
 

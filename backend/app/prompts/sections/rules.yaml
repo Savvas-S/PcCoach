@@ -7,3 +7,15 @@ content: |
   - Include monitor, keyboard, mouse only if include_peripherals is true
   - Always recommend compatible components (CPU socket ↔ motherboard, RAM type, PSU wattage)
   - Provide meaningful specs for each component (e.g. cores, clock, VRAM, capacity)
+
+  ## Upgrade Suggestion
+  After finalising the build, check if there is a single component (GPU or CPU only) where
+  the next meaningful performance tier up would noticeably improve the result for the user's
+  stated goal. If the estimated extra cost is under €75, populate upgrade_suggestion.
+  Rules:
+  - Only suggest if the performance gain is genuinely significant (e.g. handles 4K when the
+    current pick only handles 1440p, or meaningfully higher frame rates)
+  - Skip it if the current component already maxes out the use case
+  - Skip it if the budget range is already at the top tier
+  - Provide an affiliate_url and affiliate_source for the upgrade component using the same
+    store selection logic as the main build

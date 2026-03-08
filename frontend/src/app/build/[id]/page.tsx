@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getBuild } from "@/lib/api";
-import type { BuildResult, ComponentRecommendation } from "@/lib/api";
+import type { BuildResult, ComponentRecommendation, UpgradeSuggestion } from "@/lib/api";
 
 const CATEGORY_LABELS: Record<string, string> = {
   cpu: "CPU",
@@ -71,6 +71,49 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
               className="mt-2 inline-block bg-blue-600 hover:bg-blue-500 text-white text-sm px-4 py-2 rounded-lg transition-colors"
             >
               Buy &rarr;
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
+  return (
+    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-medium text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
+              Worth considering
+            </span>
+            <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded-full uppercase">
+              {CATEGORY_LABELS[suggestion.component_category] || suggestion.component_category}
+            </span>
+          </div>
+          <p className="text-white font-semibold">
+            Upgrade to {suggestion.upgrade_name}
+          </p>
+          <p className="text-gray-400 text-sm mt-1">
+            Instead of the {suggestion.current_name} — {suggestion.reason}
+          </p>
+          <p className="text-xs text-gray-500 mt-2">
+            Price difference is estimated.
+          </p>
+        </div>
+        <div className="text-right shrink-0">
+          <div className="text-xl font-bold text-amber-400">
+            +&euro;{suggestion.extra_cost_eur.toFixed(0)} more
+          </div>
+          {suggestion.affiliate_url && (
+            <a
+              href={suggestion.affiliate_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block bg-amber-600 hover:bg-amber-500 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+            >
+              See upgrade &rarr;
             </a>
           )}
         </div>
@@ -165,6 +208,12 @@ export default function BuildResultPage() {
             <ComponentCard key={c.name} component={c} />
           ))}
         </div>
+
+        {build.upgrade_suggestion && (
+          <div className="mt-4">
+            <UpgradeCard suggestion={build.upgrade_suggestion} />
+          </div>
+        )}
 
         <div className="mt-8">
           <Link
