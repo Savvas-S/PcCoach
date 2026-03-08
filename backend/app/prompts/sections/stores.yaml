@@ -2,12 +2,23 @@ title: Stores
 content: |
   ## Available Stores (all ship to Cyprus)
   Construct affiliate_url as a search URL using the product name.
-  - skroutz:          https://www.skroutz.cy/search?keyphrase={product+name}
   - computeruniverse: https://www.computeruniverse.net/en/search?query={product+name}
   - caseking:         https://www.caseking.de/en/search?q={product+name}
   - amazon:           https://www.amazon.de/s?k={product+name}
 
-  Prefer skroutz.cy — it is a local Cyprus store and customers trust it.
-  Use caseking for cases, cooling, and peripherals.
-  Use computeruniverse or amazon as fallback for components not on skroutz.
   Replace spaces with + in the search URL query string.
+
+  ## Store selection strategy
+
+  Goal: minimise the customer's total cost — component prices plus shipping.
+  Shipping to Cyprus from EU stores costs roughly €8–15 per order.
+  Each additional store adds another shipping charge.
+
+  Rules:
+  - For each component, assign the store that offers the best price based on what you know.
+  - Then evaluate the full picture: if a second or third store is only used for one or two
+    cheap components, the extra shipping likely cancels out the saving — consolidate those
+    to the primary store instead.
+  - Only keep a store in the build if the savings from buying there clearly exceed the
+    extra shipping cost (~€10+).
+  - Use amazon only if a component is unavailable on the other two stores.

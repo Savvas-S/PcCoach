@@ -1,13 +1,24 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import router as v1_router
 from app.config import settings
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if settings.environment == "production" and not settings.anthropic_api_key:
+        raise RuntimeError("ANTHROPIC_API_KEY must be set in production")
+    yield
+
+
 app = FastAPI(
     title="PcCoach API",
     description="AI-powered PC building assistant",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 _is_production = settings.environment == "production"
@@ -15,7 +26,7 @@ _is_production = settings.environment == "production"
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "DELETE"] if _is_production else ["*"],
     allow_headers=["Content-Type", "Authorization"] if _is_production else ["*"],
 )

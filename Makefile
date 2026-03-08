@@ -1,5 +1,5 @@
 .PHONY: help build up down dev dev-build dev-down logs logs-backend logs-frontend \
-        shell-backend shell-frontend test lint lock
+        shell-backend shell-frontend test lint lock deploy init
 
 help:
 	@echo "PcCoach - Available commands:"
@@ -19,7 +19,9 @@ help:
 	@echo "  make shell-backend    Open shell in backend container"
 	@echo "  make shell-frontend   Open shell in frontend container"
 	@echo ""
-	@echo "  make test             Run backend tests"
+	@echo "  make init             Copy .env.example to .env (skips if .env already exists)
+  make deploy           Pull latest changes and restart production containers
+  make test             Run backend tests"
 	@echo "  make lint             Run backend linters"
 	@echo "  make lock             Generate/update uv.lock and package-lock.json"
 
@@ -72,6 +74,19 @@ test:
 lint:
 	docker compose -f docker-compose.dev.yml exec backend uv run ruff check .
 	docker compose -f docker-compose.dev.yml exec backend uv run ruff format --check .
+
+# --- Init ---
+
+init:
+	@[ -f backend/.env ] || (cp backend/.env.example backend/.env && echo "created backend/.env")
+	@[ -f frontend/.env ] || (cp frontend/.env.example frontend/.env && echo "created frontend/.env")
+
+# --- Deploy ---
+
+deploy:
+	git pull --rebase origin master
+	docker compose build
+	docker compose up -d
 
 # --- Dependencies ---
 

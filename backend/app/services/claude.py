@@ -7,6 +7,9 @@ from app.config import settings
 from app.models.builder import BuildRequest, ComponentRecommendation
 from app.prompts.manager import build_system_prompt
 
+_MODEL = "claude-haiku-4-5-20251001"
+_TIMEOUT = 60.0
+
 BUILD_TOOL = {
     "name": "recommend_build",
     "description": "Return a structured PC build recommendation with components and affiliate links",
@@ -39,7 +42,7 @@ BUILD_TOOL = {
                         "affiliate_url": {"type": "string"},
                         "affiliate_source": {
                             "type": "string",
-                            "enum": ["skroutz", "computeruniverse", "caseking", "amazon"],
+                            "enum": ["computeruniverse", "caseking", "amazon"],
                         },
                     },
                     "required": ["category", "name", "brand", "price_eur", "specs", "affiliate_url", "affiliate_source"],
@@ -53,8 +56,8 @@ BUILD_TOOL = {
 
 class ClaudeService:
     def __init__(self):
-        self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
-        self.model = "claude-haiku-4-5-20251001"
+        self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key, timeout=_TIMEOUT)
+        self.model = _MODEL
 
     async def generate_build(self, request: BuildRequest) -> tuple[list[ComponentRecommendation], str]:
         user_message = f"""Please recommend a PC build for the following requirements:
@@ -71,13 +74,15 @@ class ClaudeService:
         response = await self.client.messages.create(
             model=self.model,
             max_tokens=4096,
-            system=build_system_prompt(),
+            system=[{"type": "text", "text": build_system_prompt(), "cache_control": {"type": "ephemeral"}}],
             tools=[BUILD_TOOL],
             tool_choice={"type": "tool", "name": "recommend_build"},
             messages=[{"role": "user", "content": user_message}],
         )
 
-        tool_use = next(b for b in response.content if b.type == "tool_use")
+        tool_use = next((b for b in response.content if b.type == "tool_use"), None)
+        if not tool_use:
+            raise ValueError("No tool_use block in Claude response")
         data = tool_use.input if isinstance(tool_use.input, dict) else json.loads(tool_use.input)
 
         components = [ComponentRecommendation(**c) for c in data["components"]]

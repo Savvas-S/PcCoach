@@ -17,6 +17,7 @@ SECTION_ORDER = [
 
 @lru_cache(maxsize=1)
 def build_system_prompt() -> str:
+    # Cached for the process lifetime — restart the container to pick up YAML changes.
     parts = []
     for name in SECTION_ORDER:
         path = SECTIONS_DIR / f"{name}.yaml"
