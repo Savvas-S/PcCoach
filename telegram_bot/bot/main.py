@@ -182,17 +182,30 @@ async def peripherals_selected(update: Update, context) -> int:
     return EXISTING_PARTS
 
 
+COMMON_NOTES = [
+    ("🔇 Prefer quiet components", "Prefer quiet components"),
+    ("📶 Need Wi-Fi", "Need Wi-Fi"),
+    ("💡 RGB lighting", "RGB lighting preferred"),
+    ("❄️ Water cooling OK", "Water cooling is acceptable"),
+    ("⚡ Best performance possible", "Prioritise performance over everything else"),
+    ("💰 Best value for money", "Best value for money, avoid overpriced parts"),
+]
+
+
 async def existing_parts_toggle(update: Update, context) -> int:
     query = update.callback_query
     await query.answer()
 
     if query.data == "ep_done":
+        buttons = [
+            [InlineKeyboardButton(label, callback_data=f"note_{value}")]
+            for label, value in COMMON_NOTES
+        ]
+        buttons.append([InlineKeyboardButton("Skip →", callback_data="notes_skip")])
         await query.edit_message_text(
-            "📝 *Any additional notes?*\n\ne\\.g\\. 'prefer quiet components', 'need Wi\\-Fi'\n\nOr tap *Skip* to continue\\.",
+            "📝 *Any preferences?*\n\nPick one below or just type your own note\\.",
             parse_mode="MarkdownV2",
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("Skip →", callback_data="notes_skip"),
-            ]]),
+            reply_markup=InlineKeyboardMarkup(buttons),
         )
         return NOTES
 
@@ -211,8 +224,17 @@ async def existing_parts_toggle(update: Update, context) -> int:
 
 async def notes_received(update: Update, context) -> int:
     context.user_data["notes"] = update.message.text
-    msg = await update.message.reply_text("⚙️ Generating your build, this may take a moment…")
+    await update.message.reply_text("⚙️ Generating your build, this may take a moment…")
     await _generate_and_reply(update.message.chat_id, context)
+    return ConversationHandler.END
+
+
+async def note_picked(update: Update, context) -> int:
+    query = update.callback_query
+    await query.answer()
+    context.user_data["notes"] = query.data.removeprefix("note_")
+    await query.edit_message_text("⚙️ Generating your build, this may take a moment…")
+    await _generate_and_reply(query.message.chat_id, context)
     return ConversationHandler.END
 
 
@@ -297,6 +319,7 @@ def main() -> None:
             EXISTING_PARTS: [CallbackQueryHandler(existing_parts_toggle, pattern="^ep_")],
             NOTES: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, notes_received),
+                CallbackQueryHandler(note_picked, pattern="^note_"),
                 CallbackQueryHandler(notes_skipped, pattern="^notes_skip$"),
             ],
         },
