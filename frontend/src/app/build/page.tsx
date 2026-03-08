@@ -1,0 +1,359 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { submitBuild } from "@/lib/api";
+import type {
+  UserGoal,
+  BudgetRange,
+  FormFactor,
+  CPUBrand,
+  GPUBrand,
+  ComponentCategory,
+} from "@/lib/api";
+
+const GOALS: { value: UserGoal; label: string; desc: string; icon: string }[] =
+  [
+    {
+      value: "high_end_gaming",
+      label: "High-End Gaming",
+      desc: "4K, max settings, 144fps+",
+      icon: "🎮",
+    },
+    {
+      value: "mid_range_gaming",
+      label: "Mid-Range Gaming",
+      desc: "1080p/1440p, high settings",
+      icon: "🕹️",
+    },
+    {
+      value: "low_end_gaming",
+      label: "Budget Gaming",
+      desc: "1080p, medium settings",
+      icon: "👾",
+    },
+    {
+      value: "light_work",
+      label: "Light Work",
+      desc: "Office, web, video calls",
+      icon: "💼",
+    },
+    {
+      value: "heavy_work",
+      label: "Heavy Work",
+      desc: "Video editing, rendering, VMs",
+      icon: "⚙️",
+    },
+    {
+      value: "designer",
+      label: "Design",
+      desc: "Photoshop, Illustrator, UI/UX",
+      icon: "🎨",
+    },
+    {
+      value: "architecture",
+      label: "Architecture",
+      desc: "CAD, AutoCAD, Revit",
+      icon: "🏗️",
+    },
+  ];
+
+const BUDGETS: { value: BudgetRange; label: string }[] = [
+  { value: "0_1000", label: "Under €1,000" },
+  { value: "1000_1500", label: "€1,000 – €1,500" },
+  { value: "1500_2000", label: "€1,500 – €2,000" },
+  { value: "2000_3000", label: "€2,000 – €3,000" },
+  { value: "over_3000", label: "Over €3,000" },
+];
+
+const FORM_FACTORS: { value: FormFactor; label: string }[] = [
+  { value: "atx", label: "ATX (Full Size)" },
+  { value: "micro_atx", label: "Micro-ATX" },
+  { value: "mini_itx", label: "Mini-ITX (Compact)" },
+];
+
+const CPU_BRANDS: { value: CPUBrand; label: string }[] = [
+  { value: "no_preference", label: "No Preference" },
+  { value: "intel", label: "Intel" },
+  { value: "amd", label: "AMD" },
+];
+
+const GPU_BRANDS: { value: GPUBrand; label: string }[] = [
+  { value: "no_preference", label: "No Preference" },
+  { value: "nvidia", label: "NVIDIA" },
+  { value: "amd", label: "AMD" },
+];
+
+const COMPONENT_CATEGORIES: { value: ComponentCategory; label: string }[] = [
+  { value: "cpu", label: "CPU" },
+  { value: "gpu", label: "GPU" },
+  { value: "motherboard", label: "Motherboard" },
+  { value: "ram", label: "RAM" },
+  { value: "storage", label: "Storage" },
+  { value: "psu", label: "PSU" },
+  { value: "case", label: "Case" },
+  { value: "cooling", label: "Cooling" },
+  { value: "monitor", label: "Monitor" },
+  { value: "keyboard", label: "Keyboard" },
+  { value: "mouse", label: "Mouse" },
+];
+
+export default function BuildPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [goal, setGoal] = useState<UserGoal | null>(null);
+  const [budget, setBudget] = useState<BudgetRange | null>(null);
+  const [formFactor, setFormFactor] = useState<FormFactor>("atx");
+  const [cpuBrand, setCpuBrand] = useState<CPUBrand>("no_preference");
+  const [gpuBrand, setGpuBrand] = useState<GPUBrand>("no_preference");
+  const [includePeripherals, setIncludePeripherals] = useState(false);
+  const [existingParts, setExistingParts] = useState<ComponentCategory[]>([]);
+  const [notes, setNotes] = useState("");
+
+  const toggleExistingPart = (cat: ComponentCategory) => {
+    setExistingParts((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!goal || !budget) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await submitBuild({
+        goal,
+        budget_range: budget,
+        form_factor: formFactor,
+        cpu_brand: cpuBrand,
+        gpu_brand: gpuBrand,
+        include_peripherals: includePeripherals,
+        existing_parts: existingParts,
+        notes: notes || undefined,
+      });
+      router.push(`/build/${result.id}`);
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-gray-900 text-white py-12 px-4">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-10">
+          <Link href="/" className="text-gray-400 hover:text-white text-sm">
+            &larr; Back
+          </Link>
+          <h1 className="text-3xl font-bold mt-4">Configure Your Build</h1>
+          <p className="text-gray-400 mt-1">
+            Tell us what you need and we&apos;ll recommend the perfect
+            components.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-12">
+          {/* Goal */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4">
+              What will you use it for?
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {GOALS.map((g) => (
+                <button
+                  key={g.value}
+                  type="button"
+                  onClick={() => setGoal(g.value)}
+                  className={`p-4 rounded-xl border text-left transition-all ${
+                    goal === g.value
+                      ? "border-blue-500 bg-blue-500/10"
+                      : "border-gray-700 bg-gray-800 hover:border-gray-500"
+                  }`}
+                >
+                  <div className="text-2xl mb-2">{g.icon}</div>
+                  <div className="font-medium text-sm">{g.label}</div>
+                  <div className="text-gray-400 text-xs mt-1">{g.desc}</div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Budget */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4">
+              What&apos;s your budget?
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {BUDGETS.map((b) => (
+                <button
+                  key={b.value}
+                  type="button"
+                  onClick={() => setBudget(b.value)}
+                  className={`p-4 rounded-xl border text-center font-medium transition-all ${
+                    budget === b.value
+                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
+                      : "border-gray-700 bg-gray-800 hover:border-gray-500 text-white"
+                  }`}
+                >
+                  {b.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Preferences */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4">Preferences</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="text-sm text-gray-400 mb-2 block">
+                  Form Factor
+                </label>
+                <div className="space-y-2">
+                  {FORM_FACTORS.map((f) => (
+                    <button
+                      key={f.value}
+                      type="button"
+                      onClick={() => setFormFactor(f.value)}
+                      className={`w-full p-3 rounded-lg border text-sm text-left transition-all ${
+                        formFactor === f.value
+                          ? "border-blue-500 bg-blue-500/10"
+                          : "border-gray-700 bg-gray-800 hover:border-gray-500"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-400 mb-2 block">
+                  CPU Brand
+                </label>
+                <div className="space-y-2">
+                  {CPU_BRANDS.map((b) => (
+                    <button
+                      key={b.value}
+                      type="button"
+                      onClick={() => setCpuBrand(b.value)}
+                      className={`w-full p-3 rounded-lg border text-sm text-left transition-all ${
+                        cpuBrand === b.value
+                          ? "border-blue-500 bg-blue-500/10"
+                          : "border-gray-700 bg-gray-800 hover:border-gray-500"
+                      }`}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-400 mb-2 block">
+                  GPU Brand
+                </label>
+                <div className="space-y-2">
+                  {GPU_BRANDS.map((b) => (
+                    <button
+                      key={b.value}
+                      type="button"
+                      onClick={() => setGpuBrand(b.value)}
+                      className={`w-full p-3 rounded-lg border text-sm text-left transition-all ${
+                        gpuBrand === b.value
+                          ? "border-blue-500 bg-blue-500/10"
+                          : "border-gray-700 bg-gray-800 hover:border-gray-500"
+                      }`}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Peripherals */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4">Options</h2>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includePeripherals}
+                onChange={(e) => setIncludePeripherals(e.target.checked)}
+                className="w-5 h-5 rounded accent-blue-500"
+              />
+              <div>
+                <div className="font-medium">Include Peripherals</div>
+                <div className="text-gray-400 text-sm">
+                  Add monitor, keyboard, and mouse to the build
+                </div>
+              </div>
+            </label>
+          </section>
+
+          {/* Existing Parts */}
+          <section>
+            <h2 className="text-lg font-semibold mb-1">
+              Parts You Already Own
+            </h2>
+            <p className="text-gray-400 text-sm mb-4">
+              We&apos;ll skip recommending these.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {COMPONENT_CATEGORIES.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => toggleExistingPart(c.value)}
+                  className={`px-3 py-1.5 rounded-lg text-sm border transition-all ${
+                    existingParts.includes(c.value)
+                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
+                      : "border-gray-700 bg-gray-800 hover:border-gray-500 text-gray-300"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Notes */}
+          <section>
+            <h2 className="text-lg font-semibold mb-2">Additional Notes</h2>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              maxLength={500}
+              placeholder="Any specific requirements? e.g. 'I need quiet cooling' or 'prefer white components'..."
+              className="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none h-28"
+            />
+            <div className="text-right text-xs text-gray-500 mt-1">
+              {notes.length}/500
+            </div>
+          </section>
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl p-4 text-sm">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={!goal || !budget || loading}
+            className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl text-lg transition-colors"
+          >
+            {loading ? "Generating your build..." : "Build My PC \u2192"}
+          </button>
+        </form>
+      </div>
+    </main>
+  );
+}
