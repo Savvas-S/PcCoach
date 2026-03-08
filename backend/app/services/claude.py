@@ -68,8 +68,7 @@ class ClaudeService:
         - CPU brand preference: {request.cpu_brand.value}
         - GPU brand preference: {request.gpu_brand.value}
         - Include peripherals: {request.include_peripherals}
-        - Parts already owned (exclude these): {[p.value for p in request.existing_parts] or 'none'}
-        - Additional notes: {request.notes or 'none'}"""
+        - Parts already owned (exclude these): {[p.value for p in request.existing_parts] or 'none'}"""
 
         response = await self.client.messages.create(
             model=self.model,

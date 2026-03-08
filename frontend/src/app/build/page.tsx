@@ -120,7 +120,6 @@ export default function BuildPage() {
   const [gpuBrand, setGpuBrand] = useState<GPUBrand>("no_preference");
   const [includePeripherals, setIncludePeripherals] = useState(false);
   const [existingParts, setExistingParts] = useState<ComponentCategory[]>([]);
-  const [notes, setNotes] = useState("");
 
   const handleBudgetChange = (b: BudgetRange) => {
     setBudget(b);
@@ -160,7 +159,6 @@ export default function BuildPage() {
           gpu_brand: gpuBrand,
           include_peripherals: includePeripherals,
           existing_parts: existingParts,
-          notes: notes || undefined,
         },
         controller.signal
       );
@@ -362,20 +360,6 @@ export default function BuildPage() {
             </div>
           </section>
 
-          {/* Notes */}
-          <section>
-            <h2 className="text-lg font-semibold mb-2">Additional Notes</h2>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              maxLength={500}
-              placeholder="Any specific requirements? e.g. 'I need quiet cooling' or 'prefer white components'..."
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none h-28"
-            />
-            <div className="text-right text-xs text-gray-500 mt-1">
-              {notes.length}/500
-            </div>
-          </section>
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl p-4 text-sm">
