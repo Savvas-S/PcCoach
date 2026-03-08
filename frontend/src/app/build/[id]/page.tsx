@@ -85,8 +85,7 @@ export default function BuildResultPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
-    const id = Number(rawId);
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     if (!id) return;
 
     // Use cached result from form submission to avoid a redundant GET request

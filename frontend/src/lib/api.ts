@@ -53,7 +53,7 @@ export interface ComponentRecommendation {
 }
 
 export interface BuildResult {
-  id: number;
+  id: string;
   components: ComponentRecommendation[];
   total_price_eur?: number;
   summary?: string;
@@ -87,7 +87,7 @@ export async function submitBuild(
 }
 
 export async function getBuild(
-  id: number,
+  id: string,
   signal?: AbortSignal
 ): Promise<BuildResult> {
   const res = await fetch(`/api/v1/build/${id}`, { signal });

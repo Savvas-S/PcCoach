@@ -1,3 +1,5 @@
+import secrets
+
 from fastapi import APIRouter, HTTPException
 
 from app.models.builder import BuildRequest, BuildResult, BuildStatus
@@ -6,16 +8,13 @@ from app.services.claude import get_claude_service
 router = APIRouter(prefix="/build", tags=["build"])
 
 # In-memory store — will be replaced with DB
-_builds: dict[int, BuildResult] = {}
-_next_id = 1
+_builds: dict[str, BuildResult] = {}
 _MAX_BUILDS = 500
 
 
 @router.post("", response_model=BuildResult, status_code=201)
 async def create_build(payload: BuildRequest) -> BuildResult:
-    global _next_id
-    build_id = _next_id
-    _next_id += 1
+    build_id = secrets.token_urlsafe(8)
 
     try:
         claude = get_claude_service()
@@ -31,7 +30,7 @@ async def create_build(payload: BuildRequest) -> BuildResult:
 
     _builds[build_id] = build
     if len(_builds) > _MAX_BUILDS:
-        del _builds[min(_builds)]
+        del _builds[next(iter(_builds))]
     return build
 
 
@@ -41,7 +40,7 @@ async def list_builds() -> list[BuildResult]:
 
 
 @router.get("/{build_id}", response_model=BuildResult)
-async def get_build(build_id: int) -> BuildResult:
+async def get_build(build_id: str) -> BuildResult:
     build = _builds.get(build_id)
     if not build:
         raise HTTPException(status_code=404, detail="Build not found")
