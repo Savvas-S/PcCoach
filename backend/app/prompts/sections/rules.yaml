@@ -7,3 +7,6 @@ content: |
   - Include monitor, keyboard, mouse only if include_peripherals is true
   - Always recommend compatible components (CPU socket ↔ motherboard, RAM type, PSU wattage)
   - Provide meaningful specs for each component (e.g. cores, clock, VRAM, capacity)
+  - Additional notes are hard requirements, not suggestions — if the user specifies something
+    (e.g. quiet, Wi-Fi, white build, no water cooling, will overclock), every affected component
+    must reflect it; mention how you addressed the notes in the summary
