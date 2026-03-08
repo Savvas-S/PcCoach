@@ -4,7 +4,7 @@ content: |
   Construct affiliate_url as a search URL using the product name.
   - computeruniverse: https://www.computeruniverse.net/en/search?query={product+name}
   - caseking:         https://www.caseking.de/en/search?q={product+name}
-  - amazon:           https://www.amazon.de/s?k={product+name}
+  - amazon:           https://www.amazon.de/s?k={product+name}&tag=thepccoach-21
 
   Replace spaces with + in the search URL query string.
 
