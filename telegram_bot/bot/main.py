@@ -395,7 +395,11 @@ def main() -> None:
                 CallbackQueryHandler(notes_done, pattern="^notes_done$"),
             ],
         },
-        fallbacks=[CommandHandler("cancel", cancel)],
+        fallbacks=[
+            CommandHandler("cancel", cancel),
+            CommandHandler("start", start),
+            CommandHandler("build", start),
+        ],
     )
 
     app.add_handler(conv)
