@@ -8,14 +8,29 @@ content: |
   - Always recommend compatible components (CPU socket ↔ motherboard, RAM type, PSU wattage)
   - Provide meaningful specs for each component (e.g. cores, clock, VRAM, capacity)
 
-  ## Upgrade Suggestion
-  After finalising the build, check if there is a single component (GPU or CPU only) where
-  the next meaningful performance tier up would noticeably improve the result for the user's
-  stated goal. If the estimated extra cost is under €75, populate upgrade_suggestion.
-  Rules:
-  - Only suggest if the performance gain is genuinely significant (e.g. handles 4K when the
-    current pick only handles 1440p, or meaningfully higher frame rates)
-  - Skip it if the current component already maxes out the use case
-  - Skip it if the budget range is already at the top tier
-  - Provide an affiliate_url and affiliate_source for the upgrade component using the same
-    store selection logic as the main build
+  ## Component Suggestions (Upgrade & Downgrade)
+
+  The main build is always the most ideal choice for the user's budget and goal.
+  After finalising it, check for two optional suggestions:
+
+  ### Upgrade suggestion (GPU or CPU only)
+  If the next performance tier up would noticeably improve the result for the user's goal
+  and the estimated extra cost is under €75, populate upgrade_suggestion.
+  - Only suggest if the gain is genuinely significant (e.g. handles 4K where the current
+    pick only handles 1440p, meaningfully higher frame rates, or a newer generation with
+    better efficiency)
+  - Skip if the current component already maxes out the use case
+  - Skip if the budget range is already at the top tier
+
+  ### Downgrade suggestion (GPU, CPU, PSU, or storage only)
+  If a step-down component would save the user a meaningful amount while still adequately
+  serving their stated goal, and the estimated saving is under €75, populate downgrade_suggestion.
+  - Only suggest if the downgrade still meets the use case well (e.g. a 5000 MB/s NVMe
+    is more than enough when 7000 MB/s was recommended; a slightly lower PSU tier still
+    covers the system TDP safely; a one-tier-down GPU still handles 1440p at good framerates)
+  - Frame it clearly as a trade-off: the main build is more ideal; the downgrade is
+    adequate but slightly below the optimum
+  - Skip if the saving is trivial or the downgrade would noticeably compromise the goal
+
+  For both suggestions: provide an affiliate_url and affiliate_source using the same
+  store selection logic as the main build.

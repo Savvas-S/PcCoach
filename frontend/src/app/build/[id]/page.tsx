@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getBuild } from "@/lib/api";
-import type { BuildResult, ComponentRecommendation, UpgradeSuggestion } from "@/lib/api";
+import type { BuildResult, ComponentRecommendation, DowngradeSuggestion, UpgradeSuggestion } from "@/lib/api";
 
 const CATEGORY_LABELS: Record<string, string> = {
   cpu: "CPU",
@@ -122,6 +122,50 @@ function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
   );
 }
 
+function DowngradeCard({ suggestion }: { suggestion: DowngradeSuggestion }) {
+  return (
+    <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-medium text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">
+              Budget option
+            </span>
+            <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded-full uppercase">
+              {CATEGORY_LABELS[suggestion.component_category] || suggestion.component_category}
+            </span>
+          </div>
+          <p className="text-white font-semibold">
+            Consider {suggestion.downgrade_name}
+          </p>
+          <p className="text-gray-400 text-sm mt-1">
+            Instead of the {suggestion.current_name} — {suggestion.reason}
+          </p>
+          <p className="text-xs text-gray-500 mt-2">
+            The recommended build above is the most ideal for your budget. This option saves money but is a step down.
+            Price difference is estimated.
+          </p>
+        </div>
+        <div className="text-right shrink-0">
+          <div className="text-xl font-bold text-green-400">
+            Save ~&euro;{suggestion.savings_eur.toFixed(0)}
+          </div>
+          {suggestion.affiliate_url && (
+            <a
+              href={suggestion.affiliate_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block bg-green-700 hover:bg-green-600 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+            >
+              See option &rarr;
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function BuildResultPage() {
   const params = useParams();
   const [build, setBuild] = useState<BuildResult | null>(null);
@@ -209,9 +253,14 @@ export default function BuildResultPage() {
           ))}
         </div>
 
-        {build.upgrade_suggestion && (
-          <div className="mt-4">
-            <UpgradeCard suggestion={build.upgrade_suggestion} />
+        {(build.upgrade_suggestion || build.downgrade_suggestion) && (
+          <div className="mt-4 space-y-3">
+            {build.upgrade_suggestion && (
+              <UpgradeCard suggestion={build.upgrade_suggestion} />
+            )}
+            {build.downgrade_suggestion && (
+              <DowngradeCard suggestion={build.downgrade_suggestion} />
+            )}
           </div>
         )}
 
