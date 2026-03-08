@@ -101,7 +101,7 @@ class ComponentRecommendation(BaseModel):
 
 class BuildResult(BaseModel):
     """The full build recommendation returned to the user."""
-    id: int
+    id: str
     components: list[ComponentRecommendation] = []
     total_price_eur: float | None = None
     summary: str | None = Field(
