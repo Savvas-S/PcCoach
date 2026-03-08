@@ -62,7 +62,7 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
 
         <div className="text-right shrink-0">
           <div className="text-xl font-bold text-white">
-            &euro;{component.price_eur.toFixed(0)}
+            &euro;{component.price_eur.toFixed(2)}
           </div>
           {component.affiliate_url && (
             <a
@@ -86,11 +86,32 @@ export default function BuildResultPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const id = Number(params.id);
+    const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
+    const id = Number(rawId);
     if (!id) return;
-    getBuild(id)
+
+    // Use cached result from form submission to avoid a redundant GET request
+    const cached = sessionStorage.getItem("build_result");
+    if (cached) {
+      try {
+        const parsed: BuildResult = JSON.parse(cached);
+        if (parsed.id === id) {
+          sessionStorage.removeItem("build_result");
+          setBuild(parsed);
+          return;
+        }
+      } catch {
+        // ignore malformed cache
+      }
+    }
+
+    const controller = new AbortController();
+    getBuild(id, controller.signal)
       .then(setBuild)
-      .catch(() => setError("Build not found."));
+      .catch((err: Error) => {
+        if (err.name !== "AbortError") setError(err.message);
+      });
+    return () => controller.abort();
   }, [params.id]);
 
   if (error) {
@@ -127,7 +148,7 @@ export default function BuildResultPage() {
           <h1 className="text-3xl font-bold mt-4">Your Build</h1>
           {build.total_price_eur != null && (
             <p className="text-2xl text-blue-400 font-semibold mt-1">
-              Total: &euro;{build.total_price_eur.toFixed(0)}
+              Total: &euro;{build.total_price_eur.toFixed(2)}
             </p>
           )}
         </div>
@@ -148,8 +169,8 @@ export default function BuildResultPage() {
         )}
 
         <div className="space-y-3">
-          {build.components.map((c, i) => (
-            <ComponentCard key={i} component={c} />
+          {build.components.map((c) => (
+            <ComponentCard key={c.category} component={c} />
           ))}
         </div>
 
