@@ -24,7 +24,7 @@ content: |
 
   ### Downgrade suggestion (GPU, CPU, PSU, or storage only)
   If a step-down component would save the user a meaningful amount while still adequately
-  serving their stated goal, and the estimated saving is under €75, populate downgrade_suggestion.
+  serving their stated goal, and the estimated saving is under €100, populate downgrade_suggestion.
   - Only suggest if the downgrade still meets the use case well (e.g. a 5000 MB/s NVMe
     is more than enough when 7000 MB/s was recommended; a slightly lower PSU tier still
     covers the system TDP safely; a one-tier-down GPU still handles 1440p at good framerates)
