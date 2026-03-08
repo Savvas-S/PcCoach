@@ -23,50 +23,59 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 GOAL, BUDGET, FORM_FACTOR, CPU_BRAND, GPU_BRAND, PERIPHERALS, EXISTING_PARTS, NOTES = range(8)
 
 GOALS = [
-    ("🎮 High-End Gaming", "high_end_gaming"),
-    ("🎮 Mid-Range Gaming", "mid_range_gaming"),
-    ("🎮 Low-End Gaming", "low_end_gaming"),
-    ("💼 Light Work", "light_work"),
-    ("⚡ Heavy Work", "heavy_work"),
-    ("🎨 Designer", "designer"),
-    ("🏗️ Architecture", "architecture"),
+    ("🎮 Gaming — Play the latest games at max quality", "high_end_gaming"),
+    ("🎮 Gaming — Great performance, smart budget", "mid_range_gaming"),
+    ("🎮 Gaming — Casual games (Fortnite, Minecraft, CS2…)", "low_end_gaming"),
+    ("💼 Everyday use — Web, email, Office, Netflix", "light_work"),
+    ("⚡ Demanding work — Video editing, coding, many apps", "heavy_work"),
+    ("🎨 Creative — Photoshop, Illustrator, Premiere Pro", "designer"),
+    ("🏗️ Engineering — AutoCAD, 3D rendering, large files", "architecture"),
 ]
 
 BUDGETS = [
-    ("Under €1,000", "0_1000"),
-    ("€1,000 – €1,500", "1000_1500"),
-    ("€1,500 – €2,000", "1500_2000"),
-    ("€2,000 – €3,000", "2000_3000"),
-    ("€3,000+", "over_3000"),
+    ("Under €1,000 — Basic but capable", "0_1000"),
+    ("€1,000 – €1,500 — Best value sweet spot ⭐", "1000_1500"),
+    ("€1,500 – €2,000 — High performance", "1500_2000"),
+    ("€2,000 – €3,000 — Enthusiast grade", "2000_3000"),
+    ("€3,000+ — Absolute best, no limits", "over_3000"),
 ]
 
 FORM_FACTORS = [
-    ("ATX — Standard", "atx"),
-    ("Micro ATX — Compact", "micro_atx"),
-    ("Mini ITX — Small", "mini_itx"),
+    ("🖥️ Standard — Most popular, easiest to upgrade later", "atx"),
+    ("📦 Compact — Smaller, still very capable", "micro_atx"),
+    ("🤏 Mini — Tiny like a console, harder to upgrade", "mini_itx"),
 ]
 
 CPU_BRANDS = [
-    ("AMD", "amd"),
-    ("Intel", "intel"),
-    ("No preference", "no_preference"),
+    ("🤖 Best for my budget — let us decide (recommended)", "no_preference"),
+    ("🔴 AMD Ryzen — great value & multitasking", "amd"),
+    ("🔵 Intel Core — strong gaming & speed", "intel"),
 ]
 
 GPU_BRANDS = [
-    ("NVIDIA", "nvidia"),
-    ("AMD", "amd"),
-    ("No preference", "no_preference"),
+    ("🤖 Best for my budget — let us decide (recommended)", "no_preference"),
+    ("🟢 NVIDIA GeForce — best for gaming & AI features", "nvidia"),
+    ("🔴 AMD Radeon — solid alternative, great value", "amd"),
 ]
 
 COMPONENT_CATEGORIES = [
-    ("CPU", "cpu"),
-    ("GPU", "gpu"),
+    ("Processor (CPU)", "cpu"),
+    ("Graphics Card (GPU)", "gpu"),
     ("Motherboard", "motherboard"),
-    ("RAM", "ram"),
-    ("Storage", "storage"),
-    ("PSU", "psu"),
+    ("Memory (RAM)", "ram"),
+    ("Storage (SSD)", "storage"),
+    ("Power Supply", "psu"),
     ("Case", "case"),
-    ("Cooling", "cooling"),
+    ("CPU Cooler", "cooling"),
+]
+
+COMMON_NOTES = [
+    ("🔇 Keep it as quiet as possible", "Prefer quiet components, prioritise low noise"),
+    ("📶 Must have built-in Wi-Fi", "Must include Wi-Fi"),
+    ("💡 I want RGB lighting", "RGB lighting preferred"),
+    ("❄️ Water cooling is fine", "Water cooling is acceptable"),
+    ("⚡ Push performance as far as possible", "Maximise performance, stay within budget"),
+    ("💰 Squeeze every euro — best value only", "Best value for money, avoid overpriced parts"),
 ]
 
 CATEGORY_EMOJI = {
@@ -91,17 +100,19 @@ def _existing_parts_keyboard(selected: list[str]) -> InlineKeyboardMarkup:
         )]
         for label, value in COMPONENT_CATEGORIES
     ]
-    buttons.append([InlineKeyboardButton("Continue →", callback_data="ep_done")])
+    buttons.append([InlineKeyboardButton("I don't own any / Continue →", callback_data="ep_done")])
     return InlineKeyboardMarkup(buttons)
 
 
 async def start(update: Update, context) -> int:
     context.user_data.clear()
     await update.message.reply_text(
-        "👋 Welcome to *PcCoach*\\!\n\nI'll help you pick the perfect PC components\\. "
-        "Just answer a few questions and I'll generate a full build with prices and links\\.\n\n"
-        "*What's the main purpose of this PC?*",
-        parse_mode="MarkdownV2",
+        "👋 Hi! I'm <b>PcCoach</b>.\n\n"
+        "I'll help you build the perfect PC — just answer 8 quick questions "
+        "and I'll recommend the exact parts to buy, with prices and links to purchase them.\n\n"
+        "It takes about 1 minute. Let's go! 👇\n\n"
+        "<b>What will you mainly use this PC for?</b>",
+        parse_mode="HTML",
         reply_markup=_make_keyboard(GOALS, "goal_"),
     )
     return GOAL
@@ -112,8 +123,11 @@ async def goal_selected(update: Update, context) -> int:
     await query.answer()
     context.user_data["goal"] = query.data.removeprefix("goal_")
     await query.edit_message_text(
-        "💰 *What's your budget?*",
-        parse_mode="MarkdownV2",
+        "💰 <b>What's your total budget?</b>\n\n"
+        "This covers all the PC parts. Pick the range that feels comfortable.\n\n"
+        "💡 The <b>€1,000–€1,500</b> range is the sweet spot for most people — "
+        "great performance without overpaying.",
+        parse_mode="HTML",
         reply_markup=_make_keyboard(BUDGETS, "budget_"),
     )
     return BUDGET
@@ -124,8 +138,11 @@ async def budget_selected(update: Update, context) -> int:
     await query.answer()
     context.user_data["budget_range"] = query.data.removeprefix("budget_")
     await query.edit_message_text(
-        "🖥️ *What case size do you prefer?*",
-        parse_mode="MarkdownV2",
+        "📐 <b>How big should the PC be?</b>\n\n"
+        "This is about the physical size of the case that sits on or under your desk.\n\n"
+        "💡 Not sure? Go with <b>Standard</b> — it's the most popular choice and "
+        "easiest to upgrade later.",
+        parse_mode="HTML",
         reply_markup=_make_keyboard(FORM_FACTORS, "ff_"),
     )
     return FORM_FACTOR
@@ -136,8 +153,11 @@ async def form_factor_selected(update: Update, context) -> int:
     await query.answer()
     context.user_data["form_factor"] = query.data.removeprefix("ff_")
     await query.edit_message_text(
-        "⚙️ *CPU brand preference?*",
-        parse_mode="MarkdownV2",
+        "🧠 <b>Any preference for the processor brand?</b>\n\n"
+        "The processor is the brain of the PC. Both AMD and Intel are excellent — "
+        "the difference for most users is very small.\n\n"
+        "💡 If you're not sure, let us pick the best one for your budget.",
+        parse_mode="HTML",
         reply_markup=_make_keyboard(CPU_BRANDS, "cpu_"),
     )
     return CPU_BRAND
@@ -148,8 +168,11 @@ async def cpu_brand_selected(update: Update, context) -> int:
     await query.answer()
     context.user_data["cpu_brand"] = query.data.removeprefix("cpu_")
     await query.edit_message_text(
-        "🎮 *GPU brand preference?*",
-        parse_mode="MarkdownV2",
+        "🎮 <b>Any preference for the graphics card brand?</b>\n\n"
+        "The graphics card handles visuals — it's the most important part for gaming "
+        "and creative work.\n\n"
+        "💡 If you're not sure, let us pick the best value option for your budget.",
+        parse_mode="HTML",
         reply_markup=_make_keyboard(GPU_BRANDS, "gpu_"),
     )
     return GPU_BRAND
@@ -160,11 +183,13 @@ async def gpu_brand_selected(update: Update, context) -> int:
     await query.answer()
     context.user_data["gpu_brand"] = query.data.removeprefix("gpu_")
     await query.edit_message_text(
-        "🖱️ *Include peripherals?*\n\nMonitor, keyboard, and mouse\\.",
-        parse_mode="MarkdownV2",
+        "🖥️ <b>Do you need a monitor, keyboard and mouse included?</b>\n\n"
+        "If you already have these, say No and we'll spend the full budget on the PC itself.\n\n"
+        "Adding peripherals typically adds <b>€150–€400</b> depending on quality.",
+        parse_mode="HTML",
         reply_markup=InlineKeyboardMarkup([[
-            InlineKeyboardButton("✅ Yes", callback_data="periph_true"),
-            InlineKeyboardButton("❌ No", callback_data="periph_false"),
+            InlineKeyboardButton("✅ Yes, include them", callback_data="periph_true"),
+            InlineKeyboardButton("❌ No, I have them", callback_data="periph_false"),
         ]]),
     )
     return PERIPHERALS
@@ -176,21 +201,14 @@ async def peripherals_selected(update: Update, context) -> int:
     context.user_data["include_peripherals"] = query.data == "periph_true"
     context.user_data["existing_parts"] = []
     await query.edit_message_text(
-        "♻️ *Do you already own any of these parts?*\n\nSelect all that apply, then tap *Continue*\\.",
-        parse_mode="MarkdownV2",
+        "♻️ <b>Do you already own any of these parts?</b>\n\n"
+        "Tap anything you already have — we'll leave it out of the build "
+        "so you don't pay for something twice.\n\n"
+        "If you're starting from scratch, just tap <b>Continue</b>.",
+        parse_mode="HTML",
         reply_markup=_existing_parts_keyboard([]),
     )
     return EXISTING_PARTS
-
-
-COMMON_NOTES = [
-    ("🔇 Prefer quiet components", "Prefer quiet components"),
-    ("📶 Need Wi-Fi", "Need Wi-Fi"),
-    ("💡 RGB lighting", "RGB lighting preferred"),
-    ("❄️ Water cooling OK", "Water cooling is acceptable"),
-    ("⚡ Best performance possible", "Prioritise performance over everything else"),
-    ("💰 Best value for money", "Best value for money, avoid overpriced parts"),
-]
 
 
 async def existing_parts_toggle(update: Update, context) -> int:
@@ -202,10 +220,12 @@ async def existing_parts_toggle(update: Update, context) -> int:
             [InlineKeyboardButton(label, callback_data=f"note_{value}")]
             for label, value in COMMON_NOTES
         ]
-        buttons.append([InlineKeyboardButton("Skip →", callback_data="notes_skip")])
+        buttons.append([InlineKeyboardButton("No special preferences →", callback_data="notes_skip")])
         await query.edit_message_text(
-            "📝 *Any preferences?*\n\nPick one below or just type your own note\\.",
-            parse_mode="MarkdownV2",
+            "📝 <b>Any special preferences?</b>\n\n"
+            "Pick one below, or just type your own preference in plain text.\n\n"
+            "This is optional — if nothing applies just tap the last button.",
+            parse_mode="HTML",
             reply_markup=InlineKeyboardMarkup(buttons),
         )
         return NOTES
@@ -225,7 +245,10 @@ async def existing_parts_toggle(update: Update, context) -> int:
 
 async def notes_received(update: Update, context) -> int:
     context.user_data["notes"] = update.message.text
-    await update.message.reply_text("⚙️ Generating your build, this may take a moment…")
+    await update.message.reply_text(
+        "⚙️ <b>Building your PC recommendation…</b>\n\nThis usually takes 10–20 seconds.",
+        parse_mode="HTML",
+    )
     await _generate_and_reply(update.message.chat_id, context)
     return ConversationHandler.END
 
@@ -234,7 +257,10 @@ async def note_picked(update: Update, context) -> int:
     query = update.callback_query
     await query.answer()
     context.user_data["notes"] = query.data.removeprefix("note_")
-    await query.edit_message_text("⚙️ Generating your build, this may take a moment…")
+    await query.edit_message_text(
+        "⚙️ <b>Building your PC recommendation…</b>\n\nThis usually takes 10–20 seconds.",
+        parse_mode="HTML",
+    )
     await _generate_and_reply(query.message.chat_id, context)
     return ConversationHandler.END
 
@@ -243,7 +269,10 @@ async def notes_skipped(update: Update, context) -> int:
     query = update.callback_query
     await query.answer()
     context.user_data["notes"] = None
-    await query.edit_message_text("⚙️ Generating your build, this may take a moment…")
+    await query.edit_message_text(
+        "⚙️ <b>Building your PC recommendation…</b>\n\nThis usually takes 10–20 seconds.",
+        parse_mode="HTML",
+    )
     await _generate_and_reply(query.message.chat_id, context)
     return ConversationHandler.END
 
@@ -270,24 +299,28 @@ async def _generate_and_reply(chat_id: int, context) -> None:
         logger.error("API call failed: %s", e)
         await context.bot.send_message(
             chat_id,
-            "❌ Failed to generate build. Please try again with /build.",
+            "❌ Something went wrong generating your build. Please try again with /build.",
         )
         return
 
     total = build.get("total_price_eur") or sum(c["price_eur"] for c in build["components"])
 
     lines = [
-        "✅ <b>Your PC Build</b>\n",
+        "✅ <b>Your PC Build is ready!</b>\n",
         f"<i>{html.escape(build['summary'])}</i>\n",
+        "─────────────────────",
     ]
     for c in build["components"]:
         emoji = CATEGORY_EMOJI.get(c["category"], "•")
         lines.append(
-            f"{emoji} <b>{html.escape(c['name'])}</b> — €{c['price_eur']:.0f}\n"
-            f"   <a href='{c['affiliate_url']}'>{c['affiliate_source']}</a>"
+            f"{emoji} <b>{html.escape(c['name'])}</b>\n"
+            f"   💶 €{c['price_eur']:.0f} — "
+            f"<a href='{html.escape(c['affiliate_url'])}'>Buy on {c['affiliate_source']}</a>"
         )
-    lines.append(f"\n💰 <b>Total: €{total:.0f}</b>")
-    lines.append("<i>Tap any link to buy the component.</i>")
+    lines.append("─────────────────────")
+    lines.append(f"💰 <b>Total: €{total:.0f}</b>")
+    lines.append("\n<i>Tap any link to go to the store and buy that part.</i>")
+    lines.append("<i>Type /build anytime to start a new recommendation.</i>")
 
     try:
         await context.bot.send_message(
@@ -298,11 +331,16 @@ async def _generate_and_reply(chat_id: int, context) -> None:
         )
     except Exception as e:
         logger.error("Failed to send build result: %s", e)
-        await context.bot.send_message(chat_id, "❌ Failed to send result. Please try /build again.")
+        await context.bot.send_message(
+            chat_id,
+            "❌ Failed to send the result. Please try /build again.",
+        )
 
 
 async def cancel(update: Update, context) -> int:
-    await update.message.reply_text("Cancelled. Type /build to start a new build.")
+    await update.message.reply_text(
+        "No problem! Type /build whenever you're ready to start again.",
+    )
     return ConversationHandler.END
 
 
