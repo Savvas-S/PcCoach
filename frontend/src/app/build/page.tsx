@@ -35,13 +35,13 @@ const GOALS: { value: UserGoal; label: string; desc: string; icon: string }[] =
     },
     {
       value: "light_work",
-      label: "Light Work",
+      label: "Everyday Use",
       desc: "Office, web, video calls",
       icon: "💼",
     },
     {
       value: "heavy_work",
-      label: "Heavy Work",
+      label: "Power User",
       desc: "Video editing, rendering, VMs",
       icon: "⚙️",
     },
@@ -53,11 +53,20 @@ const GOALS: { value: UserGoal; label: string; desc: string; icon: string }[] =
     },
     {
       value: "architecture",
-      label: "Architecture",
+      label: "Engineering",
       desc: "CAD, AutoCAD, Revit",
       icon: "🏗️",
     },
   ];
+
+// Goals available per budget — mirrors the Telegram bot logic
+const BUDGET_GOALS: Record<BudgetRange, UserGoal[]> = {
+  "0_1000":    ["low_end_gaming", "light_work"],
+  "1000_1500": ["mid_range_gaming", "light_work", "heavy_work", "designer", "architecture"],
+  "1500_2000": ["high_end_gaming", "mid_range_gaming", "light_work", "heavy_work", "designer", "architecture"],
+  "2000_3000": ["high_end_gaming", "heavy_work", "designer", "architecture"],
+  "over_3000": ["high_end_gaming", "heavy_work", "designer", "architecture"],
+};
 
 const BUDGETS: { value: BudgetRange; label: string }[] = [
   { value: "0_1000", label: "Under €1,000" },
@@ -75,8 +84,8 @@ const FORM_FACTORS: { value: FormFactor; label: string }[] = [
 
 const CPU_BRANDS: { value: CPUBrand; label: string }[] = [
   { value: "no_preference", label: "No Preference" },
-  { value: "intel", label: "Intel" },
   { value: "amd", label: "AMD" },
+  { value: "intel", label: "Intel" },
 ];
 
 const GPU_BRANDS: { value: GPUBrand; label: string }[] = [
@@ -104,14 +113,26 @@ export default function BuildPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [goal, setGoal] = useState<UserGoal | null>(null);
   const [budget, setBudget] = useState<BudgetRange | null>(null);
+  const [goal, setGoal] = useState<UserGoal | null>(null);
   const [formFactor, setFormFactor] = useState<FormFactor>("atx");
   const [cpuBrand, setCpuBrand] = useState<CPUBrand>("no_preference");
   const [gpuBrand, setGpuBrand] = useState<GPUBrand>("no_preference");
   const [includePeripherals, setIncludePeripherals] = useState(false);
   const [existingParts, setExistingParts] = useState<ComponentCategory[]>([]);
   const [notes, setNotes] = useState("");
+
+  const handleBudgetChange = (b: BudgetRange) => {
+    setBudget(b);
+    // Clear goal if it's no longer valid for the new budget
+    if (goal && !BUDGET_GOALS[b].includes(goal)) {
+      setGoal(null);
+    }
+  };
+
+  const filteredGoals = budget
+    ? GOALS.filter((g) => BUDGET_GOALS[budget].includes(g.value))
+    : [];
 
   const toggleExistingPart = (cat: ComponentCategory) => {
     setExistingParts((prev) =>
@@ -170,32 +191,7 @@ export default function BuildPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-12">
-          {/* Goal */}
-          <section>
-            <h2 className="text-lg font-semibold mb-4">
-              What will you use it for?
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {GOALS.map((g) => (
-                <button
-                  key={g.value}
-                  type="button"
-                  onClick={() => setGoal(g.value)}
-                  className={`p-4 rounded-xl border text-left transition-all ${
-                    goal === g.value
-                      ? "border-blue-500 bg-blue-500/10"
-                      : "border-gray-700 bg-gray-800 hover:border-gray-500"
-                  }`}
-                >
-                  <div className="text-2xl mb-2">{g.icon}</div>
-                  <div className="font-medium text-sm">{g.label}</div>
-                  <div className="text-gray-400 text-xs mt-1">{g.desc}</div>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {/* Budget */}
+          {/* Budget — first, so goals can be filtered */}
           <section>
             <h2 className="text-lg font-semibold mb-4">
               What&apos;s your budget?
@@ -205,7 +201,7 @@ export default function BuildPage() {
                 <button
                   key={b.value}
                   type="button"
-                  onClick={() => setBudget(b.value)}
+                  onClick={() => handleBudgetChange(b.value)}
                   className={`p-4 rounded-xl border text-center font-medium transition-all ${
                     budget === b.value
                       ? "border-blue-500 bg-blue-500/10 text-blue-400"
@@ -216,6 +212,37 @@ export default function BuildPage() {
                 </button>
               ))}
             </div>
+          </section>
+
+          {/* Goal — filtered based on selected budget */}
+          <section>
+            <h2 className="text-lg font-semibold mb-1">
+              What will you use it for?
+            </h2>
+            {!budget ? (
+              <p className="text-gray-500 text-sm mt-2">
+                Select a budget above to see available options.
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+                {filteredGoals.map((g) => (
+                  <button
+                    key={g.value}
+                    type="button"
+                    onClick={() => setGoal(g.value)}
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      goal === g.value
+                        ? "border-blue-500 bg-blue-500/10"
+                        : "border-gray-700 bg-gray-800 hover:border-gray-500"
+                    }`}
+                  >
+                    <div className="text-2xl mb-2">{g.icon}</div>
+                    <div className="font-medium text-sm">{g.label}</div>
+                    <div className="text-gray-400 text-xs mt-1">{g.desc}</div>
+                  </button>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* Preferences */}
@@ -366,11 +393,9 @@ export default function BuildPage() {
             </button>
             {(!goal || !budget) && !loading && (
               <p className="text-center text-gray-500 text-sm mt-2">
-                {!goal && !budget
-                  ? "Select a goal and budget to continue"
-                  : !goal
-                  ? "Select a goal to continue"
-                  : "Select a budget to continue"}
+                {!budget
+                  ? "Select a budget to continue"
+                  : "Select a goal to continue"}
               </p>
             )}
           </div>

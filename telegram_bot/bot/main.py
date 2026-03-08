@@ -163,7 +163,8 @@ async def budget_selected(update: Update, context) -> int:
     query = update.callback_query
     await query.answer()
     context.user_data["budget_range"] = query.data.removeprefix("budget_")
-    goals = BUDGET_GOALS[context.user_data["budget_range"]]
+    fallback_goals = [g for goals in BUDGET_GOALS.values() for g in goals]
+    goals = BUDGET_GOALS.get(context.user_data["budget_range"], fallback_goals)
     await query.edit_message_text(
         "🎯 <b>What will you mainly use this PC for?</b>\n\n"
         "Based on your budget, here are the best-fit options for you.",

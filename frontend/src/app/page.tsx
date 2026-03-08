@@ -5,7 +5,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-900 text-white">
       <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 text-sm text-blue-400">
-          AI-powered &bull; Cyprus Market
+          AI-powered &bull; Free to use
         </div>
 
         <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent">
@@ -14,7 +14,7 @@ export default function Home() {
 
         <p className="text-xl text-gray-400 max-w-xl mb-10">
           Tell us your needs and budget. Our AI recommends the best components
-          with the best prices available in Cyprus.
+          with the best prices from trusted European stores.
         </p>
 
         <Link
