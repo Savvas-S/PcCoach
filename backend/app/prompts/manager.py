@@ -12,6 +12,7 @@ SECTION_ORDER = [
     "goals",
     "stores",
     "rules",
+    "compatibility",
 ]
 
 
