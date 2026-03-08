@@ -19,9 +19,9 @@ help:
 	@echo "  make shell-backend    Open shell in backend container"
 	@echo "  make shell-frontend   Open shell in frontend container"
 	@echo ""
-	@echo "  make init             Copy .env.example to .env (skips if .env already exists)
-  make deploy           Pull latest changes and restart production containers
-  make test             Run backend tests"
+	@echo "  make init             Copy .env.example to .env (skips if .env already exists)"
+	@echo "  make deploy           Pull latest changes and restart production containers"
+	@echo "  make test             Run backend tests"
 	@echo "  make lint             Run backend linters"
 	@echo "  make lock             Generate/update uv.lock and package-lock.json"
 
