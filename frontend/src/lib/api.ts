@@ -61,18 +61,40 @@ export interface BuildResult {
   status: "pending" | "completed" | "failed";
 }
 
-export async function submitBuild(request: BuildRequest): Promise<BuildResult> {
+async function parseError(res: Response, fallback: string): Promise<string> {
+  try {
+    const body = await res.json();
+    return body?.detail ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export async function submitBuild(
+  request: BuildRequest,
+  signal?: AbortSignal
+): Promise<BuildResult> {
   const res = await fetch(`${API_URL}/api/v1/build`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),
+    signal,
   });
-  if (!res.ok) throw new Error("Failed to submit build");
+  if (!res.ok) {
+    const msg = await parseError(res, "Failed to submit build");
+    throw new Error(msg);
+  }
   return res.json();
 }
 
-export async function getBuild(id: number): Promise<BuildResult> {
-  const res = await fetch(`${API_URL}/api/v1/build/${id}`);
-  if (!res.ok) throw new Error("Build not found");
+export async function getBuild(
+  id: number,
+  signal?: AbortSignal
+): Promise<BuildResult> {
+  const res = await fetch(`${API_URL}/api/v1/build/${id}`, { signal });
+  if (!res.ok) {
+    const msg = await parseError(res, "Build not found");
+    throw new Error(msg);
+  }
   return res.json();
 }

@@ -126,21 +126,32 @@ export default function BuildPage() {
     setLoading(true);
     setError(null);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120_000);
+
     try {
-      const result = await submitBuild({
-        goal,
-        budget_range: budget,
-        form_factor: formFactor,
-        cpu_brand: cpuBrand,
-        gpu_brand: gpuBrand,
-        include_peripherals: includePeripherals,
-        existing_parts: existingParts,
-        notes: notes || undefined,
-      });
+      const result = await submitBuild(
+        {
+          goal,
+          budget_range: budget,
+          form_factor: formFactor,
+          cpu_brand: cpuBrand,
+          gpu_brand: gpuBrand,
+          include_peripherals: includePeripherals,
+          existing_parts: existingParts,
+          notes: notes || undefined,
+        },
+        controller.signal
+      );
+      sessionStorage.setItem("build_result", JSON.stringify(result));
       router.push(`/build/${result.id}`);
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setError(msg);
       setLoading(false);
+    } finally {
+      clearTimeout(timeout);
     }
   };
 
@@ -345,13 +356,24 @@ export default function BuildPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={!goal || !budget || loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl text-lg transition-colors"
-          >
-            {loading ? "Generating your build..." : "Build My PC \u2192"}
-          </button>
+          <div>
+            <button
+              type="submit"
+              disabled={!goal || !budget || loading}
+              className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl text-lg transition-colors"
+            >
+              {loading ? "Generating your build… this may take ~30s" : "Build My PC \u2192"}
+            </button>
+            {(!goal || !budget) && !loading && (
+              <p className="text-center text-gray-500 text-sm mt-2">
+                {!goal && !budget
+                  ? "Select a goal and budget to continue"
+                  : !goal
+                  ? "Select a goal to continue"
+                  : "Select a budget to continue"}
+              </p>
+            )}
+          </div>
         </form>
       </div>
     </main>
