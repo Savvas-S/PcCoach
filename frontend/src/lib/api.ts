@@ -52,6 +52,16 @@ export interface ComponentRecommendation {
   affiliate_source?: string;
 }
 
+export interface DowngradeSuggestion {
+  component_category: ComponentCategory;
+  current_name: string;
+  downgrade_name: string;
+  savings_eur: number;
+  reason: string;
+  affiliate_url?: string;
+  affiliate_source?: string;
+}
+
 export interface UpgradeSuggestion {
   component_category: ComponentCategory;
   current_name: string;
@@ -68,6 +78,7 @@ export interface BuildResult {
   total_price_eur?: number;
   summary?: string;
   upgrade_suggestion?: UpgradeSuggestion;
+  downgrade_suggestion?: DowngradeSuggestion;
   status: "pending" | "completed" | "failed";
 }
 
