@@ -95,7 +95,7 @@ class ComponentRecommendation(BaseModel):
     )
     affiliate_url: HttpUrl | None = None
     affiliate_source: str | None = Field(
-        None, description="e.g. 'skroutz', 'amazon'"
+        None, description="e.g. 'amazon', 'computeruniverse', 'caseking'"
     )
 
 

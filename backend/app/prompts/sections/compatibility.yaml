@@ -40,6 +40,6 @@ content: |
   - List them as separate components in the components array under the "cooling" category
 
   ### Cooling preference
-  - cooling_preference = "liquid" → recommend an AIO liquid cooler (240 mm or 360 mm); ensure the case mounts that radiator size
-  - cooling_preference = "air"    → recommend a quality tower air cooler; verify case height clearance
-  - cooling_preference = "no_preference" → pick whichever gives better value for the build tier
+  - Cooling preference: liquid      → recommend an AIO liquid cooler (240 mm or 360 mm); ensure the case mounts that radiator size
+  - Cooling preference: air         → recommend a quality tower air cooler; verify case height clearance
+  - Cooling preference: no_preference → pick whichever gives better value for the build tier

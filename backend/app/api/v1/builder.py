@@ -25,18 +25,13 @@ async def create_build(payload: BuildRequest) -> BuildResult:
             summary=summary,
             status=BuildStatus.completed,
         )
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Failed to generate build: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=502, detail="Failed to generate build. Please try again.")
 
     _builds[build_id] = build
     if len(_builds) > _MAX_BUILDS:
         del _builds[next(iter(_builds))]
     return build
-
-
-@router.get("", response_model=list[BuildResult])
-async def list_builds() -> list[BuildResult]:
-    return list(_builds.values())
 
 
 @router.get("/{build_id}", response_model=BuildResult)

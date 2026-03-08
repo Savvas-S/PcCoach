@@ -7,7 +7,7 @@ from app.config import settings
 from app.models.builder import BuildRequest, ComponentRecommendation
 from app.prompts.manager import build_system_prompt
 
-_MODEL = "claude-haiku-4-5-20251001"
+_MODEL = "claude-sonnet-4-6"
 _TIMEOUT = 60.0
 
 BUILD_TOOL = {
@@ -39,7 +39,7 @@ BUILD_TOOL = {
                             "type": "object",
                             "additionalProperties": {"type": "string"},
                         },
-                        "affiliate_url": {"type": "string"},
+                        "affiliate_url": {"type": "string", "format": "uri"},
                         "affiliate_source": {
                             "type": "string",
                             "enum": ["computeruniverse", "caseking", "amazon"],
@@ -69,7 +69,8 @@ class ClaudeService:
         - GPU brand preference: {request.gpu_brand.value}
         - Cooling preference: {request.cooling_preference.value}
         - Include peripherals: {request.include_peripherals}
-        - Parts already owned (exclude these): {[p.value for p in request.existing_parts] or 'none'}"""
+        - Parts already owned (exclude these): {[p.value for p in request.existing_parts] or 'none'}
+        - Additional notes: {request.notes or 'none'}"""
 
         response = await self.client.messages.create(
             model=self.model,
