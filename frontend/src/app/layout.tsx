@@ -17,7 +17,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <footer className="text-center text-gray-500 text-xs py-6 px-4">
+          As an Amazon Associate I earn from qualifying purchases.
+        </footer>
+      </body>
     </html>
   );
 }
