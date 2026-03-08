@@ -8,7 +8,7 @@ from app.models.builder import BuildRequest, ComponentRecommendation, DowngradeS
 from app.prompts.manager import build_system_prompt
 
 _MODEL = "claude-sonnet-4-6"
-_TIMEOUT = 60.0
+_TIMEOUT = 90.0
 
 BUILD_TOOL = {
     "name": "recommend_build",
@@ -48,52 +48,52 @@ BUILD_TOOL = {
                     "required": ["category", "name", "brand", "price_eur", "specs", "affiliate_url", "affiliate_source"],
                 },
             },
-        },
-        "upgrade_suggestion": {
-            "type": "object",
-            "description": "Optional single-component upgrade if it meaningfully improves the build for under €75 extra",
-            "properties": {
-                "component_category": {
-                    "type": "string",
-                    "enum": ["cpu", "gpu"],
+            "upgrade_suggestion": {
+                "type": "object",
+                "description": "Optional single-component upgrade if it meaningfully improves the build for under €75 extra",
+                "properties": {
+                    "component_category": {
+                        "type": "string",
+                        "enum": ["cpu", "gpu"],
+                    },
+                    "current_name": {"type": "string"},
+                    "upgrade_name": {"type": "string"},
+                    "extra_cost_eur": {"type": "number"},
+                    "reason": {
+                        "type": "string",
+                        "description": "One sentence explaining why the upgrade is worth it",
+                    },
+                    "affiliate_url": {"type": "string", "format": "uri"},
+                    "affiliate_source": {
+                        "type": "string",
+                        "enum": ["computeruniverse", "caseking", "amazon"],
+                    },
                 },
-                "current_name": {"type": "string"},
-                "upgrade_name": {"type": "string"},
-                "extra_cost_eur": {"type": "number"},
-                "reason": {
-                    "type": "string",
-                    "description": "One sentence explaining why the upgrade is worth it",
-                },
-                "affiliate_url": {"type": "string", "format": "uri"},
-                "affiliate_source": {
-                    "type": "string",
-                    "enum": ["computeruniverse", "caseking", "amazon"],
-                },
+                "required": ["component_category", "current_name", "upgrade_name", "extra_cost_eur", "reason", "affiliate_url", "affiliate_source"],
             },
-            "required": ["component_category", "current_name", "upgrade_name", "extra_cost_eur", "reason", "affiliate_url", "affiliate_source"],
-        },
-        "downgrade_suggestion": {
-            "type": "object",
-            "description": "Optional single-component downgrade that saves money while still adequately meeting the use case",
-            "properties": {
-                "component_category": {
-                    "type": "string",
-                    "enum": ["cpu", "gpu", "psu", "storage"],
+            "downgrade_suggestion": {
+                "type": "object",
+                "description": "Optional single-component downgrade that saves money while still adequately meeting the use case",
+                "properties": {
+                    "component_category": {
+                        "type": "string",
+                        "enum": ["cpu", "gpu", "psu", "storage"],
+                    },
+                    "current_name": {"type": "string"},
+                    "downgrade_name": {"type": "string"},
+                    "savings_eur": {"type": "number"},
+                    "reason": {
+                        "type": "string",
+                        "description": "One sentence explaining the trade-off — what is saved and what is slightly compromised",
+                    },
+                    "affiliate_url": {"type": "string", "format": "uri"},
+                    "affiliate_source": {
+                        "type": "string",
+                        "enum": ["computeruniverse", "caseking", "amazon"],
+                    },
                 },
-                "current_name": {"type": "string"},
-                "downgrade_name": {"type": "string"},
-                "savings_eur": {"type": "number"},
-                "reason": {
-                    "type": "string",
-                    "description": "One sentence explaining the trade-off — what is saved and what is slightly compromised",
-                },
-                "affiliate_url": {"type": "string", "format": "uri"},
-                "affiliate_source": {
-                    "type": "string",
-                    "enum": ["computeruniverse", "caseking", "amazon"],
-                },
+                "required": ["component_category", "current_name", "downgrade_name", "savings_eur", "reason", "affiliate_url", "affiliate_source"],
             },
-            "required": ["component_category", "current_name", "downgrade_name", "savings_eur", "reason", "affiliate_url", "affiliate_source"],
         },
         "required": ["summary", "components"],
     },
