@@ -39,6 +39,12 @@ class GPUBrand(str, Enum):
     no_preference = "no_preference"
 
 
+class CoolingPreference(str, Enum):
+    no_preference = "no_preference"
+    liquid = "liquid"
+    air = "air"
+
+
 class ComponentCategory(str, Enum):
     cpu = "cpu"
     gpu = "gpu"
@@ -66,6 +72,7 @@ class BuildRequest(BaseModel):
     form_factor: FormFactor = FormFactor.atx
     cpu_brand: CPUBrand = CPUBrand.no_preference
     gpu_brand: GPUBrand = GPUBrand.no_preference
+    cooling_preference: CoolingPreference = CoolingPreference.no_preference
     include_peripherals: bool = Field(
         False, description="Include monitor, keyboard, and mouse"
     )

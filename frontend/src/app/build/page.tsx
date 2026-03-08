@@ -10,6 +10,7 @@ import type {
   FormFactor,
   CPUBrand,
   GPUBrand,
+  CoolingPreference,
   ComponentCategory,
 } from "@/lib/api";
 
@@ -94,6 +95,12 @@ const GPU_BRANDS: { value: GPUBrand; label: string }[] = [
   { value: "amd", label: "AMD" },
 ];
 
+const COOLING_PREFERENCES: { value: CoolingPreference; label: string; desc: string }[] = [
+  { value: "no_preference", label: "No Preference", desc: "We'll pick best value" },
+  { value: "liquid", label: "Liquid AIO", desc: "Quieter & better thermals" },
+  { value: "air", label: "Air Cooler", desc: "Reliable & cost-effective" },
+];
+
 const COMPONENT_CATEGORIES: { value: ComponentCategory; label: string }[] = [
   { value: "cpu", label: "CPU" },
   { value: "gpu", label: "GPU" },
@@ -118,6 +125,7 @@ export default function BuildPage() {
   const [formFactor, setFormFactor] = useState<FormFactor>("atx");
   const [cpuBrand, setCpuBrand] = useState<CPUBrand>("no_preference");
   const [gpuBrand, setGpuBrand] = useState<GPUBrand>("no_preference");
+  const [coolingPreference, setCoolingPreference] = useState<CoolingPreference>("no_preference");
   const [includePeripherals, setIncludePeripherals] = useState(false);
   const [existingParts, setExistingParts] = useState<ComponentCategory[]>([]);
 
@@ -157,6 +165,7 @@ export default function BuildPage() {
           form_factor: formFactor,
           cpu_brand: cpuBrand,
           gpu_brand: gpuBrand,
+          cooling_preference: coolingPreference,
           include_peripherals: includePeripherals,
           existing_parts: existingParts,
         },
@@ -246,7 +255,7 @@ export default function BuildPage() {
           {/* Preferences */}
           <section>
             <h2 className="text-lg font-semibold mb-4">Preferences</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
                 <label className="text-sm text-gray-400 mb-2 block">
                   Form Factor
@@ -308,6 +317,29 @@ export default function BuildPage() {
                       }`}
                     >
                       {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-400 mb-2 block">
+                  Cooling
+                </label>
+                <div className="space-y-2">
+                  {COOLING_PREFERENCES.map((c) => (
+                    <button
+                      key={c.value}
+                      type="button"
+                      onClick={() => setCoolingPreference(c.value)}
+                      className={`w-full p-3 rounded-lg border text-sm text-left transition-all ${
+                        coolingPreference === c.value
+                          ? "border-blue-500 bg-blue-500/10"
+                          : "border-gray-700 bg-gray-800 hover:border-gray-500"
+                      }`}
+                    >
+                      <div>{c.label}</div>
+                      <div className="text-gray-400 text-xs mt-0.5">{c.desc}</div>
                     </button>
                   ))}
                 </div>

@@ -67,6 +67,7 @@ class ClaudeService:
         - Form factor: {request.form_factor.value}
         - CPU brand preference: {request.cpu_brand.value}
         - GPU brand preference: {request.gpu_brand.value}
+        - Cooling preference: {request.cooling_preference.value}
         - Include peripherals: {request.include_peripherals}
         - Parts already owned (exclude these): {[p.value for p in request.existing_parts] or 'none'}"""
 

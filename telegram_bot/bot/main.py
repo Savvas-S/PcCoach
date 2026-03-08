@@ -20,7 +20,7 @@ API_URL = os.getenv("API_URL", "http://backend:8000")
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 # Conversation states
-GOAL, BUDGET, FORM_FACTOR, CPU_BRAND, GPU_BRAND, PERIPHERALS, EXISTING_PARTS, NOTES = range(8)
+GOAL, BUDGET, FORM_FACTOR, CPU_BRAND, GPU_BRAND, COOLING_PREFERENCE, PERIPHERALS, EXISTING_PARTS, NOTES = range(9)
 
 # Goals available per budget range — prevents mismatched combinations
 BUDGET_GOALS: dict[str, list[tuple[str, str]]] = {
@@ -83,6 +83,12 @@ GPU_BRANDS = [
     ("🔴 AMD Radeon — solid, great value", "amd"),
 ]
 
+COOLING_OPTIONS = [
+    ("🤖 Let us choose — best for your build ★", "no_preference"),
+    ("❄️ Liquid AIO — quieter & better thermals", "liquid"),
+    ("💨 Air cooler — reliable & cost-effective", "air"),
+]
+
 COMPONENT_CATEGORIES = [
     ("Processor (CPU)", "cpu"),
     ("Graphics Card (GPU)", "gpu"),
@@ -99,7 +105,6 @@ COMMON_NOTES = [
     ("🔇 Quiet — minimal fan noise", "Quiet/silent components, low noise"),
     ("📶 Must have built-in Wi-Fi", "Must include built-in Wi-Fi"),
     ("💡 I want RGB lighting", "RGB lighting preferred"),
-    ("❄️ Water cooling is fine", "Water cooling is acceptable"),
     ("⚡ Max performance", "Maximise performance within budget"),
     ("💰 Best value only", "Best value, avoid overpriced parts"),
 ]
@@ -224,6 +229,21 @@ async def gpu_brand_selected(update: Update, context) -> int:
     await query.answer()
     context.user_data["gpu_brand"] = query.data.removeprefix("gpu_")
     await query.edit_message_text(
+        "❄️ <b>What cooling do you prefer?</b>\n\n"
+        "<b>Liquid AIO</b> — quieter and keeps temperatures lower, ideal for high-end builds.\n"
+        "<b>Air cooler</b> — reliable, no risk of leaks, and great value.\n\n"
+        "💡 Not sure? Let us pick the best option for your build.",
+        parse_mode="HTML",
+        reply_markup=_make_keyboard(COOLING_OPTIONS, "cool_"),
+    )
+    return COOLING_PREFERENCE
+
+
+async def cooling_selected(update: Update, context) -> int:
+    query = update.callback_query
+    await query.answer()
+    context.user_data["cooling_preference"] = query.data.removeprefix("cool_")
+    await query.edit_message_text(
         "🖥️ <b>Do you need a monitor, keyboard and mouse included?</b>\n\n"
         "If you already have these, say No and we'll spend the full budget on the PC itself.\n\n"
         "Adding peripherals typically adds <b>€150–€400</b> depending on quality.",
@@ -334,6 +354,7 @@ async def _generate_and_reply(chat_id: int, context) -> None:
         "form_factor": data["form_factor"],
         "cpu_brand": data["cpu_brand"],
         "gpu_brand": data["gpu_brand"],
+        "cooling_preference": data.get("cooling_preference", "no_preference"),
         "include_peripherals": data["include_peripherals"],
         "existing_parts": data.get("existing_parts", []),
         "notes": data.get("notes"),
@@ -414,8 +435,9 @@ def main() -> None:
             BUDGET:         [CallbackQueryHandler(budget_selected, pattern="^budget_")],
             FORM_FACTOR:    [CallbackQueryHandler(form_factor_selected, pattern="^ff_")],
             CPU_BRAND:      [CallbackQueryHandler(cpu_brand_selected, pattern="^cpu_")],
-            GPU_BRAND:      [CallbackQueryHandler(gpu_brand_selected, pattern="^gpu_")],
-            PERIPHERALS:    [CallbackQueryHandler(peripherals_selected, pattern="^periph_")],
+            GPU_BRAND:         [CallbackQueryHandler(gpu_brand_selected, pattern="^gpu_")],
+            COOLING_PREFERENCE:[CallbackQueryHandler(cooling_selected, pattern="^cool_")],
+            PERIPHERALS:       [CallbackQueryHandler(peripherals_selected, pattern="^periph_")],
             EXISTING_PARTS: [CallbackQueryHandler(existing_parts_toggle, pattern="^ep_")],
             NOTES: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, notes_received),

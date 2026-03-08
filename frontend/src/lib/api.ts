@@ -17,6 +17,7 @@ export type BudgetRange =
 export type FormFactor = "atx" | "micro_atx" | "mini_itx";
 export type CPUBrand = "intel" | "amd" | "no_preference";
 export type GPUBrand = "nvidia" | "amd" | "no_preference";
+export type CoolingPreference = "no_preference" | "liquid" | "air";
 export type ComponentCategory =
   | "cpu"
   | "gpu"
@@ -36,9 +37,9 @@ export interface BuildRequest {
   form_factor?: FormFactor;
   cpu_brand?: CPUBrand;
   gpu_brand?: GPUBrand;
+  cooling_preference?: CoolingPreference;
   include_peripherals?: boolean;
   existing_parts?: ComponentCategory[];
-  notes?: string;
 }
 
 export interface ComponentRecommendation {
