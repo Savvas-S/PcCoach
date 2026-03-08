@@ -73,7 +73,7 @@ class BuildRequest(BaseModel):
         default_factory=list,
         description="Categories the customer already owns and wants to exclude",
     )
-    notes: str | None = Field(None, min_length=3, max_length=500)
+    notes: str | None = Field(None, max_length=500)
 
 
 class ComponentRecommendation(BaseModel):

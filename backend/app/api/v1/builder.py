@@ -27,8 +27,6 @@ async def create_build(payload: BuildRequest) -> BuildResult:
             status=BuildStatus.completed,
         )
     except Exception as e:
-        build = BuildResult(id=build_id, status=BuildStatus.failed)
-        _builds[build_id] = build
         raise HTTPException(status_code=502, detail=f"Failed to generate build: {str(e)}")
 
     _builds[build_id] = build

@@ -253,7 +253,13 @@ async def existing_parts_toggle(update: Update, context) -> int:
 
 
 async def notes_received(update: Update, context) -> int:
-    context.user_data["notes"] = update.message.text
+    typed = update.message.text
+    selected = context.user_data.get("selected_notes", [])
+    if selected:
+        selected_texts = ", ".join(COMMON_NOTES[i][1] for i in sorted(selected))
+        context.user_data["notes"] = f"{selected_texts}, {typed}"
+    else:
+        context.user_data["notes"] = typed
     await update.message.reply_text(
         "⚙️ <b>Building your PC recommendation…</b>\n\nThis usually takes 10–20 seconds.",
         parse_mode="HTML",
@@ -306,7 +312,7 @@ async def _generate_and_reply(chat_id: int, context) -> None:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=90.0) as client:
+        async with httpx.AsyncClient(timeout=70.0) as client:
             r = await client.post(f"{API_URL}/api/v1/build", json=payload)
             r.raise_for_status()
             build = r.json()
@@ -327,10 +333,15 @@ async def _generate_and_reply(chat_id: int, context) -> None:
     ]
     for c in build["components"]:
         emoji = CATEGORY_EMOJI.get(c["category"], "•")
+        url = c.get("affiliate_url")
+        source = c.get("affiliate_source") or "store"
+        if url:
+            buy = f" — <a href='{html.escape(str(url))}'>Buy on {html.escape(source)}</a>"
+        else:
+            buy = f" — {html.escape(source)}"
         lines.append(
             f"{emoji} <b>{html.escape(c['name'])}</b>\n"
-            f"   💶 €{c['price_eur']:.0f} — "
-            f"<a href='{html.escape(c['affiliate_url'])}'>Buy on {c['affiliate_source']}</a>"
+            f"   💶 €{c['price_eur']:.0f}{buy}"
         )
     lines.append("─────────────────────")
     lines.append(f"💰 <b>Total: €{total:.0f}</b>")

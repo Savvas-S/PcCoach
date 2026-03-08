@@ -21,14 +21,14 @@ if [[ -z "${CERTBOT_EMAIL:-}" ]]; then
   fi
 fi
 
-# --- Check containers are running ---
-echo "==> Checking containers..."
-if ! docker ps --format '{{.Names}}' | grep -q "pccoach-backend"; then
-  echo "Error: backend container is not running. Run 'make up' first." >&2
+# --- Check services are responding ---
+echo "==> Checking services..."
+if ! curl -sf --max-time 5 http://localhost:8000/health > /dev/null 2>&1; then
+  echo "Error: backend is not responding on :8000. Run 'make up' and wait for it to be healthy." >&2
   exit 1
 fi
-if ! docker ps --format '{{.Names}}' | grep -q "pccoach-frontend"; then
-  echo "Error: frontend container is not running. Run 'make up' first." >&2
+if ! curl -sf --max-time 5 http://localhost:3000 > /dev/null 2>&1; then
+  echo "Error: frontend is not responding on :3000. Run 'make up' and wait for it to be healthy." >&2
   exit 1
 fi
 
@@ -94,4 +94,4 @@ certbot --nginx -d "$DOMAIN" -d "$WWW_DOMAIN" \
 # --- Final health check ---
 echo ""
 echo "==> Testing HTTPS endpoint..."
-curl -sf "https://$DOMAIN/health" && echo " <- health check passed" || echo " <- health check failed (run: make logs)"
+curl -sf --max-time 10 "https://$DOMAIN/health" && echo " <- health check passed" || echo " <- health check failed (run: make logs)"

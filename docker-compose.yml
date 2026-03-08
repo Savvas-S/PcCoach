@@ -8,6 +8,12 @@ services:
     env_file:
       - ./backend/.env
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   frontend:
     build:
@@ -18,7 +24,8 @@ services:
     env_file:
       - ./frontend/.env
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
   telegram-bot:
@@ -28,5 +35,6 @@ services:
     env_file:
       - ./telegram_bot/.env
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
