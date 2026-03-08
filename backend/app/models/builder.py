@@ -99,6 +99,19 @@ class ComponentRecommendation(BaseModel):
     )
 
 
+class UpgradeSuggestion(BaseModel):
+    """Optional single-component upgrade that meaningfully improves the build."""
+    component_category: ComponentCategory
+    current_name: str
+    upgrade_name: str
+    extra_cost_eur: float = Field(..., gt=0)
+    reason: str
+    affiliate_url: HttpUrl | None = None
+    affiliate_source: str | None = Field(
+        None, description="e.g. 'amazon', 'computeruniverse', 'caseking'"
+    )
+
+
 class BuildResult(BaseModel):
     """The full build recommendation returned to the user."""
     id: str
@@ -107,6 +120,7 @@ class BuildResult(BaseModel):
     summary: str | None = Field(
         None, description="Claude's explanation of the build choices"
     )
+    upgrade_suggestion: UpgradeSuggestion | None = None
     status: BuildStatus = BuildStatus.pending
 
     @model_validator(mode="after")

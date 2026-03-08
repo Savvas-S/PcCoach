@@ -18,11 +18,12 @@ async def create_build(payload: BuildRequest) -> BuildResult:
 
     try:
         claude = get_claude_service()
-        components, summary = await claude.generate_build(payload)
+        components, summary, upgrade_suggestion = await claude.generate_build(payload)
         build = BuildResult(
             id=build_id,
             components=components,
             summary=summary,
+            upgrade_suggestion=upgrade_suggestion,
             status=BuildStatus.completed,
         )
     except Exception:

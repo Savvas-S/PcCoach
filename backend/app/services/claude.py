@@ -4,7 +4,7 @@ from functools import lru_cache
 import anthropic
 
 from app.config import settings
-from app.models.builder import BuildRequest, ComponentRecommendation
+from app.models.builder import BuildRequest, ComponentRecommendation, UpgradeSuggestion
 from app.prompts.manager import build_system_prompt
 
 _MODEL = "claude-sonnet-4-6"
@@ -49,6 +49,29 @@ BUILD_TOOL = {
                 },
             },
         },
+        "upgrade_suggestion": {
+            "type": "object",
+            "description": "Optional single-component upgrade if it meaningfully improves the build for under €75 extra",
+            "properties": {
+                "component_category": {
+                    "type": "string",
+                    "enum": ["cpu", "gpu"],
+                },
+                "current_name": {"type": "string"},
+                "upgrade_name": {"type": "string"},
+                "extra_cost_eur": {"type": "number"},
+                "reason": {
+                    "type": "string",
+                    "description": "One sentence explaining why the upgrade is worth it",
+                },
+                "affiliate_url": {"type": "string", "format": "uri"},
+                "affiliate_source": {
+                    "type": "string",
+                    "enum": ["computeruniverse", "caseking", "amazon"],
+                },
+            },
+            "required": ["component_category", "current_name", "upgrade_name", "extra_cost_eur", "reason", "affiliate_url", "affiliate_source"],
+        },
         "required": ["summary", "components"],
     },
 }
@@ -59,7 +82,7 @@ class ClaudeService:
         self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key, timeout=_TIMEOUT)
         self.model = _MODEL
 
-    async def generate_build(self, request: BuildRequest) -> tuple[list[ComponentRecommendation], str]:
+    async def generate_build(self, request: BuildRequest) -> tuple[list[ComponentRecommendation], str, UpgradeSuggestion | None]:
         user_message = f"""Please recommend a PC build for the following requirements:
 
         - Goal: {request.goal.value}
@@ -88,8 +111,13 @@ class ClaudeService:
 
         components = [ComponentRecommendation(**c) for c in data["components"]]
         summary = data["summary"]
+        upgrade_suggestion = (
+            UpgradeSuggestion(**data["upgrade_suggestion"])
+            if data.get("upgrade_suggestion")
+            else None
+        )
 
-        return components, summary
+        return components, summary, upgrade_suggestion
 
 
 @lru_cache(maxsize=1)
