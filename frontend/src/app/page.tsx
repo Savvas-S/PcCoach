@@ -39,7 +39,7 @@ export default function Home() {
             {
               icon: "⚡",
               title: "Instant Results",
-              desc: "Get your full build list in seconds",
+              desc: "Get your full build list in under a minute",
             },
           ].map((f) => (
             <div
