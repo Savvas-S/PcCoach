@@ -80,6 +80,7 @@ lint:
 init:
 	@[ -f backend/.env ] || (cp backend/.env.example backend/.env && echo "created backend/.env")
 	@[ -f frontend/.env ] || (cp frontend/.env.example frontend/.env && echo "created frontend/.env")
+	@[ -f telegram_bot/.env ] || (cp telegram_bot/.env.example telegram_bot/.env && echo "created telegram_bot/.env")
 
 # --- Deploy ---
 
@@ -92,4 +93,5 @@ deploy:
 
 lock:
 	cd backend && uv lock
+	cd telegram_bot && uv lock
 	docker run --rm -v $(CURDIR)/frontend:/app -w /app node:20-alpine npm install --package-lock-only

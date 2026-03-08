@@ -20,3 +20,13 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+  telegram-bot:
+    build:
+      context: ./telegram_bot
+      dockerfile: Dockerfile
+    env_file:
+      - ./telegram_bot/.env
+    depends_on:
+      - backend
+    restart: unless-stopped
