@@ -1,5 +1,3 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 export type UserGoal =
   | "high_end_gaming"
   | "mid_range_gaming"
@@ -74,7 +72,7 @@ export async function submitBuild(
   request: BuildRequest,
   signal?: AbortSignal
 ): Promise<BuildResult> {
-  const res = await fetch(`${API_URL}/api/v1/build`, {
+  const res = await fetch(`/api/v1/build`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),
@@ -91,7 +89,7 @@ export async function getBuild(
   id: number,
   signal?: AbortSignal
 ): Promise<BuildResult> {
-  const res = await fetch(`${API_URL}/api/v1/build/${id}`, { signal });
+  const res = await fetch(`/api/v1/build/${id}`, { signal });
   if (!res.ok) {
     const msg = await parseError(res, "Build not found");
     throw new Error(msg);
