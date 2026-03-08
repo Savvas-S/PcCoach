@@ -22,15 +22,40 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 # Conversation states
 GOAL, BUDGET, FORM_FACTOR, CPU_BRAND, GPU_BRAND, PERIPHERALS, EXISTING_PARTS, NOTES = range(8)
 
-GOALS = [
-    ("🎮 Gaming — Max settings, latest titles", "high_end_gaming"),
-    ("🎮 Gaming — Great performance, smart price", "mid_range_gaming"),
-    ("🎮 Casual gaming — Fortnite, CS2, Minecraft", "low_end_gaming"),
-    ("💼 Everyday — Web, Office, Netflix", "light_work"),
-    ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
-    ("🎨 Creative — Photoshop, Illustrator", "designer"),
-    ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
-]
+# Goals available per budget range — prevents mismatched combinations
+BUDGET_GOALS: dict[str, list[tuple[str, str]]] = {
+    "0_1000": [
+        ("🎮 Casual gaming — Fortnite, CS2, Minecraft", "low_end_gaming"),
+        ("💼 Everyday — Web, Office, Netflix", "light_work"),
+    ],
+    "1000_1500": [
+        ("🎮 Gaming — Great performance, smart price", "mid_range_gaming"),
+        ("💼 Everyday — Web, Office, Netflix", "light_work"),
+        ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
+        ("🎨 Creative — Photoshop, Illustrator", "designer"),
+        ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
+    ],
+    "1500_2000": [
+        ("🎮 Gaming — Max settings, latest titles", "high_end_gaming"),
+        ("🎮 Gaming — Great performance, smart price", "mid_range_gaming"),
+        ("💼 Everyday — Web, Office, Netflix", "light_work"),
+        ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
+        ("🎨 Creative — Photoshop, Illustrator", "designer"),
+        ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
+    ],
+    "2000_3000": [
+        ("🎮 Gaming — Max settings, latest titles", "high_end_gaming"),
+        ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
+        ("🎨 Creative — Photoshop, Illustrator", "designer"),
+        ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
+    ],
+    "over_3000": [
+        ("🎮 Gaming — Max settings, latest titles", "high_end_gaming"),
+        ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
+        ("🎨 Creative — Photoshop, Illustrator", "designer"),
+        ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
+    ],
+}
 
 BUDGETS = [
     ("Under €1,000 — Basic but capable", "0_1000"),
@@ -121,21 +146,9 @@ async def start(update: Update, context) -> int:
     context.user_data.clear()
     await update.message.reply_text(
         "👋 Hi! I'm <b>PcCoach</b>.\n\n"
-        "I'll help you build the perfect PC — just answer 8 quick questions "
+        "I'll help you build the perfect PC — just answer a few quick questions "
         "and I'll recommend the exact parts to buy, with prices and links to purchase them.\n\n"
         "It takes about 1 minute. Let's go! 👇\n\n"
-        "<b>What will you mainly use this PC for?</b>",
-        parse_mode="HTML",
-        reply_markup=_make_keyboard(GOALS, "goal_"),
-    )
-    return GOAL
-
-
-async def goal_selected(update: Update, context) -> int:
-    query = update.callback_query
-    await query.answer()
-    context.user_data["goal"] = query.data.removeprefix("goal_")
-    await query.edit_message_text(
         "💰 <b>What's your total budget?</b>\n\n"
         "This covers all the PC parts. Pick the range that feels comfortable.\n\n"
         "💡 The <b>€1,000–€1,500</b> range is the sweet spot for most people — "
@@ -150,6 +163,20 @@ async def budget_selected(update: Update, context) -> int:
     query = update.callback_query
     await query.answer()
     context.user_data["budget_range"] = query.data.removeprefix("budget_")
+    goals = BUDGET_GOALS[context.user_data["budget_range"]]
+    await query.edit_message_text(
+        "🎯 <b>What will you mainly use this PC for?</b>\n\n"
+        "Based on your budget, here are the best-fit options for you.",
+        parse_mode="HTML",
+        reply_markup=_make_keyboard(goals, "goal_"),
+    )
+    return GOAL
+
+
+async def goal_selected(update: Update, context) -> int:
+    query = update.callback_query
+    await query.answer()
+    context.user_data["goal"] = query.data.removeprefix("goal_")
     await query.edit_message_text(
         "📐 <b>How big should the PC be?</b>\n\n"
         "This is about the physical size of the case that sits on or under your desk.\n\n"
