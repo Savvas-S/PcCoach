@@ -82,6 +82,27 @@ export interface BuildResult {
   status: "pending" | "completed" | "failed";
 }
 
+export interface ComponentSearchRequest {
+  category: ComponentCategory;
+  description: string;
+  budget_eur?: number;
+}
+
+export interface StoreLink {
+  store: string;
+  url: string;
+}
+
+export interface ComponentSearchResult {
+  name: string;
+  brand: string;
+  category: ComponentCategory;
+  estimated_price_eur: number;
+  reason: string;
+  specs: Record<string, string>;
+  store_links: StoreLink[];
+}
+
 async function parseError(res: Response, fallback: string): Promise<string> {
   try {
     const body = await res.json();
@@ -103,6 +124,23 @@ export async function submitBuild(
   });
   if (!res.ok) {
     const msg = await parseError(res, "Failed to submit build");
+    throw new Error(msg);
+  }
+  return res.json();
+}
+
+export async function searchComponent(
+  request: ComponentSearchRequest,
+  signal?: AbortSignal
+): Promise<ComponentSearchResult> {
+  const res = await fetch(`/api/v1/search`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+    signal,
+  });
+  if (!res.ok) {
+    const msg = await parseError(res, "Failed to find component");
     throw new Error(msg);
   }
   return res.json();

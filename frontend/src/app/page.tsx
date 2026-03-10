@@ -17,12 +17,20 @@ export default function Home() {
           with the best prices from trusted European stores.
         </p>
 
-        <Link
-          href="/build"
-          className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-xl text-lg transition-colors"
-        >
-          Build My PC &rarr;
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link
+            href="/build"
+            className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-xl text-lg transition-colors"
+          >
+            Build My PC &rarr;
+          </Link>
+          <Link
+            href="/find"
+            className="border border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white font-semibold px-8 py-4 rounded-xl text-lg transition-colors"
+          >
+            Find a Component &rarr;
+          </Link>
+        </div>
 
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl w-full">
           {[

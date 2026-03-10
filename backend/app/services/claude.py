@@ -4,11 +4,56 @@ from functools import lru_cache
 import anthropic
 
 from app.config import settings
-from app.models.builder import BuildRequest, ComponentRecommendation, DowngradeSuggestion, UpgradeSuggestion
+from app.models.builder import BuildRequest, ComponentRecommendation, ComponentSearchRequest, ComponentSearchResult, DowngradeSuggestion, StoreLink, UpgradeSuggestion
 from app.prompts.manager import build_system_prompt
 
 _MODEL = "claude-sonnet-4-6"
 _TIMEOUT = 90.0
+
+_SEARCH_SYSTEM_PROMPT = """You are a PC hardware expert. A user will describe a specific component they want to find.
+Your job: identify the single best matching product and provide search links to all three stores.
+
+Store search URL formats (replace spaces with + in the query):
+- computeruniverse: https://www.computeruniverse.net/en/search?query={product+name}
+- caseking:         https://www.caseking.de/en/search?q={product+name}
+- amazon:           https://www.amazon.de/s?k={product+name}&tag=thepccoach-21
+
+Always include all three store links. Use the exact product name in the search URLs so the user lands on relevant results."""
+
+SEARCH_TOOL = {
+    "name": "recommend_component",
+    "description": "Return the best single component matching the user's description with search links to all three stores",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string", "description": "Specific product name, e.g. 'AMD Ryzen 5 7600X'"},
+            "brand": {"type": "string"},
+            "category": {
+                "type": "string",
+                "enum": ["cpu", "gpu", "motherboard", "ram", "storage", "psu", "case", "cooling", "monitor", "keyboard", "mouse"],
+            },
+            "estimated_price_eur": {"type": "number", "description": "Best estimate of current EUR price"},
+            "reason": {"type": "string", "description": "2-3 sentences explaining why this component best matches the request"},
+            "specs": {
+                "type": "object",
+                "additionalProperties": {"type": "string"},
+            },
+            "store_links": {
+                "type": "array",
+                "description": "Search links for this exact product at all three stores",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "store": {"type": "string", "enum": ["computeruniverse", "caseking", "amazon"]},
+                        "url": {"type": "string", "format": "uri"},
+                    },
+                    "required": ["store", "url"],
+                },
+            },
+        },
+        "required": ["name", "brand", "category", "estimated_price_eur", "reason", "specs", "store_links"],
+    },
+}
 
 BUILD_TOOL = {
     "name": "recommend_build",
@@ -146,6 +191,37 @@ class ClaudeService:
         )
 
         return components, summary, upgrade_suggestion, downgrade_suggestion
+
+    async def search_component(self, request: ComponentSearchRequest) -> ComponentSearchResult:
+        budget_line = f"- Budget: up to €{request.budget_eur}" if request.budget_eur else ""
+        user_message = f"""Find the best component for:
+- Category: {request.category.value}
+- Description: {request.description}
+{budget_line}""".strip()
+
+        response = await self.client.messages.create(
+            model=self.model,
+            max_tokens=1024,
+            system=_SEARCH_SYSTEM_PROMPT,
+            tools=[SEARCH_TOOL],
+            tool_choice={"type": "tool", "name": "recommend_component"},
+            messages=[{"role": "user", "content": user_message}],
+        )
+
+        tool_use = next((b for b in response.content if b.type == "tool_use"), None)
+        if not tool_use:
+            raise ValueError("No tool_use block in Claude response")
+        data = tool_use.input if isinstance(tool_use.input, dict) else json.loads(tool_use.input)
+
+        return ComponentSearchResult(
+            name=data["name"],
+            brand=data["brand"],
+            category=data["category"],
+            estimated_price_eur=data["estimated_price_eur"],
+            reason=data["reason"],
+            specs=data.get("specs", {}),
+            store_links=[StoreLink(**s) for s in data.get("store_links", [])],
+        )
 
 
 @lru_cache(maxsize=1)

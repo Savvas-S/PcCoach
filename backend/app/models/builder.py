@@ -125,6 +125,29 @@ class DowngradeSuggestion(BaseModel):
     )
 
 
+class ComponentSearchRequest(BaseModel):
+    """User's request to find a specific component."""
+    category: ComponentCategory
+    description: str = Field(..., max_length=300)
+    budget_eur: float | None = Field(None, gt=0)
+
+
+class StoreLink(BaseModel):
+    store: str
+    url: HttpUrl
+
+
+class ComponentSearchResult(BaseModel):
+    """AI recommendation for a single component with search links to all stores."""
+    name: str
+    brand: str
+    category: ComponentCategory
+    estimated_price_eur: float
+    reason: str
+    specs: dict[str, str] = Field(default_factory=dict)
+    store_links: list[StoreLink] = []
+
+
 class BuildResult(BaseModel):
     """The full build recommendation returned to the user."""
     id: str
