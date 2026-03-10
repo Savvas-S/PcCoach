@@ -34,7 +34,6 @@ const SOURCE_COLORS: Record<string, string> = {
 export default function FindPage() {
   const [category, setCategory] = useState<ComponentCategory | null>(null);
   const [description, setDescription] = useState("");
-  const [budget, setBudget] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ComponentSearchResult | null>(null);
@@ -55,7 +54,6 @@ export default function FindPage() {
         {
           category,
           description: description.trim(),
-          budget_eur: budget ? parseFloat(budget) : undefined,
         },
         controller.signal
       );
@@ -125,25 +123,6 @@ export default function FindPage() {
               className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
             />
             <p className="text-gray-600 text-xs mt-1 text-right">{description.length}/300</p>
-          </section>
-
-          {/* Budget (optional) */}
-          <section>
-            <label className="text-lg font-semibold mb-4 block">
-              Max budget{" "}
-              <span className="text-gray-500 font-normal text-sm">(optional)</span>
-            </label>
-            <div className="relative w-40">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">€</span>
-              <input
-                type="number"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                placeholder="e.g. 300"
-                min={1}
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl pl-8 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-              />
-            </div>
           </section>
 
           {error && (

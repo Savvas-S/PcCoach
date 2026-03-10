@@ -28,10 +28,6 @@ SEARCH_TOOL = {
         "properties": {
             "name": {"type": "string", "description": "Specific product name, e.g. 'AMD Ryzen 5 7600X'"},
             "brand": {"type": "string"},
-            "category": {
-                "type": "string",
-                "enum": ["cpu", "gpu", "motherboard", "ram", "storage", "psu", "case", "cooling", "monitor", "keyboard", "mouse"],
-            },
             "estimated_price_eur": {"type": "number", "description": "Best estimate of current EUR price"},
             "reason": {"type": "string", "description": "2-3 sentences explaining why this component best matches the request"},
             "specs": {
@@ -51,7 +47,7 @@ SEARCH_TOOL = {
                 },
             },
         },
-        "required": ["name", "brand", "category", "estimated_price_eur", "reason", "specs", "store_links"],
+        "required": ["name", "brand", "estimated_price_eur", "reason", "specs", "store_links"],
     },
 }
 
@@ -193,11 +189,8 @@ class ClaudeService:
         return components, summary, upgrade_suggestion, downgrade_suggestion
 
     async def search_component(self, request: ComponentSearchRequest) -> ComponentSearchResult:
-        budget_line = f"- Budget: up to €{request.budget_eur}" if request.budget_eur else ""
-        user_message = f"""Find the best component for:
-- Category: {request.category.value}
-- Description: <user_input>{request.description}</user_input>
-{budget_line}""".strip()
+        user_message = f"""Find the best {request.category.value} matching this description:
+<user_input>{request.description}</user_input>"""
 
         response = await self.client.messages.create(
             model=self.model,
@@ -216,7 +209,7 @@ class ClaudeService:
         return ComponentSearchResult(
             name=data["name"],
             brand=data["brand"],
-            category=data["category"],
+            category=request.category,
             estimated_price_eur=data["estimated_price_eur"],
             reason=data["reason"],
             specs=data.get("specs", {}),

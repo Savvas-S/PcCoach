@@ -86,7 +86,6 @@ export interface BuildResult {
 export interface ComponentSearchRequest {
   category: ComponentCategory;
   description: string;
-  budget_eur?: number;
 }
 
 export interface StoreLink {

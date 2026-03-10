@@ -63,8 +63,7 @@ Content-Type: application/json
 
 {
   "category": "gpu",
-  "description": "Best GPU for 1440p gaming, prefer NVIDIA",
-  "budget_eur": 400
+  "description": "Best GPU for 1440p gaming, prefer NVIDIA"
 }
 
 ### Find a mid-range AMD CPU
@@ -82,6 +81,5 @@ Content-Type: application/json
 
 {
   "category": "case",
-  "description": "Compact Mini-ITX case with good airflow",
-  "budget_eur": 120
+  "description": "Compact Mini-ITX case with good airflow"
 }

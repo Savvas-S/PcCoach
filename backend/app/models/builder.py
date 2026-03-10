@@ -147,7 +147,6 @@ class ComponentSearchRequest(BaseModel):
     """User's request to find a specific component."""
     category: ComponentCategory
     description: str = Field(..., min_length=1, max_length=300)
-    budget_eur: float | None = Field(None, gt=0)
 
 
 class StoreLink(BaseModel):
