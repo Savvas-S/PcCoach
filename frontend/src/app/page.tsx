@@ -29,7 +29,7 @@ export default function Home() {
             {
               icon: "🤖",
               title: "AI Recommendations",
-              desc: "Claude picks the best parts for your exact needs",
+              desc: "AI picks the best parts for your exact needs",
             },
             {
               icon: "🛒",

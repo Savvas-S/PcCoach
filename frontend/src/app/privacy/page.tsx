@@ -40,10 +40,6 @@ export default function PrivacyPage() {
                   desc: "Your selected budget, use case, component preferences, and any notes you enter when submitting a build request. This data is stored to generate and retrieve your build result.",
                 },
                 {
-                  title: "Usage data",
-                  desc: "Basic technical information such as browser type, device type, and pages visited. This is collected in aggregate and cannot identify you personally.",
-                },
-                {
                   title: "No account data",
                   desc: "We do not require you to create an account. We do not collect your name, email address, or any other personal identifiers unless you voluntarily provide them via our contact form.",
                 },
@@ -61,7 +57,6 @@ export default function PrivacyPage() {
             <ul className="list-disc list-inside space-y-2 text-gray-400">
               <li>To generate your personalised PC build recommendation</li>
               <li>To allow you to retrieve a previously generated build via its unique link</li>
-              <li>To improve the quality and relevance of our recommendations</li>
               <li>To monitor and maintain the performance and security of the service</li>
             </ul>
             <p className="mt-4">
