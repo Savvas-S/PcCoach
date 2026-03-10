@@ -13,8 +13,8 @@ export default function Home() {
         </h1>
 
         <p className="text-xl text-gray-400 max-w-xl mb-10">
-          Tell us your needs and budget. Our AI recommends the best components
-          with the best prices from trusted European stores.
+          Tell us your needs and budget. Get a full component list with the best
+          prices from trusted European stores.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3">

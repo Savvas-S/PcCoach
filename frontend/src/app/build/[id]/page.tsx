@@ -249,7 +249,7 @@ export default function BuildResultPage() {
 
         <div className="space-y-3">
           {build.components.map((c) => (
-            <ComponentCard key={c.category} component={c} />
+            <ComponentCard key={c.category + c.name} component={c} />
           ))}
         </div>
 

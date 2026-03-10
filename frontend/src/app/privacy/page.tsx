@@ -69,10 +69,14 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-white mb-3">AI Processing</h2>
             <p>
               Build requests are processed by an AI model to generate component recommendations.
-              The content of your request (budget, preferences, notes) is sent to a third-party
-              AI provider for this purpose. We do not send any personally identifying information
-              unless you include it in your notes field. Please avoid entering personal data in
-              the notes field.
+              The content of your request (budget, preferences, notes) is sent to Anthropic
+              (anthropic.com) for this purpose. Anthropic&apos;s{" "}
+              <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">
+                privacy policy
+              </a>{" "}
+              governs how they handle this data. We do not send any personally identifying
+              information unless you include it in your notes field. Please avoid entering
+              personal data in the notes field.
             </p>
           </section>
 
@@ -90,10 +94,8 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">Cookies</h2>
             <p>
-              We use only essential cookies required for the website to function (e.g. session
-              state). We do not use tracking or advertising cookies. Third-party retailers linked
-              from our site may set their own cookies when you visit them — please review their
-              respective privacy policies.
+              We do not use cookies. Third-party retailers linked from our site may set their own
+              cookies when you visit them — please review their respective privacy policies.
             </p>
           </section>
 

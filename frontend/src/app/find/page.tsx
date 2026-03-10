@@ -39,7 +39,7 @@ export default function FindPage() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ComponentSearchResult | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!category || !description.trim()) return;
 

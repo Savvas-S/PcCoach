@@ -1,10 +1,13 @@
+import logging
 import secrets
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from app.limiter import limiter
 from app.models.builder import BuildRequest, BuildResult, BuildStatus
 from app.services.claude import get_claude_service
 
+log = logging.getLogger(__name__)
 router = APIRouter(prefix="/build", tags=["build"])
 
 # In-memory store — will be replaced with DB
@@ -13,7 +16,8 @@ _MAX_BUILDS = 500
 
 
 @router.post("", response_model=BuildResult, status_code=201)
-async def create_build(payload: BuildRequest) -> BuildResult:
+@limiter.limit("10/hour")
+async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
     build_id = secrets.token_urlsafe(8)
 
     try:
@@ -28,6 +32,7 @@ async def create_build(payload: BuildRequest) -> BuildResult:
             status=BuildStatus.completed,
         )
     except Exception:
+        log.exception("Failed to generate build for request: goal=%s budget=%s", payload.goal, payload.budget_range)
         raise HTTPException(status_code=502, detail="Failed to generate build. Please try again.")
 
     _builds[build_id] = build

@@ -50,8 +50,38 @@ Content-Type: application/json
   "notes": "Need lots of RAM for large files"
 }
 
-### List all builds
-GET http://localhost:8000/api/v1/build
-
 ### Get a build by ID
-GET http://localhost:8000/api/v1/build/1
+GET http://localhost:8000/api/v1/build/replace-with-real-id
+
+###
+# COMPONENT SEARCH
+###
+
+### Find a GPU for 1440p gaming
+POST http://localhost:8000/api/v1/search
+Content-Type: application/json
+
+{
+  "category": "gpu",
+  "description": "Best GPU for 1440p gaming, prefer NVIDIA",
+  "budget_eur": 400
+}
+
+### Find a mid-range AMD CPU
+POST http://localhost:8000/api/v1/search
+Content-Type: application/json
+
+{
+  "category": "cpu",
+  "description": "AMD gaming CPU, mid-range, good for streaming"
+}
+
+### Find a Mini-ITX case
+POST http://localhost:8000/api/v1/search
+Content-Type: application/json
+
+{
+  "category": "case",
+  "description": "Compact Mini-ITX case with good airflow",
+  "budget_eur": 120
+}

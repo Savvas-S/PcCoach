@@ -40,6 +40,7 @@ export interface BuildRequest {
   cooling_preference?: CoolingPreference;
   include_peripherals?: boolean;
   existing_parts?: ComponentCategory[];
+  notes?: string;
 }
 
 export interface ComponentRecommendation {

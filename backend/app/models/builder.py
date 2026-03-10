@@ -65,6 +65,15 @@ class BuildStatus(str, Enum):
     failed = "failed"
 
 
+_VALID_GOALS_FOR_BUDGET: dict[BudgetRange, set[UserGoal]] = {
+    BudgetRange.range_0_1000: {UserGoal.low_end_gaming, UserGoal.light_work},
+    BudgetRange.range_1000_1500: {UserGoal.mid_range_gaming, UserGoal.light_work, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
+    BudgetRange.range_1500_2000: {UserGoal.high_end_gaming, UserGoal.mid_range_gaming, UserGoal.light_work, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
+    BudgetRange.range_2000_3000: {UserGoal.high_end_gaming, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
+    BudgetRange.over_3000: {UserGoal.high_end_gaming, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
+}
+
+
 class BuildRequest(BaseModel):
     """User's requirements — passed to Claude to generate a build recommendation."""
     goal: UserGoal
@@ -81,6 +90,15 @@ class BuildRequest(BaseModel):
         description="Categories the customer already owns and wants to exclude",
     )
     notes: str | None = Field(None, max_length=500)
+
+    @model_validator(mode="after")
+    def validate_goal_for_budget(self) -> "BuildRequest":
+        valid = _VALID_GOALS_FOR_BUDGET.get(self.budget_range, set())
+        if self.goal not in valid:
+            raise ValueError(
+                f"Goal '{self.goal.value}' is not available for budget '{self.budget_range.value}'"
+            )
+        return self
 
 
 class ComponentRecommendation(BaseModel):
@@ -128,7 +146,7 @@ class DowngradeSuggestion(BaseModel):
 class ComponentSearchRequest(BaseModel):
     """User's request to find a specific component."""
     category: ComponentCategory
-    description: str = Field(..., max_length=300)
+    description: str = Field(..., min_length=1, max_length=300)
     budget_eur: float | None = Field(None, gt=0)
 
 
@@ -142,7 +160,7 @@ class ComponentSearchResult(BaseModel):
     name: str
     brand: str
     category: ComponentCategory
-    estimated_price_eur: float
+    estimated_price_eur: float = Field(..., gt=0)
     reason: str
     specs: dict[str, str] = Field(default_factory=dict)
     store_links: list[StoreLink] = []

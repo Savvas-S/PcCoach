@@ -120,6 +120,7 @@ export default function BuildPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [notes, setNotes] = useState("");
   const [budget, setBudget] = useState<BudgetRange | null>(null);
   const [goal, setGoal] = useState<UserGoal | null>(null);
   const [formFactor, setFormFactor] = useState<FormFactor>("atx");
@@ -168,6 +169,7 @@ export default function BuildPage() {
           cooling_preference: coolingPreference,
           include_peripherals: includePeripherals,
           existing_parts: existingParts,
+          notes: notes.trim() || undefined,
         },
         controller.signal
       );
@@ -392,6 +394,23 @@ export default function BuildPage() {
             </div>
           </section>
 
+
+          {/* Notes */}
+          <section>
+            <h2 className="text-lg font-semibold mb-1">Additional Notes</h2>
+            <p className="text-gray-400 text-sm mb-4">
+              Optional — specific requirements, component preferences, or anything else we should know.
+            </p>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="e.g. Prefer quiet components, already have a monitor, want good airflow..."
+              maxLength={500}
+              rows={3}
+              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+            />
+            <p className="text-gray-600 text-xs mt-1 text-right">{notes.length}/500</p>
+          </section>
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl p-4 text-sm">

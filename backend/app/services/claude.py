@@ -161,7 +161,7 @@ class ClaudeService:
         - Cooling preference: {request.cooling_preference.value}
         - Include peripherals: {request.include_peripherals}
         - Parts already owned (exclude these): {[p.value for p in request.existing_parts] or 'none'}
-        - Additional notes: {request.notes or 'none'}"""
+        - Additional notes: <user_input>{request.notes or 'none'}</user_input>"""
 
         response = await self.client.messages.create(
             model=self.model,
@@ -196,13 +196,13 @@ class ClaudeService:
         budget_line = f"- Budget: up to €{request.budget_eur}" if request.budget_eur else ""
         user_message = f"""Find the best component for:
 - Category: {request.category.value}
-- Description: {request.description}
+- Description: <user_input>{request.description}</user_input>
 {budget_line}""".strip()
 
         response = await self.client.messages.create(
             model=self.model,
-            max_tokens=1024,
-            system=_SEARCH_SYSTEM_PROMPT,
+            max_tokens=1500,
+            system=[{"type": "text", "text": _SEARCH_SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
             tools=[SEARCH_TOOL],
             tool_choice={"type": "tool", "name": "recommend_component"},
             messages=[{"role": "user", "content": user_message}],
