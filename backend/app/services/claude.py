@@ -10,8 +10,12 @@ from app.prompts.manager import build_system_prompt
 _MODEL = "claude-sonnet-4-6"
 _TIMEOUT = 90.0
 
-_SEARCH_SYSTEM_PROMPT = """You are a PC hardware expert. A user will describe a specific component they want to find.
-Your job: identify the single best matching product and provide search links to all three stores.
+_SEARCH_SYSTEM_PROMPT = """You are a PC hardware expert. A user will select a component category and describe what they want.
+Your job: recommend the single best product OF THE SELECTED CATEGORY and provide search links to all three stores.
+
+CRITICAL RULE: You must ALWAYS recommend a product of the exact category the user selected.
+Never recommend a product from a different category — even if the user's description mentions another component type.
+If the description seems to conflict with the category, ignore the conflicting part and find the best product for the selected category.
 
 Store search URL formats (replace spaces with + in the query):
 - computeruniverse: https://www.computeruniverse.net/en/search?query={product+name}
@@ -189,7 +193,10 @@ class ClaudeService:
         return components, summary, upgrade_suggestion, downgrade_suggestion
 
     async def search_component(self, request: ComponentSearchRequest) -> ComponentSearchResult:
-        user_message = f"""Find the best {request.category.value} matching this description:
+        user_message = f"""Category: {request.category.value}
+You must recommend a {request.category.value}. Do not recommend any other component type.
+
+User description:
 <user_input>{request.description}</user_input>"""
 
         response = await self.client.messages.create(
