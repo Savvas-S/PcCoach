@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getBuild } from "@/lib/api";
+import { getBuild, SOURCE_LABELS } from "@/lib/api";
 import type {
   AffiliateSource,
   BuildResult,
@@ -27,11 +27,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   mouse: "Mouse",
 };
 
-const SOURCE_LABELS: Record<AffiliateSource, string> = {
-  amazon: "Amazon.de",
-  computeruniverse: "ComputerUniverse",
-  caseking: "Caseking",
-};
 
 // Acronyms that should not be title-cased
 const SPEC_KEY_OVERRIDES: Record<string, string> = {
@@ -389,7 +384,7 @@ export default function BuildResultPage() {
             onClick={handleCopyLink}
             className="flex-1 border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white py-3 rounded-xl transition-colors text-sm"
           >
-            {copied === "success" ? "Copied \u2713" : "Share this build"}
+            {copyLabel}
           </button>
           <Link
             href="/build"

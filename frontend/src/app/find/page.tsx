@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { searchComponent } from "@/lib/api";
+import { searchComponent, SOURCE_LABELS } from "@/lib/api";
 import type { AffiliateSource, ComponentCategory, ComponentSearchResult } from "@/lib/api";
 
 const CATEGORIES: { value: ComponentCategory; label: string; icon: string }[] = [
@@ -33,11 +33,6 @@ const CATEGORY_PLACEHOLDERS: Record<ComponentCategory, string> = {
   mouse: "e.g. lightweight wireless gaming mouse under €80",
 };
 
-const SOURCE_LABELS: Record<AffiliateSource, string> = {
-  amazon: "Amazon.de",
-  computeruniverse: "ComputerUniverse",
-  caseking: "Caseking",
-};
 
 const SOURCE_COLORS: Record<AffiliateSource, string> = {
   amazon: "bg-orange-600 hover:bg-orange-500",

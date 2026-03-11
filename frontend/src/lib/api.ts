@@ -45,6 +45,12 @@ export interface BuildRequest {
 
 export type AffiliateSource = "amazon" | "computeruniverse" | "caseking";
 
+export const SOURCE_LABELS: Record<AffiliateSource, string> = {
+  amazon: "Amazon.de",
+  computeruniverse: "ComputerUniverse",
+  caseking: "Caseking",
+};
+
 export interface ComponentRecommendation {
   category: ComponentCategory;
   name: string;
