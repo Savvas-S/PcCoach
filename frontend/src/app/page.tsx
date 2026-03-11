@@ -61,7 +61,7 @@ export default function Home() {
         <p className="text-xl text-gray-300 max-w-2xl mb-3 leading-relaxed">
           Set your budget and use case. AI picks every component, checks
           compatibility end-to-end, and gives you direct buy links from
-          Amazon, Caseking, and ComputerUniverse.
+          trusted EU PC stores.
         </p>
 
         <p className="text-sm text-gray-500 mb-10">
