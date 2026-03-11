@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { submitBuild } from "@/lib/api";
 import type {
@@ -60,7 +60,9 @@ const GOALS: { value: UserGoal; label: string; desc: string; icon: string }[] =
     },
   ];
 
-// Goals available per budget — mirrors the Telegram bot logic
+// Goals available per budget.
+// IMPORTANT: This mapping is duplicated in backend/app/models/builder.py (_VALID_GOALS_FOR_BUDGET).
+// Keep both in sync when making changes.
 const BUDGET_GOALS: Record<BudgetRange, UserGoal[]> = {
   "0_1000":    ["low_end_gaming", "light_work"],
   "1000_1500": ["mid_range_gaming", "light_work", "heavy_work", "designer", "architecture"],
@@ -77,10 +79,10 @@ const BUDGETS: { value: BudgetRange; label: string }[] = [
   { value: "over_3000", label: "Over €3,000" },
 ];
 
-const FORM_FACTORS: { value: FormFactor; label: string }[] = [
-  { value: "atx", label: "ATX (Full Size)" },
-  { value: "micro_atx", label: "Micro-ATX" },
-  { value: "mini_itx", label: "Mini-ITX (Compact)" },
+const FORM_FACTORS: { value: FormFactor; label: string; desc: string }[] = [
+  { value: "atx", label: "ATX", desc: "Standard — most compatible" },
+  { value: "micro_atx", label: "Micro-ATX", desc: "Smaller, slightly fewer slots" },
+  { value: "mini_itx", label: "Mini-ITX", desc: "Compact & portable" },
 ];
 
 const CPU_BRANDS: { value: CPUBrand; label: string }[] = [
@@ -117,6 +119,7 @@ const COMPONENT_CATEGORIES: { value: ComponentCategory; label: string }[] = [
 
 export default function BuildPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,6 +132,18 @@ export default function BuildPage() {
   const [coolingPreference, setCoolingPreference] = useState<CoolingPreference>("no_preference");
   const [includePeripherals, setIncludePeripherals] = useState(false);
   const [existingParts, setExistingParts] = useState<ComponentCategory[]>([]);
+
+  // Pre-select budget + goal from ?budget=...&goal=... query params (e.g. from example build cards)
+  useEffect(() => {
+    const b = searchParams.get("budget") as BudgetRange | null;
+    const g = searchParams.get("goal") as UserGoal | null;
+    if (b && Object.keys(BUDGET_GOALS).includes(b)) {
+      setBudget(b);
+      if (g && BUDGET_GOALS[b].includes(g)) {
+        setGoal(g);
+      }
+    }
+  }, [searchParams]);
 
   const handleBudgetChange = (b: BudgetRange) => {
     setBudget(b);
@@ -185,26 +200,34 @@ export default function BuildPage() {
     }
   };
 
+  const readyToSubmit = !!budget && !!goal;
+  const selectedGoalLabel = GOALS.find((g) => g.value === goal)?.label;
+  const selectedBudgetLabel = BUDGETS.find((b) => b.value === budget)?.label;
+
   return (
     <main className="min-h-screen bg-gray-900 text-white py-12 px-4">
       <div className="max-w-3xl mx-auto">
+
+        {/* Header */}
         <div className="mb-10">
           <Link href="/" className="text-gray-400 hover:text-white text-sm">
-            &larr; Back
+            &larr; Home
           </Link>
-          <h1 className="text-3xl font-bold mt-4">Configure Your Build</h1>
+          <h1 className="text-3xl font-bold mt-4">Build Your PC</h1>
           <p className="text-gray-400 mt-1">
-            Tell us what you need and we&apos;ll recommend the perfect
-            components.
+            Pick your budget and use case — everything else has sensible
+            defaults and can be skipped.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-12">
-          {/* Budget — first, so goals can be filtered */}
+
+          {/* Budget — required */}
           <section>
-            <h2 className="text-lg font-semibold mb-4">
-              What&apos;s your budget?
-            </h2>
+            <div className="flex items-baseline gap-2 mb-4">
+              <h2 className="text-lg font-semibold">What&apos;s your budget?</h2>
+              <span className="text-xs text-blue-400 font-medium">required</span>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {BUDGETS.map((b) => (
                 <button
@@ -223,14 +246,15 @@ export default function BuildPage() {
             </div>
           </section>
 
-          {/* Goal — filtered based on selected budget */}
+          {/* Goal — required, filtered by budget */}
           <section>
-            <h2 className="text-lg font-semibold mb-1">
-              What will you use it for?
-            </h2>
+            <div className="flex items-baseline gap-2 mb-1">
+              <h2 className="text-lg font-semibold">What will you use it for?</h2>
+              <span className="text-xs text-blue-400 font-medium">required</span>
+            </div>
             {!budget ? (
               <p className="text-gray-500 text-sm mt-2">
-                Select a budget above to see available options.
+                Select a budget above — your options will appear here.
               </p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
@@ -254,13 +278,20 @@ export default function BuildPage() {
             )}
           </section>
 
-          {/* Preferences */}
+          {/* Preferences — optional */}
           <section>
-            <h2 className="text-lg font-semibold mb-4">Preferences</h2>
+            <div className="flex items-baseline gap-2 mb-1">
+              <h2 className="text-lg font-semibold">Build preferences</h2>
+              <span className="text-xs text-gray-500 font-medium">optional</span>
+            </div>
+            <p className="text-gray-500 text-sm mb-6">
+              Leave at defaults and we&apos;ll pick the best value. Only change
+              these if you have a specific requirement.
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
                 <label className="text-sm text-gray-400 mb-2 block">
-                  Form Factor
+                  Case Size
                 </label>
                 <div className="space-y-2">
                   {FORM_FACTORS.map((f) => (
@@ -274,7 +305,8 @@ export default function BuildPage() {
                           : "border-gray-700 bg-gray-800 hover:border-gray-500"
                       }`}
                     >
-                      {f.label}
+                      <div>{f.label}</div>
+                      <div className="text-gray-400 text-xs mt-0.5">{f.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -349,20 +381,19 @@ export default function BuildPage() {
             </div>
           </section>
 
-          {/* Peripherals */}
+          {/* Peripherals — styled as a card toggle, no section heading needed */}
           <section>
-            <h2 className="text-lg font-semibold mb-4">Options</h2>
-            <label className="flex items-center gap-3 cursor-pointer">
+            <label className="flex items-start gap-4 p-4 rounded-xl border border-gray-700 bg-gray-800 hover:border-gray-600 cursor-pointer transition-colors">
               <input
                 type="checkbox"
                 checked={includePeripherals}
                 onChange={(e) => setIncludePeripherals(e.target.checked)}
-                className="w-5 h-5 rounded accent-blue-500"
+                className="w-5 h-5 rounded accent-blue-500 mt-0.5 shrink-0"
               />
               <div>
-                <div className="font-medium">Include Peripherals</div>
-                <div className="text-gray-400 text-sm">
-                  Add monitor, keyboard, and mouse to the build
+                <div className="font-medium">Include peripherals</div>
+                <div className="text-gray-400 text-sm mt-0.5">
+                  Add a monitor, keyboard, and mouse to the component list
                 </div>
               </div>
             </label>
@@ -371,10 +402,11 @@ export default function BuildPage() {
           {/* Existing Parts */}
           <section>
             <h2 className="text-lg font-semibold mb-1">
-              Parts You Already Own
+              Parts you already own
             </h2>
             <p className="text-gray-400 text-sm mb-4">
-              We&apos;ll skip recommending these.
+              Tag anything you already have — we&apos;ll build around it and
+              skip recommending those parts.
             </p>
             <div className="flex flex-wrap gap-2">
               {COMPONENT_CATEGORIES.map((c) => (
@@ -394,22 +426,24 @@ export default function BuildPage() {
             </div>
           </section>
 
-
           {/* Notes */}
           <section>
-            <h2 className="text-lg font-semibold mb-1">Additional Notes</h2>
+            <h2 className="text-lg font-semibold mb-1">Anything else?</h2>
             <p className="text-gray-400 text-sm mb-4">
-              Optional — specific requirements, component preferences, or anything else we should know.
+              Optional — use this for anything specific: noise levels, RGB
+              preferences, a case you already own, expansion plans, etc.
             </p>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="e.g. Prefer quiet components, already have a monitor, want good airflow..."
+              placeholder="e.g. Silent build preferred, no RGB, I already have a Fractal case, want room to upgrade RAM later..."
               maxLength={500}
               rows={3}
               className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
             />
-            <p className="text-gray-600 text-xs mt-1 text-right">{notes.length}/500</p>
+            <p className="text-gray-600 text-xs mt-1 text-right">
+              {notes.length}/500
+            </p>
           </section>
 
           {error && (
@@ -418,22 +452,34 @@ export default function BuildPage() {
             </div>
           )}
 
+          {/* Submit */}
           <div>
+            {readyToSubmit && !loading && (
+              <p className="text-center text-gray-400 text-sm mb-4">
+                Generating:{" "}
+                <span className="text-white font-medium">{selectedGoalLabel}</span>
+                {" · "}
+                <span className="text-white font-medium">{selectedBudgetLabel}</span>
+              </p>
+            )}
             <button
               type="submit"
-              disabled={!goal || !budget || loading}
+              disabled={!readyToSubmit || loading}
               className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl text-lg transition-colors"
             >
-              {loading ? "Generating your build… this may take ~30s" : "Build My PC \u2192"}
+              {loading
+                ? "Building your component list — usually 30–60 seconds…"
+                : "Build My PC \u2192"}
             </button>
-            {(!goal || !budget) && !loading && (
+            {!readyToSubmit && !loading && (
               <p className="text-center text-gray-500 text-sm mt-2">
                 {!budget
                   ? "Select a budget to continue"
-                  : "Select a goal to continue"}
+                  : "Select a use case to continue"}
               </p>
             )}
           </div>
+
         </form>
       </div>
     </main>

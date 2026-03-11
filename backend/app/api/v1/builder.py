@@ -1,7 +1,9 @@
 import logging
 import secrets
 
+import anthropic
 from fastapi import APIRouter, HTTPException, Request
+from pydantic import ValidationError
 
 from app.limiter import limiter
 from app.models.builder import BuildRequest, BuildResult, BuildStatus
@@ -31,8 +33,14 @@ async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
             downgrade_suggestion=downgrade_suggestion,
             status=BuildStatus.completed,
         )
+    except (anthropic.APITimeoutError, anthropic.APIConnectionError) as e:
+        log.warning("Claude API unavailable: goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
+        raise HTTPException(status_code=502, detail="Failed to generate build. Please try again.")
+    except (ValidationError, ValueError) as e:
+        log.error("Invalid Claude response structure: goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
+        raise HTTPException(status_code=502, detail="Failed to generate build. Please try again.")
     except Exception:
-        log.exception("Failed to generate build for request: goal=%s budget=%s", payload.goal, payload.budget_range)
+        log.exception("Unexpected error generating build: goal=%s budget=%s", payload.goal, payload.budget_range)
         raise HTTPException(status_code=502, detail="Failed to generate build. Please try again.")
 
     _builds[build_id] = build

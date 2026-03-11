@@ -67,17 +67,23 @@ export default function AboutPage() {
             </div>
           </section>
 
-          <section>
+          <section id="affiliate-disclosure">
             <h2 className="text-xl font-semibold text-white mb-3">Affiliate Disclosure</h2>
             <p>
-              PcCoach is free because we earn a small commission when you purchase through our
-              links — at no extra cost to you. This affiliate revenue keeps the lights on and
-              allows us to offer the service for free.
+              PcCoach is free to use. We earn a small commission when you purchase through our
+              affiliate links — at no extra cost to you. We participate in affiliate programmes
+              with <strong className="text-white">Amazon</strong>,{" "}
+              <strong className="text-white">ComputerUniverse</strong>, and{" "}
+              <strong className="text-white">Caseking</strong>. This commission keeps the service
+              running.
             </p>
             <p className="mt-3">
-              Our recommendations are driven entirely by your requirements. We do not promote
-              specific products for commercial reasons, and affiliate relationships do not
-              influence the AI&apos;s output.
+              Affiliate relationships do not influence which products the AI recommends.
+              Recommendations are driven entirely by your stated requirements and budget.
+              The price you pay at the retailer is the same whether you arrive via our link or directly.
+            </p>
+            <p className="mt-3">
+              As an Amazon Associate we earn from qualifying purchases.
             </p>
           </section>
 
@@ -94,6 +100,15 @@ export default function AboutPage() {
               </Link>
               .
             </p>
+          </section>
+
+          <section className="border-t border-gray-800 pt-8">
+            <h2 className="text-base font-semibold text-white mb-3">Legal</h2>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+              <Link href="/privacy" className="text-blue-400 hover:text-blue-300 underline">Privacy Policy</Link>
+              <Link href="/terms" className="text-blue-400 hover:text-blue-300 underline">Terms of Service</Link>
+              <Link href="/contact" className="text-blue-400 hover:text-blue-300 underline">Contact</Link>
+            </div>
           </section>
         </div>
       </div>

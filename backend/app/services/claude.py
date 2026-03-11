@@ -1,4 +1,4 @@
-import json
+import html
 from functools import lru_cache
 
 import anthropic
@@ -161,7 +161,7 @@ class ClaudeService:
         - Cooling preference: {request.cooling_preference.value}
         - Include peripherals: {request.include_peripherals}
         - Parts already owned (exclude these): {[p.value for p in request.existing_parts] or 'none'}
-        - Additional notes: <user_input>{request.notes or 'none'}</user_input>"""
+        - Additional notes: {html.escape(request.notes) if request.notes else 'none'}"""
 
         response = await self.client.messages.create(
             model=self.model,
@@ -175,7 +175,7 @@ class ClaudeService:
         tool_use = next((b for b in response.content if b.type == "tool_use"), None)
         if not tool_use:
             raise ValueError("No tool_use block in Claude response")
-        data = tool_use.input if isinstance(tool_use.input, dict) else json.loads(tool_use.input)
+        data = tool_use.input
 
         components = [ComponentRecommendation(**c) for c in data["components"]]
         summary = data["summary"]
@@ -197,12 +197,12 @@ class ClaudeService:
 You must recommend a {request.category.value}. Do not recommend any other component type.
 
 User description:
-<user_input>{request.description}</user_input>"""
+{html.escape(request.description)}"""
 
         response = await self.client.messages.create(
             model=self.model,
             max_tokens=1500,
-            system=[{"type": "text", "text": _SEARCH_SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
+            system=_SEARCH_SYSTEM_PROMPT,
             tools=[SEARCH_TOOL],
             tool_choice={"type": "tool", "name": "recommend_component"},
             messages=[{"role": "user", "content": user_message}],
@@ -211,7 +211,7 @@ User description:
         tool_use = next((b for b in response.content if b.type == "tool_use"), None)
         if not tool_use:
             raise ValueError("No tool_use block in Claude response")
-        data = tool_use.input if isinstance(tool_use.input, dict) else json.loads(tool_use.input)
+        data = tool_use.input
 
         return ComponentSearchResult(
             name=data["name"],

@@ -41,7 +41,7 @@ export default function PrivacyPage() {
                 },
                 {
                   title: "No account data",
-                  desc: "We do not require you to create an account. We do not collect your name, email address, or any other personal identifiers unless you voluntarily provide them via our contact form.",
+                  desc: "We do not require you to create an account. We do not collect your name, email address, or any other personal identifiers unless you voluntarily contact us by email.",
                 },
               ].map((item) => (
                 <div key={item.title} className="bg-gray-800 border border-gray-700 rounded-xl p-5">
@@ -102,12 +102,14 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">Data Retention</h2>
             <p>
-              Build results are retained on our servers to allow you to revisit them via a direct
-              link. If you would like your build data deleted, please{" "}
+              Build results are held temporarily in server memory to allow you to share or revisit
+              them via a direct link. They are not permanently stored and may be cleared when the
+              server is restarted or after a period of inactivity. If you would like your build data
+              removed sooner, please{" "}
               <Link href="/contact" className="text-blue-400 hover:text-blue-300 underline">
                 contact us
-              </Link>{" "}
-              and we will remove it promptly.
+              </Link>
+              .
             </p>
           </section>
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { searchComponent } from "@/lib/api";
-import type { ComponentCategory, ComponentSearchResult } from "@/lib/api";
+import type { AffiliateSource, ComponentCategory, ComponentSearchResult } from "@/lib/api";
 
 const CATEGORIES: { value: ComponentCategory; label: string; icon: string }[] = [
   { value: "cpu", label: "CPU", icon: "🔲" },
@@ -19,13 +19,27 @@ const CATEGORIES: { value: ComponentCategory; label: string; icon: string }[] = 
   { value: "mouse", label: "Mouse", icon: "🖱️" },
 ];
 
-const SOURCE_LABELS: Record<string, string> = {
+const CATEGORY_PLACEHOLDERS: Record<ComponentCategory, string> = {
+  cpu: "e.g. best gaming CPU under €300, prefer AMD",
+  gpu: "e.g. RTX 4070 or equivalent for 1440p gaming",
+  motherboard: "e.g. ATX board for AM5, good VRM for overclocking",
+  ram: "e.g. 32 GB DDR5 kit, low latency",
+  storage: "e.g. 2 TB NVMe SSD, PCIe 4.0",
+  psu: "e.g. 850W modular, 80+ Gold",
+  case: "e.g. mid-tower ATX with good airflow and USB-C front panel",
+  cooling: "e.g. 240mm AIO for Ryzen 7 CPU, quiet fans",
+  monitor: "e.g. 27\" 1440p 165Hz IPS for gaming",
+  keyboard: "e.g. compact TKL mechanical, tactile switches",
+  mouse: "e.g. lightweight wireless gaming mouse under €80",
+};
+
+const SOURCE_LABELS: Record<AffiliateSource, string> = {
   amazon: "Amazon.de",
   computeruniverse: "ComputerUniverse",
   caseking: "Caseking",
 };
 
-const SOURCE_COLORS: Record<string, string> = {
+const SOURCE_COLORS: Record<AffiliateSource, string> = {
   amazon: "bg-orange-600 hover:bg-orange-500",
   computeruniverse: "bg-blue-700 hover:bg-blue-600",
   caseking: "bg-red-700 hover:bg-red-600",
@@ -59,8 +73,12 @@ export default function FindPage() {
       );
       setResult(res);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
-      setError(msg);
+      if (err instanceof Error && err.name === "AbortError") {
+        setError("Request timed out. Please try again.");
+      } else {
+        const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+        setError(msg);
+      }
     } finally {
       setLoading(false);
       clearTimeout(timeout);
@@ -112,10 +130,8 @@ export default function FindPage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={
-                category === "cpu"
-                  ? "e.g. best gaming CPU under €300, prefer AMD"
-                  : category === "gpu"
-                  ? "e.g. RTX 4070 or equivalent for 1440p gaming"
+                category
+                  ? CATEGORY_PLACEHOLDERS[category]
                   : "e.g. describe the component, use case, or specific model"
               }
               maxLength={300}

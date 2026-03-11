@@ -8,8 +8,10 @@ services:
     env_file:
       - ./backend/.env
     restart: unless-stopped
+    mem_limit: 1g
+    cpus: 1.0
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -29,6 +31,14 @@ services:
       backend:
         condition: service_healthy
     restart: unless-stopped
+    mem_limit: 512m
+    cpus: 0.5
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => { r.on('data', () => {}); r.on('end', () => process.exit(r.statusCode >= 200 && r.statusCode < 400 ? 0 : 1)); }).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   telegram-bot:
     build:
@@ -40,3 +50,11 @@ services:
       backend:
         condition: service_healthy
     restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.25
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

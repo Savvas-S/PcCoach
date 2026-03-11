@@ -1,6 +1,8 @@
 from enum import Enum
+from typing import Literal
+from urllib.parse import urlparse
 
-from pydantic import BaseModel, Field, HttpUrl, model_validator
+from pydantic import BaseModel, Field, HttpUrl, field_validator, model_validator
 
 
 class UserGoal(str, Enum):
@@ -60,11 +62,14 @@ class ComponentCategory(str, Enum):
 
 
 class BuildStatus(str, Enum):
+    # pending and failed are reserved for a future async build flow
     pending = "pending"
     completed = "completed"
     failed = "failed"
 
 
+# IMPORTANT: This mapping is triplicated in frontend/src/app/build/page.tsx (BUDGET_GOALS)
+# and telegram_bot/bot/main.py (BUDGET_GOALS). Keep all three in sync when making changes.
 _VALID_GOALS_FOR_BUDGET: dict[BudgetRange, set[UserGoal]] = {
     BudgetRange.range_0_1000: {UserGoal.low_end_gaming, UserGoal.light_work},
     BudgetRange.range_1000_1500: {UserGoal.mid_range_gaming, UserGoal.light_work, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
@@ -72,6 +77,25 @@ _VALID_GOALS_FOR_BUDGET: dict[BudgetRange, set[UserGoal]] = {
     BudgetRange.range_2000_3000: {UserGoal.high_end_gaming, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
     BudgetRange.over_3000: {UserGoal.high_end_gaming, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
 }
+
+_ALLOWED_AFFILIATE_HOSTS: frozenset[str] = frozenset({
+    "amazon.de",
+    "www.amazon.de",
+    "computeruniverse.net",
+    "www.computeruniverse.net",
+    "caseking.de",
+    "www.caseking.de",
+})
+
+
+def _validate_affiliate_url(v: HttpUrl | None) -> HttpUrl | None:
+    """Ensure affiliate_url points to one of the three allowed stores."""
+    if v is None:
+        return v
+    host = urlparse(str(v)).hostname or ""
+    if host not in _ALLOWED_AFFILIATE_HOSTS:
+        raise ValueError(f"affiliate_url host '{host}' is not an allowed store")
+    return v
 
 
 class BuildRequest(BaseModel):
@@ -112,9 +136,12 @@ class ComponentRecommendation(BaseModel):
         description="Key specs e.g. {'cores': '8', 'tdp': '65W'}",
     )
     affiliate_url: HttpUrl | None = None
-    affiliate_source: str | None = Field(
-        None, description="e.g. 'amazon', 'computeruniverse', 'caseking'"
-    )
+    affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+
+    @field_validator("affiliate_url", mode="after")
+    @classmethod
+    def check_affiliate_url(cls, v: HttpUrl | None) -> HttpUrl | None:
+        return _validate_affiliate_url(v)
 
 
 class UpgradeSuggestion(BaseModel):
@@ -125,9 +152,12 @@ class UpgradeSuggestion(BaseModel):
     extra_cost_eur: float = Field(..., gt=0)
     reason: str
     affiliate_url: HttpUrl | None = None
-    affiliate_source: str | None = Field(
-        None, description="e.g. 'amazon', 'computeruniverse', 'caseking'"
-    )
+    affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+
+    @field_validator("affiliate_url", mode="after")
+    @classmethod
+    def check_affiliate_url(cls, v: HttpUrl | None) -> HttpUrl | None:
+        return _validate_affiliate_url(v)
 
 
 class DowngradeSuggestion(BaseModel):
@@ -138,9 +168,12 @@ class DowngradeSuggestion(BaseModel):
     savings_eur: float = Field(..., gt=0)
     reason: str
     affiliate_url: HttpUrl | None = None
-    affiliate_source: str | None = Field(
-        None, description="e.g. 'amazon', 'computeruniverse', 'caseking'"
-    )
+    affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+
+    @field_validator("affiliate_url", mode="after")
+    @classmethod
+    def check_affiliate_url(cls, v: HttpUrl | None) -> HttpUrl | None:
+        return _validate_affiliate_url(v)
 
 
 class ComponentSearchRequest(BaseModel):
@@ -150,8 +183,14 @@ class ComponentSearchRequest(BaseModel):
 
 
 class StoreLink(BaseModel):
-    store: str
+    store: Literal["computeruniverse", "caseking", "amazon"]
     url: HttpUrl
+
+    @field_validator("url", mode="after")
+    @classmethod
+    def check_store_url(cls, v: HttpUrl) -> HttpUrl:
+        _validate_affiliate_url(v)  # raises ValueError if host is not an allowed store
+        return v
 
 
 class ComponentSearchResult(BaseModel):
@@ -175,7 +214,8 @@ class BuildResult(BaseModel):
     )
     upgrade_suggestion: UpgradeSuggestion | None = None
     downgrade_suggestion: DowngradeSuggestion | None = None
-    status: BuildStatus = BuildStatus.pending
+    # pending and failed are reserved for a future async flow; stored builds are always completed
+    status: BuildStatus = BuildStatus.completed
 
     @model_validator(mode="after")
     def compute_total_price(self) -> "BuildResult":

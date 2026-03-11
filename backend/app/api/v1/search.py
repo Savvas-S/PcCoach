@@ -1,6 +1,8 @@
 import logging
 
+import anthropic
 from fastapi import APIRouter, HTTPException, Request
+from pydantic import ValidationError
 
 from app.limiter import limiter
 from app.models.builder import ComponentSearchRequest, ComponentSearchResult
@@ -16,6 +18,12 @@ async def search_component(request: Request, payload: ComponentSearchRequest) ->
     try:
         claude = get_claude_service()
         return await claude.search_component(payload)
+    except (anthropic.APITimeoutError, anthropic.APIConnectionError) as e:
+        log.warning("Claude API unavailable: category=%s error=%s", payload.category, e)
+        raise HTTPException(status_code=502, detail="Failed to find component. Please try again.")
+    except (ValidationError, ValueError) as e:
+        log.error("Invalid Claude response structure: category=%s error=%s", payload.category, e)
+        raise HTTPException(status_code=502, detail="Failed to find component. Please try again.")
     except Exception:
-        log.exception("Failed to search component: category=%s", payload.category)
+        log.exception("Unexpected error searching component: category=%s", payload.category)
         raise HTTPException(status_code=502, detail="Failed to find component. Please try again.")

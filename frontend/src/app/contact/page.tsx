@@ -58,40 +58,29 @@ export default function ContactPage() {
         {/* Contact details */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold text-white mb-4">Get in Touch</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
-              <div className="text-sm text-gray-400 mb-1">Email</div>
-              <a
-                href="mailto:support@pccoach.io"
-                className="text-blue-400 hover:text-blue-300 font-medium"
-              >
-                support@pccoach.io
-              </a>
-              <p className="text-gray-500 text-xs mt-2">
-                We aim to respond within 1 business day.
-              </p>
-            </div>
-
-            <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
-              <div className="text-sm text-gray-400 mb-1">Phone</div>
-              <a
-                href="tel:+35725000000"
-                className="text-blue-400 hover:text-blue-300 font-medium"
-              >
-                +357 25 000 000
-              </a>
-              <p className="text-gray-500 text-xs mt-2">
-                Monday – Friday, 9:00 – 18:00 (EET)
-              </p>
-            </div>
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
+            <div className="text-sm text-gray-400 mb-1">Email</div>
+            <a
+              href="mailto:support@pccoach.io"
+              className="text-blue-400 hover:text-blue-300 font-medium"
+            >
+              support@pccoach.io
+            </a>
+            <p className="text-gray-500 text-xs mt-2">
+              We aim to respond within 1 business day.
+            </p>
           </div>
 
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 mt-4">
             <div className="text-sm text-gray-400 mb-1">Address</div>
             <p className="text-white font-medium">Limassol, Cyprus</p>
             <p className="text-gray-500 text-xs mt-2">
-              For privacy or data requests, please email us with the subject line
-              &ldquo;Data Request&rdquo;.
+              For privacy or data requests, email us with the subject line &ldquo;Data Request&rdquo;.
+              See our{" "}
+              <Link href="/privacy" className="text-blue-400 hover:text-blue-300 underline">
+                Privacy Policy
+              </Link>{" "}
+              for details on your rights.
             </p>
           </div>
         </section>

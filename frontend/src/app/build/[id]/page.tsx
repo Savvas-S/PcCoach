@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getBuild } from "@/lib/api";
-import type { BuildResult, ComponentRecommendation, DowngradeSuggestion, UpgradeSuggestion } from "@/lib/api";
+import type { AffiliateSource, BuildResult, ComponentRecommendation, DowngradeSuggestion, UpgradeSuggestion } from "@/lib/api";
 
 const CATEGORY_LABELS: Record<string, string> = {
   cpu: "CPU",
@@ -20,8 +20,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   mouse: "Mouse",
 };
 
-const SOURCE_LABELS: Record<string, string> = {
-  amazon: "Amazon",
+const SOURCE_LABELS: Record<AffiliateSource, string> = {
+  amazon: "Amazon.de",
   computeruniverse: "ComputerUniverse",
   caseking: "Caseking",
 };
@@ -61,16 +61,18 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
 
         <div className="text-right shrink-0">
           <div className="text-xl font-bold text-white">
-            &euro;{component.price_eur.toFixed(2)}
+            ~&euro;{component.price_eur.toFixed(0)}
           </div>
           {component.affiliate_url && (
             <a
               href={component.affiliate_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-block bg-blue-600 hover:bg-blue-500 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+              className="mt-2 inline-block bg-blue-600 hover:bg-blue-500 text-white text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
             >
-              Buy &rarr;
+              {component.affiliate_source
+                ? `${SOURCE_LABELS[component.affiliate_source]} →`
+                : "Buy →"}
             </a>
           )}
         </div>
@@ -111,9 +113,11 @@ function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
               href={suggestion.affiliate_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-block bg-amber-600 hover:bg-amber-500 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+              className="mt-2 inline-block bg-amber-600 hover:bg-amber-500 text-white text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
             >
-              See upgrade &rarr;
+              {suggestion.affiliate_source
+                ? `${SOURCE_LABELS[suggestion.affiliate_source]} →`
+                : "See upgrade →"}
             </a>
           )}
         </div>
@@ -155,9 +159,11 @@ function DowngradeCard({ suggestion }: { suggestion: DowngradeSuggestion }) {
               href={suggestion.affiliate_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-block bg-green-700 hover:bg-green-600 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+              className="mt-2 inline-block bg-green-700 hover:bg-green-600 text-white text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
             >
-              See option &rarr;
+              {suggestion.affiliate_source
+                ? `${SOURCE_LABELS[suggestion.affiliate_source]} →`
+                : "See option →"}
             </a>
           )}
         </div>
@@ -170,6 +176,19 @@ export default function BuildResultPage() {
   const params = useParams();
   const [build, setBuild] = useState<BuildResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<"idle" | "success" | "failed">("idle");
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied("success");
+      setTimeout(() => setCopied("idle"), 2000);
+    } catch {
+      // Clipboard API unavailable (non-HTTPS or blocked) — prompt user to copy manually
+      setCopied("failed");
+      setTimeout(() => setCopied("idle"), 3000);
+    }
+  };
 
   useEffect(() => {
     const id = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -191,11 +210,13 @@ export default function BuildResultPage() {
     }
 
     const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30_000);
     getBuild(id, controller.signal)
       .then(setBuild)
       .catch((err: Error) => {
         if (err.name !== "AbortError") setError(err.message);
-      });
+      })
+      .finally(() => clearTimeout(timeout));
     return () => controller.abort();
   }, [params.id]);
 
@@ -227,20 +248,34 @@ export default function BuildResultPage() {
     <main className="min-h-screen bg-gray-900 text-white py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <Link href="/build" className="text-gray-400 hover:text-white text-sm">
-            &larr; New Build
-          </Link>
+          <div className="flex items-center justify-between gap-4">
+            <Link href="/build" className="text-gray-400 hover:text-white text-sm">
+              &larr; New Build
+            </Link>
+            <button
+              onClick={handleCopyLink}
+              className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              {copied === "success"
+                ? "Link copied ✓"
+                : copied === "failed"
+                ? "Copy the URL manually"
+                : "Share this build"}
+            </button>
+          </div>
           <h1 className="text-3xl font-bold mt-4">Your Build</h1>
           {build.total_price_eur != null && (
+            // TODO: when real product URLs land, remove ~ and "estimated total", switch toFixed(0) → toFixed(2)
             <p className="text-2xl text-blue-400 font-semibold mt-1">
-              Total: &euro;{build.total_price_eur.toFixed(2)}
+              ~&euro;{build.total_price_eur.toFixed(0)}
+              <span className="text-sm text-gray-500 font-normal ml-2">estimated total</span>
             </p>
           )}
         </div>
 
         {build.summary && (
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 mb-8">
-            <h2 className="font-semibold mb-2 text-gray-300">AI Summary</h2>
+            <h2 className="font-semibold mb-2 text-white">Why these components?</h2>
             <p className="text-gray-300 text-sm leading-relaxed">
               {build.summary}
             </p>
@@ -248,10 +283,15 @@ export default function BuildResultPage() {
         )}
 
         <div className="space-y-3">
+          {/* Claude produces at most one component per category, so category is a stable unique key */}
           {build.components.map((c) => (
-            <ComponentCard key={c.category + c.name} component={c} />
+            <ComponentCard key={c.category} component={c} />
           ))}
         </div>
+        {/* TODO: remove this disclaimer when real product URLs (Awin/Amazon PA API) are integrated — prices will then match the store exactly */}
+        <p className="text-gray-600 text-xs mt-3">
+          Prices are AI estimates. Verify current prices on the store before ordering.
+        </p>
 
         {(build.upgrade_suggestion || build.downgrade_suggestion) && (
           <div className="mt-4 space-y-3">

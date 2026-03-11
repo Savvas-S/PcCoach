@@ -22,7 +22,9 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 # Conversation states
 GOAL, BUDGET, FORM_FACTOR, CPU_BRAND, GPU_BRAND, COOLING_PREFERENCE, PERIPHERALS, EXISTING_PARTS, NOTES = range(9)
 
-# Goals available per budget range — prevents mismatched combinations
+# Goals available per budget range — prevents mismatched combinations.
+# IMPORTANT: This mapping is triplicated in backend/app/models/builder.py (_VALID_GOALS_FOR_BUDGET)
+# and frontend/src/app/build/page.tsx (BUDGET_GOALS). Keep all three in sync.
 BUDGET_GOALS: dict[str, list[tuple[str, str]]] = {
     "0_1000": [
         ("🎮 Casual gaming — Fortnite, CS2, Minecraft", "low_end_gaming"),
@@ -168,8 +170,10 @@ async def budget_selected(update: Update, context) -> int:
     query = update.callback_query
     await query.answer()
     context.user_data["budget_range"] = query.data.removeprefix("budget_")
-    fallback_goals = [g for goals in BUDGET_GOALS.values() for g in goals]
-    goals = BUDGET_GOALS.get(context.user_data["budget_range"], fallback_goals)
+    goals = BUDGET_GOALS.get(context.user_data["budget_range"])
+    if goals is None:
+        logger.warning("Unexpected budget value: %s", context.user_data["budget_range"])
+        goals = list(dict.fromkeys(g for gs in BUDGET_GOALS.values() for g in gs))
     await query.edit_message_text(
         "🎯 <b>What will you mainly use this PC for?</b>\n\n"
         "Based on your budget, here are the best-fit options for you.",
@@ -361,7 +365,7 @@ async def _generate_and_reply(chat_id: int, context) -> None:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=70.0) as client:
+        async with httpx.AsyncClient(timeout=95.0) as client:
             r = await client.post(f"{API_URL}/api/v1/build", json=payload)
             r.raise_for_status()
             build = r.json()
@@ -377,7 +381,7 @@ async def _generate_and_reply(chat_id: int, context) -> None:
 
     lines = [
         "✅ <b>Your PC Build is ready!</b>\n",
-        f"<i>{html.escape(build['summary'])}</i>\n",
+        f"<i>{html.escape(build.get('summary') or '')}</i>\n",
         "─────────────────────",
     ]
     for c in build["components"]:

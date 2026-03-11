@@ -43,6 +43,8 @@ export interface BuildRequest {
   notes?: string;
 }
 
+export type AffiliateSource = "amazon" | "computeruniverse" | "caseking";
+
 export interface ComponentRecommendation {
   category: ComponentCategory;
   name: string;
@@ -50,7 +52,7 @@ export interface ComponentRecommendation {
   price_eur: number;
   specs: Record<string, string>;
   affiliate_url?: string;
-  affiliate_source?: string;
+  affiliate_source?: AffiliateSource;
 }
 
 export interface DowngradeSuggestion {
@@ -60,7 +62,7 @@ export interface DowngradeSuggestion {
   savings_eur: number;
   reason: string;
   affiliate_url?: string;
-  affiliate_source?: string;
+  affiliate_source?: AffiliateSource;
 }
 
 export interface UpgradeSuggestion {
@@ -70,7 +72,7 @@ export interface UpgradeSuggestion {
   extra_cost_eur: number;
   reason: string;
   affiliate_url?: string;
-  affiliate_source?: string;
+  affiliate_source?: AffiliateSource;
 }
 
 export interface BuildResult {
@@ -89,7 +91,7 @@ export interface ComponentSearchRequest {
 }
 
 export interface StoreLink {
-  store: string;
+  store: AffiliateSource;
   url: string;
 }
 
