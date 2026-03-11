@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { submitBuild } from "@/lib/api";
@@ -117,7 +117,7 @@ const COMPONENT_CATEGORIES: { value: ComponentCategory; label: string }[] = [
   { value: "mouse", label: "Mouse" },
 ];
 
-export default function BuildPage() {
+function BuildForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -483,5 +483,13 @@ export default function BuildPage() {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function BuildPage() {
+  return (
+    <Suspense>
+      <BuildForm />
+    </Suspense>
   );
 }
