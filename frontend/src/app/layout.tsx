@@ -41,8 +41,8 @@ export default function RootLayout({
             {/* Disclosure + copyright */}
             <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-gray-600 text-xs">
               <p>
-                PcCoach participates in affiliate programmes with Amazon, ComputerUniverse, and Caseking.
-                We earn a commission on qualifying purchases at no extra cost to you.{" "}
+                As an Amazon Associate I earn from qualifying purchases.{" "}
+                PcCoach also participates in other affiliate programmes and may earn a commission on qualifying purchases at no extra cost to you.{" "}
                 <Link href="/about#affiliate-disclosure" className="underline hover:text-gray-400 transition-colors">
                   Affiliate disclosure
                 </Link>
