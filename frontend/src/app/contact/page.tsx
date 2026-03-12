@@ -61,10 +61,10 @@ export default function ContactPage() {
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
             <div className="text-sm text-gray-400 mb-1">Email</div>
             <a
-              href="mailto:support@pccoach.io"
+              href="mailto:support@thepccoach.com"
               className="text-blue-400 hover:text-blue-300 font-medium"
             >
-              support@pccoach.io
+              support@thepccoach.com
             </a>
             <p className="text-gray-500 text-xs mt-2">
               We aim to respond within 1 business day.
