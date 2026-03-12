@@ -1,0 +1,7 @@
+{
+  "0_1000":    ["low_end_gaming", "light_work"],
+  "1000_1500": ["mid_range_gaming", "light_work", "heavy_work", "designer", "architecture"],
+  "1500_2000": ["high_end_gaming", "mid_range_gaming", "light_work", "heavy_work", "designer", "architecture"],
+  "2000_3000": ["high_end_gaming", "heavy_work", "designer", "architecture"],
+  "over_3000": ["high_end_gaming", "heavy_work", "designer", "architecture"]
+}
