@@ -7,7 +7,6 @@ from app.config import settings
 from app.models.builder import BuildRequest, ComponentRecommendation, ComponentSearchRequest, ComponentSearchResult, DowngradeSuggestion, StoreLink, UpgradeSuggestion
 from app.prompts.manager import build_system_prompt, search_system_prompt
 
-_MODEL = "claude-sonnet-4-6"
 _TIMEOUT = 90.0
 
 SEARCH_TOOL = {
@@ -134,7 +133,7 @@ BUILD_TOOL = {
 class ClaudeService:
     def __init__(self):
         self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key, timeout=_TIMEOUT)
-        self.model = _MODEL
+        self.model = settings.claude_model
 
     async def generate_build(self, request: BuildRequest) -> tuple[list[ComponentRecommendation], str, UpgradeSuggestion | None, DowngradeSuggestion | None]:
         user_message = f"""Please recommend a PC build for the following requirements:

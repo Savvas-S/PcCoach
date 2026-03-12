@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     anthropic_api_key: str | None = None  # required in production
+    claude_model: str = "claude-sonnet-4-6"
     cors_origins: list[str] = ["http://localhost:3000"]
     environment: Literal["development", "production"] = "development"
 
