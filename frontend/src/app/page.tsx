@@ -49,8 +49,8 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-900 text-white">
       {/* Early access notice */}
-      <div className="bg-gray-800/60 border-b border-gray-700/60 py-2 px-4 text-center">
-        <p className="text-xs text-gray-500">
+      <div className="bg-yellow-500/10 border-b border-yellow-500/20 py-2 px-4 text-center">
+        <p className="text-xs text-yellow-400 font-medium">
           Early access — some features are still being built.
         </p>
       </div>
