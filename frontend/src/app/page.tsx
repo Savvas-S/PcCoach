@@ -48,6 +48,13 @@ const EXAMPLE_BUILDS: ExampleBuild[] = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-900 text-white">
+      {/* Early access notice */}
+      <div className="bg-gray-800/60 border-b border-gray-700/60 py-2 px-4 text-center">
+        <p className="text-xs text-gray-500">
+          Early access — some features are still being built.
+        </p>
+      </div>
+
       {/* Hero */}
       <section className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 text-sm text-blue-400">
