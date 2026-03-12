@@ -58,17 +58,31 @@ export default function ContactPage() {
         {/* Contact details */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold text-white mb-4">Get in Touch</h2>
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
-            <div className="text-sm text-gray-400 mb-1">Email</div>
-            <a
-              href="mailto:support@thepccoach.com"
-              className="text-blue-400 hover:text-blue-300 font-medium"
-            >
-              support@thepccoach.com
-            </a>
-            <p className="text-gray-500 text-xs mt-2">
-              We aim to respond within 1 business day.
-            </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
+              <div className="text-sm text-gray-400 mb-1">General enquiries</div>
+              <a
+                href="mailto:info@thepccoach.com"
+                className="text-blue-400 hover:text-blue-300 font-medium"
+              >
+                info@thepccoach.com
+              </a>
+              <p className="text-gray-500 text-xs mt-2">
+                Questions, feedback, or anything else.
+              </p>
+            </div>
+            <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
+              <div className="text-sm text-gray-400 mb-1">Support</div>
+              <a
+                href="mailto:support@thepccoach.com"
+                className="text-blue-400 hover:text-blue-300 font-medium"
+              >
+                support@thepccoach.com
+              </a>
+              <p className="text-gray-500 text-xs mt-2">
+                Build issues or technical problems. We aim to respond within 1 business day.
+              </p>
+            </div>
           </div>
 
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 mt-4">
