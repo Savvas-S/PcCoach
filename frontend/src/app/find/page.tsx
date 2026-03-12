@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { searchComponent, SOURCE_LABELS } from "@/lib/api";
+import { Toast } from "@/components/Toast";
 import type { AffiliateSource, ComponentCategory, ComponentSearchResult } from "@/lib/api";
 
 const CATEGORIES: { value: ComponentCategory; label: string; icon: string }[] = [
@@ -153,12 +154,6 @@ export default function FindPage() {
             <p className="text-gray-600 text-xs mt-1 text-right">{description.length}/300</p>
           </section>
 
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl p-4 text-sm">
-              {error}
-            </div>
-          )}
-
           <button
             type="submit"
             disabled={!category || !description.trim() || loading}
@@ -221,6 +216,8 @@ export default function FindPage() {
           </div>
         )}
       </div>
+
+      {error && <Toast message={error} onDismiss={() => setError(null)} />}
     </main>
   );
 }

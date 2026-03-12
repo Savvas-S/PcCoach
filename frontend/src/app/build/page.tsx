@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { submitBuild } from "@/lib/api";
+import { Toast } from "@/components/Toast";
 import type {
   UserGoal,
   BudgetRange,
@@ -440,12 +441,6 @@ function BuildForm() {
             </p>
           </section>
 
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl p-4 text-sm">
-              {error}
-            </div>
-          )}
-
           {/* Submit */}
           <div>
             {readyToSubmit && !loading && (
@@ -476,6 +471,8 @@ function BuildForm() {
 
         </form>
       </div>
+
+      {error && <Toast message={error} onDismiss={() => setError(null)} />}
     </main>
   );
 }

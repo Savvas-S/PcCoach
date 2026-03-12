@@ -1,4 +1,5 @@
 import ipaddress
+import os
 
 from fastapi import Request
 from slowapi import Limiter
@@ -37,4 +38,7 @@ def _get_client_ip(request: Request) -> str:
     return raw or "unknown"
 
 
-limiter = Limiter(key_func=_get_client_ip)
+# If ENVIRONMENT is not explicitly set to "development", rate limiting is active.
+# This means a missing/unset ENVIRONMENT defaults to enforcing limits — safe by default.
+_env = os.environ.get("ENVIRONMENT", "production")
+limiter = Limiter(key_func=_get_client_ip, enabled=_env != "development")

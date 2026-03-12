@@ -18,10 +18,10 @@ async def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONR
     retry_after = getattr(exc, "retry_after", None)
     detail = (
         f"Rate limit exceeded. Try again in {retry_after}s."
-        if retry_after
+        if retry_after is not None
         else "Rate limit exceeded. Try again later."
     )
-    headers = {"Retry-After": str(retry_after)} if retry_after else {}
+    headers = {"Retry-After": str(retry_after)} if retry_after is not None else {}
     return JSONResponse({"detail": detail}, status_code=429, headers=headers)
 
 

@@ -36,15 +36,24 @@ async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
             downgrade_suggestion=downgrade_suggestion,
             status=BuildStatus.completed,
         )
-    except (anthropic.APITimeoutError, anthropic.APIConnectionError) as e:
-        log.warning("Claude API unavailable: goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
-        raise HTTPException(status_code=502, detail="Failed to generate build. Please try again.")
+    except anthropic.APITimeoutError as e:
+        log.warning("Claude API timed out: goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
+        raise HTTPException(status_code=504, detail="The AI took too long to respond. Please try again.")
+    except anthropic.APIConnectionError as e:
+        log.warning("Claude API unreachable: goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
+        raise HTTPException(status_code=502, detail="Could not reach the AI service. Please try again.")
+    except anthropic.RateLimitError as e:
+        log.warning("Claude API rate limit hit: goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
+        raise HTTPException(status_code=503, detail="The AI service is busy. Please try again in a few minutes.")
+    except anthropic.InternalServerError as e:
+        log.warning("Claude API overloaded (529): goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
+        raise HTTPException(status_code=503, detail="The AI service is temporarily overloaded. Please try again in a moment.")
     except (ValidationError, ValueError) as e:
         log.error("Invalid Claude response structure: goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
-        raise HTTPException(status_code=502, detail="Failed to generate build. Please try again.")
+        raise HTTPException(status_code=502, detail="The AI returned an unexpected response. Please try again.")
     except Exception:
         log.exception("Unexpected error generating build: goal=%s budget=%s", payload.goal, payload.budget_range)
-        raise HTTPException(status_code=502, detail="Failed to generate build. Please try again.")
+        raise HTTPException(status_code=502, detail="Something went wrong. Please try again.")
 
     _builds[build_id] = build
     if len(_builds) > _MAX_BUILDS:
