@@ -14,9 +14,12 @@ const nextConfig = {
     // script-src and style-src require 'unsafe-inline' because Next.js injects inline
     // scripts and styles for hydration. A stricter policy (nonces) can be added later
     // via Next.js middleware once traffic justifies the complexity.
+    const isDev = process.env.NODE_ENV === "development";
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      // Next.js dev mode uses eval-source-map (webpack), which requires unsafe-eval.
+      // Production builds do not use eval, so this is only added in development.
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self'",
