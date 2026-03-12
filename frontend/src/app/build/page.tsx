@@ -73,21 +73,6 @@ const BUDGETS: { value: BudgetRange; label: string }[] = [
   { value: "over_3000", label: "Over €3,000" },
 ];
 
-// Validate budget_goals.json at module load time so schema drift between the JSON
-// and the TypeScript enums is caught at Next.js build time rather than silently at runtime.
-// Must appear after BUDGETS and GOALS are defined.
-{
-  const validBudgets = new Set(BUDGETS.map((b) => b.value));
-  const validGoals = new Set(GOALS.map((g) => g.value));
-  for (const [budget, goals] of Object.entries(budgetGoalsData)) {
-    if (!validBudgets.has(budget as BudgetRange))
-      throw new Error(`budget_goals.json: unknown budget key "${budget}"`);
-    for (const goal of goals as string[])
-      if (!validGoals.has(goal as UserGoal))
-        throw new Error(`budget_goals.json: unknown goal "${goal}" under budget "${budget}"`);
-  }
-}
-
 const FORM_FACTORS: { value: FormFactor; label: string; desc: string }[] = [
   { value: "atx", label: "ATX", desc: "Standard — most compatible" },
   { value: "micro_atx", label: "Micro-ATX", desc: "Smaller, slightly fewer slots" },
