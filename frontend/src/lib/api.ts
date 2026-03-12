@@ -88,7 +88,7 @@ export interface BuildResult {
   summary?: string;
   upgrade_suggestion?: UpgradeSuggestion;
   downgrade_suggestion?: DowngradeSuggestion;
-  status: "pending" | "completed" | "failed";
+  status: "completed";
 }
 
 export interface ComponentSearchRequest {

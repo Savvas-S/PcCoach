@@ -10,6 +10,7 @@ from app.models.builder import (
     ComponentRecommendation,
     StoreLink,
     UserGoal,
+    _VALID_GOALS_FOR_BUDGET,
 )
 
 
@@ -66,6 +67,50 @@ class TestBuildResultTotalPrice:
     def test_default_status_is_completed(self):
         result = BuildResult(id="abc123")
         assert result.status == BuildStatus.completed
+
+
+class TestDeduplicateExistingParts:
+    def _base(self, parts: list) -> BuildRequest:
+        return BuildRequest(
+            goal=UserGoal.low_end_gaming,
+            budget_range=BudgetRange.range_0_1000,
+            existing_parts=parts,
+        )
+
+    def test_duplicates_removed_preserving_order(self):
+        req = self._base([ComponentCategory.cpu, ComponentCategory.gpu, ComponentCategory.cpu])
+        assert req.existing_parts == [ComponentCategory.cpu, ComponentCategory.gpu]
+
+    def test_all_duplicates(self):
+        req = self._base([ComponentCategory.ram, ComponentCategory.ram, ComponentCategory.ram])
+        assert req.existing_parts == [ComponentCategory.ram]
+
+    def test_no_duplicates_unchanged(self):
+        req = self._base([ComponentCategory.cpu, ComponentCategory.gpu])
+        assert req.existing_parts == [ComponentCategory.cpu, ComponentCategory.gpu]
+
+    def test_empty_list_unchanged(self):
+        req = self._base([])
+        assert req.existing_parts == []
+
+
+class TestBudgetGoalsJson:
+    def test_every_budget_range_is_present(self):
+        for budget in BudgetRange:
+            assert budget in _VALID_GOALS_FOR_BUDGET, (
+                f"BudgetRange.{budget.name} ({budget.value}) is missing from budget_goals.json"
+            )
+
+    def test_every_budget_has_at_least_one_goal(self):
+        for budget, goals in _VALID_GOALS_FOR_BUDGET.items():
+            assert len(goals) > 0, f"Budget {budget.value} has no goals in budget_goals.json"
+
+    def test_all_goal_values_are_valid_enums(self):
+        for budget, goals in _VALID_GOALS_FOR_BUDGET.items():
+            for goal in goals:
+                assert isinstance(goal, UserGoal), (
+                    f"Unknown goal value under {budget.value} in budget_goals.json"
+                )
 
 
 class TestAffiliateUrlValidation:

@@ -1,19 +1,64 @@
+import logging
+import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import _rate_limit_exceeded_handler
+from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from app.api.v1.router import router as v1_router
 from app.config import settings
 from app.limiter import limiter
 
+log = logging.getLogger(__name__)
+
+
+async def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    retry_after = getattr(exc, "retry_after", None)
+    detail = (
+        f"Rate limit exceeded. Try again in {retry_after}s."
+        if retry_after
+        else "Rate limit exceeded. Try again later."
+    )
+    headers = {"Retry-After": str(retry_after)} if retry_after else {}
+    return JSONResponse({"detail": detail}, status_code=429, headers=headers)
+
+
+# Known env var name typos — extra="ignore" silently drops these; warn at startup instead.
+_ENV_VAR_TYPOS: dict[str, str] = {
+    "CORS_ORIGIN": "CORS_ORIGINS",
+    "ANTHROPIC_KEY": "ANTHROPIC_API_KEY",
+    "ANTHROPIC_API_KEYS": "ANTHROPIC_API_KEY",
+    "ENVIRONEMENT": "ENVIRONMENT",
+    "ENVIROMENT": "ENVIRONMENT",
+}
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if settings.environment == "production" and not settings.anthropic_api_key:
-        raise RuntimeError("ANTHROPIC_API_KEY must be set in production")
+    # Warn about likely env var name typos that pydantic-settings silently ignores.
+    for typo, correct in _ENV_VAR_TYPOS.items():
+        if typo in os.environ:
+            log.warning(
+                "Env var '%s' looks like a typo for '%s' — it is being ignored by config",
+                typo, correct,
+            )
+
+    if settings.environment == "production":
+        if not settings.anthropic_api_key:
+            raise RuntimeError("ANTHROPIC_API_KEY must be set in production")
+        if any("localhost" in o for o in settings.cors_origins):
+            raise RuntimeError(
+                "CORS_ORIGINS contains 'localhost' in production — "
+                "likely a typo (e.g. CORS_ORIGIN instead of CORS_ORIGINS)"
+            )
+    log.info(
+        "Starting PcCoach: environment=%s cors_origins=%s docs=%s",
+        settings.environment,
+        settings.cors_origins,
+        "disabled" if settings.environment == "production" else "enabled",
+    )
     yield
 
 
@@ -30,7 +75,7 @@ app = FastAPI(
 )
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,5 +1,6 @@
 import logging
 import secrets
+from collections import OrderedDict
 
 import anthropic
 from fastapi import APIRouter, HTTPException, Request
@@ -12,8 +13,10 @@ from app.services.claude import get_claude_service
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/build", tags=["build"])
 
-# In-memory store — will be replaced with DB
-_builds: dict[str, BuildResult] = {}
+# In-memory store with LRU eviction — will be replaced with DB.
+# LRU ensures the least recently accessed build is evicted first, so shared links
+# pointing to a build that was just visited are not the first to go.
+_builds: OrderedDict[str, BuildResult] = OrderedDict()
 _MAX_BUILDS = 500
 
 
@@ -45,13 +48,20 @@ async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
 
     _builds[build_id] = build
     if len(_builds) > _MAX_BUILDS:
-        del _builds[next(iter(_builds))]
+        _builds.popitem(last=False)  # evict least recently accessed
+
+    log.info(
+        "Build generated: id=%s goal=%s budget=%s components=%d",
+        build_id, payload.goal.value, payload.budget_range.value, len(components),
+    )
     return build
 
 
 @router.get("/{build_id}", response_model=BuildResult)
-async def get_build(build_id: str) -> BuildResult:
+@limiter.limit("120/minute")
+async def get_build(request: Request, build_id: str) -> BuildResult:
     build = _builds.get(build_id)
     if not build:
         raise HTTPException(status_code=404, detail="Build not found")
+    _builds.move_to_end(build_id)  # mark as recently accessed — defer eviction
     return build

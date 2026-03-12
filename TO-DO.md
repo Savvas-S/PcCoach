@@ -172,7 +172,7 @@ These are not required for affiliate applications but should be done before driv
 - Rate limiting is in place (10/hour on /build, 20/hour on /search)
 - Before public launch, evaluate if these limits are correct for expected traffic patterns
 
-### 7.3 Add a real email inbox for support@pccoach.io
+### 7.3 Add a real email inbox for support@thepccoach.com
 - Verify this address actually receives email
 - An affiliate network or user trying to reach you and getting a bounce is a trust failure
 

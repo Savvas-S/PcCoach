@@ -13,6 +13,8 @@ import type {
   CoolingPreference,
   ComponentCategory,
 } from "@/lib/api";
+// Edit shared/budget_goals.json and run `make sync-config` to update all services.
+import budgetGoalsData from "@/lib/budget_goals.json";
 
 const GOALS: { value: UserGoal; label: string; desc: string; icon: string }[] =
   [
@@ -60,16 +62,8 @@ const GOALS: { value: UserGoal; label: string; desc: string; icon: string }[] =
     },
   ];
 
-// Goals available per budget.
-// IMPORTANT: This mapping is duplicated in backend/app/models/builder.py (_VALID_GOALS_FOR_BUDGET).
-// Keep both in sync when making changes.
-const BUDGET_GOALS: Record<BudgetRange, UserGoal[]> = {
-  "0_1000":    ["low_end_gaming", "light_work"],
-  "1000_1500": ["mid_range_gaming", "light_work", "heavy_work", "designer", "architecture"],
-  "1500_2000": ["high_end_gaming", "mid_range_gaming", "light_work", "heavy_work", "designer", "architecture"],
-  "2000_3000": ["high_end_gaming", "heavy_work", "designer", "architecture"],
-  "over_3000": ["high_end_gaming", "heavy_work", "designer", "architecture"],
-};
+// Goals available per budget — loaded from shared/budget_goals.json (see import above).
+const BUDGET_GOALS = budgetGoalsData as Record<BudgetRange, UserGoal[]>;
 
 const BUDGETS: { value: BudgetRange; label: string }[] = [
   { value: "0_1000", label: "Under €1,000" },
@@ -78,6 +72,21 @@ const BUDGETS: { value: BudgetRange; label: string }[] = [
   { value: "2000_3000", label: "€2,000 – €3,000" },
   { value: "over_3000", label: "Over €3,000" },
 ];
+
+// Validate budget_goals.json at module load time so schema drift between the JSON
+// and the TypeScript enums is caught at Next.js build time rather than silently at runtime.
+// Must appear after BUDGETS and GOALS are defined.
+{
+  const validBudgets = new Set(BUDGETS.map((b) => b.value));
+  const validGoals = new Set(GOALS.map((g) => g.value));
+  for (const [budget, goals] of Object.entries(budgetGoalsData)) {
+    if (!validBudgets.has(budget as BudgetRange))
+      throw new Error(`budget_goals.json: unknown budget key "${budget}"`);
+    for (const goal of goals as string[])
+      if (!validGoals.has(goal as UserGoal))
+        throw new Error(`budget_goals.json: unknown goal "${goal}" under budget "${budget}"`);
+  }
+}
 
 const FORM_FACTORS: { value: FormFactor; label: string; desc: string }[] = [
   { value: "atx", label: "ATX", desc: "Standard — most compatible" },

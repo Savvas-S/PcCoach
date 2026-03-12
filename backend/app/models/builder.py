@@ -1,4 +1,6 @@
+import json
 from enum import Enum
+from pathlib import Path
 from typing import Literal
 from urllib.parse import urlparse
 
@@ -62,21 +64,23 @@ class ComponentCategory(str, Enum):
 
 
 class BuildStatus(str, Enum):
-    # pending and failed are reserved for a future async build flow
-    pending = "pending"
     completed = "completed"
-    failed = "failed"
 
 
-# IMPORTANT: This mapping is triplicated in frontend/src/app/build/page.tsx (BUDGET_GOALS)
-# and telegram_bot/bot/main.py (BUDGET_GOALS). Keep all three in sync when making changes.
-_VALID_GOALS_FOR_BUDGET: dict[BudgetRange, set[UserGoal]] = {
-    BudgetRange.range_0_1000: {UserGoal.low_end_gaming, UserGoal.light_work},
-    BudgetRange.range_1000_1500: {UserGoal.mid_range_gaming, UserGoal.light_work, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
-    BudgetRange.range_1500_2000: {UserGoal.high_end_gaming, UserGoal.mid_range_gaming, UserGoal.light_work, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
-    BudgetRange.range_2000_3000: {UserGoal.high_end_gaming, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
-    BudgetRange.over_3000: {UserGoal.high_end_gaming, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture},
-}
+# Single source of truth: shared/budget_goals.json — synced here via `make sync-config`.
+# frontend/src/lib/budget_goals.json and telegram_bot/budget_goals.json are kept in sync
+# by the same command. Edit shared/budget_goals.json, then run `make sync-config`.
+_budget_goals_path = Path(__file__).parent.parent / "budget_goals.json"
+try:
+    _VALID_GOALS_FOR_BUDGET: dict[BudgetRange, set[UserGoal]] = {
+        BudgetRange(k): {UserGoal(g) for g in v}
+        for k, v in json.loads(_budget_goals_path.read_text(encoding="utf-8")).items()
+    }
+except FileNotFoundError:
+    raise RuntimeError(
+        f"budget_goals.json not found at {_budget_goals_path}. "
+        "Run `make sync-config` to copy it from shared/budget_goals.json."
+    ) from None
 
 _ALLOWED_AFFILIATE_HOSTS: frozenset[str] = frozenset({
     "amazon.de",
@@ -114,6 +118,17 @@ class BuildRequest(BaseModel):
         description="Categories the customer already owns and wants to exclude",
     )
     notes: str | None = Field(None, max_length=500)
+
+    @field_validator("existing_parts", mode="after")
+    @classmethod
+    def deduplicate_existing_parts(cls, v: list[ComponentCategory]) -> list[ComponentCategory]:
+        seen: set[ComponentCategory] = set()
+        result = []
+        for x in v:
+            if x not in seen:
+                seen.add(x)
+                result.append(x)
+        return result
 
     @model_validator(mode="after")
     def validate_goal_for_budget(self) -> "BuildRequest":
@@ -214,7 +229,6 @@ class BuildResult(BaseModel):
     )
     upgrade_suggestion: UpgradeSuggestion | None = None
     downgrade_suggestion: DowngradeSuggestion | None = None
-    # pending and failed are reserved for a future async flow; stored builds are always completed
     status: BuildStatus = BuildStatus.completed
 
     @model_validator(mode="after")

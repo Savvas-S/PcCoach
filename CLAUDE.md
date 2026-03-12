@@ -94,8 +94,10 @@ POSTGRES_DB=pccoach
 
 Frontend (`.env` in `frontend/`):
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000
+BACKEND_URL=http://localhost:8000
 ```
+Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`).
+`BACKEND_URL` is the var that controls where those rewrites forward to — not `NEXT_PUBLIC_API_URL`.
 
 ## Key Models (`backend/app/models/builder.py`)
 

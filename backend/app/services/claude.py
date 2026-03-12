@@ -5,24 +5,10 @@ import anthropic
 
 from app.config import settings
 from app.models.builder import BuildRequest, ComponentRecommendation, ComponentSearchRequest, ComponentSearchResult, DowngradeSuggestion, StoreLink, UpgradeSuggestion
-from app.prompts.manager import build_system_prompt
+from app.prompts.manager import build_system_prompt, search_system_prompt
 
 _MODEL = "claude-sonnet-4-6"
 _TIMEOUT = 90.0
-
-_SEARCH_SYSTEM_PROMPT = """You are a PC hardware expert. A user will select a component category and describe what they want.
-Your job: recommend the single best product OF THE SELECTED CATEGORY and provide search links to all three stores.
-
-CRITICAL RULE: You must ALWAYS recommend a product of the exact category the user selected.
-Never recommend a product from a different category — even if the user's description mentions another component type.
-If the description seems to conflict with the category, ignore the conflicting part and find the best product for the selected category.
-
-Store search URL formats (replace spaces with + in the query):
-- computeruniverse: https://www.computeruniverse.net/en/search?query={product+name}
-- caseking:         https://www.caseking.de/en/search?q={product+name}
-- amazon:           https://www.amazon.de/s?k={product+name}&tag=thepccoach-21
-
-Always include all three store links. Use the exact product name in the search URLs so the user lands on relevant results."""
 
 SEARCH_TOOL = {
     "name": "recommend_component",
@@ -32,7 +18,7 @@ SEARCH_TOOL = {
         "properties": {
             "name": {"type": "string", "description": "Specific product name, e.g. 'AMD Ryzen 5 7600X'"},
             "brand": {"type": "string"},
-            "estimated_price_eur": {"type": "number", "description": "Best estimate of current EUR price"},
+            "estimated_price_eur": {"type": "number", "minimum": 0.01, "description": "Best estimate of current EUR price"},
             "reason": {"type": "string", "description": "2-3 sentences explaining why this component best matches the request"},
             "specs": {
                 "type": "object",
@@ -79,7 +65,7 @@ BUILD_TOOL = {
                         },
                         "name": {"type": "string"},
                         "brand": {"type": "string"},
-                        "price_eur": {"type": "number"},
+                        "price_eur": {"type": "number", "minimum": 0.01},
                         "specs": {
                             "type": "object",
                             "additionalProperties": {"type": "string"},
@@ -103,7 +89,7 @@ BUILD_TOOL = {
                     },
                     "current_name": {"type": "string"},
                     "upgrade_name": {"type": "string"},
-                    "extra_cost_eur": {"type": "number"},
+                    "extra_cost_eur": {"type": "number", "minimum": 0.01},
                     "reason": {
                         "type": "string",
                         "description": "One sentence explaining why the upgrade is worth it",
@@ -126,7 +112,7 @@ BUILD_TOOL = {
                     },
                     "current_name": {"type": "string"},
                     "downgrade_name": {"type": "string"},
-                    "savings_eur": {"type": "number"},
+                    "savings_eur": {"type": "number", "minimum": 0.01},
                     "reason": {
                         "type": "string",
                         "description": "One sentence explaining the trade-off — what is saved and what is slightly compromised",
@@ -202,7 +188,7 @@ User description:
         response = await self.client.messages.create(
             model=self.model,
             max_tokens=1500,
-            system=_SEARCH_SYSTEM_PROMPT,
+            system=[{"type": "text", "text": search_system_prompt(), "cache_control": {"type": "ephemeral"}}],
             tools=[SEARCH_TOOL],
             tool_choice={"type": "tool", "name": "recommend_component"},
             messages=[{"role": "user", "content": user_message}],

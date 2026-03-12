@@ -17,7 +17,7 @@ router = APIRouter(prefix="/search", tags=["search"])
 async def search_component(request: Request, payload: ComponentSearchRequest) -> ComponentSearchResult:
     try:
         claude = get_claude_service()
-        return await claude.search_component(payload)
+        result = await claude.search_component(payload)
     except (anthropic.APITimeoutError, anthropic.APIConnectionError) as e:
         log.warning("Claude API unavailable: category=%s error=%s", payload.category, e)
         raise HTTPException(status_code=502, detail="Failed to find component. Please try again.")
@@ -27,3 +27,6 @@ async def search_component(request: Request, payload: ComponentSearchRequest) ->
     except Exception:
         log.exception("Unexpected error searching component: category=%s", payload.category)
         raise HTTPException(status_code=502, detail="Failed to find component. Please try again.")
+
+    log.info("Component found: category=%s name=%s", payload.category.value, result.name)
+    return result

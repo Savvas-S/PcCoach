@@ -34,6 +34,21 @@ const CATEGORY_PLACEHOLDERS: Record<ComponentCategory, string> = {
 };
 
 
+// Acronyms that should not be title-cased — mirrors build/[id]/page.tsx
+const SPEC_KEY_OVERRIDES: Record<string, string> = {
+  tdp: "TDP",
+  rpm: "RPM",
+  vram: "VRAM",
+  pcie: "PCIe",
+  ddr: "DDR",
+};
+
+function formatSpecKey(key: string): string {
+  const lower = key.toLowerCase();
+  if (SPEC_KEY_OVERRIDES[lower]) return SPEC_KEY_OVERRIDES[lower];
+  return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 const SOURCE_COLORS: Record<AffiliateSource, string> = {
   amazon: "bg-orange-600 hover:bg-orange-500",
   computeruniverse: "bg-blue-700 hover:bg-blue-600",
@@ -102,6 +117,8 @@ export default function FindPage() {
                 <button
                   key={c.value}
                   type="button"
+                  aria-label={c.label}
+                  aria-pressed={category === c.value}
                   onClick={() => setCategory(c.value)}
                   className={`p-3 rounded-xl border text-sm font-medium transition-all flex flex-col items-center gap-1 ${
                     category === c.value
@@ -109,7 +126,7 @@ export default function FindPage() {
                       : "border-gray-700 bg-gray-800 hover:border-gray-500 text-white"
                   }`}
                 >
-                  <span className="text-xl">{c.icon}</span>
+                  <span aria-hidden="true" className="text-xl">{c.icon}</span>
                   {c.label}
                 </button>
               ))}
@@ -177,7 +194,7 @@ export default function FindPage() {
                     key={k}
                     className="text-xs text-gray-400 bg-gray-700/60 px-2 py-1 rounded-lg"
                   >
-                    {k}: {v}
+                    {formatSpecKey(k)}: {v}
                   </span>
                 ))}
               </div>

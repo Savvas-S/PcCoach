@@ -1,6 +1,8 @@
 import html
+import json
 import logging
 import os
+from pathlib import Path
 
 import httpx
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -19,44 +21,48 @@ logger = logging.getLogger(__name__)
 API_URL = os.getenv("API_URL", "http://backend:8000")
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
+_NOTES_MAX_LENGTH = 500
+
 # Conversation states
 GOAL, BUDGET, FORM_FACTOR, CPU_BRAND, GPU_BRAND, COOLING_PREFERENCE, PERIPHERALS, EXISTING_PARTS, NOTES = range(9)
 
-# Goals available per budget range — prevents mismatched combinations.
-# IMPORTANT: This mapping is triplicated in backend/app/models/builder.py (_VALID_GOALS_FOR_BUDGET)
-# and frontend/src/app/build/page.tsx (BUDGET_GOALS). Keep all three in sync.
+# Goal value → display label (bot-specific, emoji-enhanced).
+# Valid goals per budget are loaded from the shared canonical source below.
+_GOAL_LABELS: dict[str, str] = {
+    "high_end_gaming": "🎮 Gaming — Max settings, latest titles",
+    "mid_range_gaming": "🎮 Gaming — Great performance, smart price",
+    "low_end_gaming": "🎮 Casual gaming — Fortnite, CS2, Minecraft",
+    "light_work": "💼 Everyday — Web, Office, Netflix",
+    "heavy_work": "⚡ Power user — Editing, coding, heavy apps",
+    "designer": "🎨 Creative — Photoshop, Illustrator",
+    "architecture": "🏗️ Engineering — AutoCAD, 3D rendering",
+}
+
+# Loaded from shared/budget_goals.json (synced via `make sync-config`).
+# Edit shared/budget_goals.json and run `make sync-config` — do not edit this copy directly.
+_budget_goals_file = Path(__file__).parent.parent / "budget_goals.json"
+try:
+    _budget_goals_raw: dict[str, list[str]] = json.loads(
+        _budget_goals_file.read_text(encoding="utf-8")
+    )
+except FileNotFoundError:
+    raise RuntimeError(
+        f"budget_goals.json not found at {_budget_goals_file}. "
+        "Run `make sync-config` to copy it from shared/budget_goals.json."
+    ) from None
+
+# Validate that every goal in the JSON has a display label — fail loudly if not.
+_missing = [g for goals in _budget_goals_raw.values() for g in goals if g not in _GOAL_LABELS]
+if _missing:
+    raise RuntimeError(
+        f"Goals in budget_goals.json have no entry in _GOAL_LABELS: {_missing}. "
+        "Add a display label for each new goal."
+    )
+
+# Convert to bot keyboard format: {budget: [(label, value), ...]}
 BUDGET_GOALS: dict[str, list[tuple[str, str]]] = {
-    "0_1000": [
-        ("🎮 Casual gaming — Fortnite, CS2, Minecraft", "low_end_gaming"),
-        ("💼 Everyday — Web, Office, Netflix", "light_work"),
-    ],
-    "1000_1500": [
-        ("🎮 Gaming — Great performance, smart price", "mid_range_gaming"),
-        ("💼 Everyday — Web, Office, Netflix", "light_work"),
-        ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
-        ("🎨 Creative — Photoshop, Illustrator", "designer"),
-        ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
-    ],
-    "1500_2000": [
-        ("🎮 Gaming — Max settings, latest titles", "high_end_gaming"),
-        ("🎮 Gaming — Great performance, smart price", "mid_range_gaming"),
-        ("💼 Everyday — Web, Office, Netflix", "light_work"),
-        ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
-        ("🎨 Creative — Photoshop, Illustrator", "designer"),
-        ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
-    ],
-    "2000_3000": [
-        ("🎮 Gaming — Max settings, latest titles", "high_end_gaming"),
-        ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
-        ("🎨 Creative — Photoshop, Illustrator", "designer"),
-        ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
-    ],
-    "over_3000": [
-        ("🎮 Gaming — Max settings, latest titles", "high_end_gaming"),
-        ("⚡ Power user — Editing, coding, heavy apps", "heavy_work"),
-        ("🎨 Creative — Photoshop, Illustrator", "designer"),
-        ("🏗️ Engineering — AutoCAD, 3D rendering", "architecture"),
-    ],
+    budget: [(_GOAL_LABELS[g], g) for g in goals]
+    for budget, goals in _budget_goals_raw.items()
 }
 
 BUDGETS = [
@@ -147,6 +153,19 @@ def _notes_keyboard(selected: list[int]) -> InlineKeyboardMarkup:
     ]
     buttons.append([InlineKeyboardButton("No special preferences →", callback_data="notes_done")])
     return InlineKeyboardMarkup(buttons)
+
+
+async def help_command(update: Update, context) -> None:
+    await update.message.reply_text(
+        "🖥️ <b>PcCoach</b> — AI-powered PC build recommendations\n\n"
+        "Answer a few quick questions and I'll recommend the exact parts to buy, "
+        "with prices and links to purchase them.\n\n"
+        "<b>Commands:</b>\n"
+        "/build — Start a new build recommendation\n"
+        "/help — Show this message\n"
+        "/cancel — Cancel the current build wizard",
+        parse_mode="HTML",
+    )
 
 
 async def start(update: Update, context) -> int:
@@ -306,12 +325,28 @@ async def existing_parts_toggle(update: Update, context) -> int:
 
 async def notes_received(update: Update, context) -> int:
     typed = update.message.text
+    if len(typed) > _NOTES_MAX_LENGTH:
+        await update.message.reply_text(
+            f"⚠️ Your note is too long ({len(typed)} characters). "
+            f"Please keep it under {_NOTES_MAX_LENGTH} characters and try again.",
+        )
+        return NOTES
+
     selected = context.user_data.get("selected_notes", [])
     if selected:
         selected_texts = ", ".join(COMMON_NOTES[i][1] for i in sorted(selected))
-        context.user_data["notes"] = f"{selected_texts}, {typed}"
+        notes = f"{selected_texts}, {typed}"
     else:
-        context.user_data["notes"] = typed
+        notes = typed
+
+    if len(notes) > _NOTES_MAX_LENGTH:
+        await update.message.reply_text(
+            f"⚠️ Your note is too long when combined with your selections "
+            f"({len(notes)} characters). Please shorten your typed note and try again.",
+        )
+        return NOTES
+
+    context.user_data["notes"] = notes
     await update.message.reply_text(
         "⚙️ <b>Building your PC recommendation…</b>\n\nThis usually takes 10–20 seconds.",
         parse_mode="HTML",
@@ -369,8 +404,22 @@ async def _generate_and_reply(chat_id: int, context) -> None:
             r = await client.post(f"{API_URL}/api/v1/build", json=payload)
             r.raise_for_status()
             build = r.json()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 429:
+            logger.warning("Rate limit hit for chat_id=%s", chat_id)
+            await context.bot.send_message(
+                chat_id,
+                "⏳ You've reached the hourly build limit. Please wait a few minutes and try /build again.",
+            )
+        else:
+            logger.error("API error %s for chat_id=%s: %s", e.response.status_code, chat_id, e)
+            await context.bot.send_message(
+                chat_id,
+                "❌ Something went wrong generating your build. Please try again with /build.",
+            )
+        return
     except Exception as e:
-        logger.error("API call failed: %s", e)
+        logger.error("API call failed for chat_id=%s: %s", chat_id, e)
         await context.bot.send_message(
             chat_id,
             "❌ Something went wrong generating your build. Please try again with /build.",
@@ -427,6 +476,9 @@ def main() -> None:
     if not BOT_TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN is not set")
 
+    # Write PID file so the Docker healthcheck can verify this process is alive
+    Path("/tmp/bot.pid").write_text(str(os.getpid()), encoding="utf-8")
+
     app = Application.builder().token(BOT_TOKEN).build()
 
     conv = ConversationHandler(
@@ -453,10 +505,12 @@ def main() -> None:
             CommandHandler("cancel", cancel),
             CommandHandler("start", start),
             CommandHandler("build", start),
+            CommandHandler("help", help_command),
         ],
     )
 
     app.add_handler(conv)
+    app.add_handler(CommandHandler("help", help_command))
     logger.info("Bot started")
     app.run_polling(allowed_updates=["message", "callback_query"])
 

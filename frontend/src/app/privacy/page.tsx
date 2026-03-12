@@ -23,7 +23,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-white mb-3">Overview</h2>
             <p>
               PcCoach (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) is committed to protecting your privacy.
-              This policy explains what data we collect when you use pccoach.io, how we use it,
+              This policy explains what data we collect when you use thepccoach.com, how we use it,
               and your rights regarding that data.
             </p>
           </section>

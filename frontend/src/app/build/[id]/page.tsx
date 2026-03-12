@@ -119,7 +119,7 @@ function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
         </div>
         <div className="text-right shrink-0 flex flex-col items-end gap-2">
           <div className="text-lg font-bold text-amber-400">
-            +&euro;{suggestion.extra_cost_eur.toFixed(0)}
+            ~+&euro;{suggestion.extra_cost_eur.toFixed(0)}
           </div>
           {suggestion.affiliate_url && (
             <a
@@ -207,7 +207,7 @@ export default function BuildResultPage() {
   };
 
   useEffect(() => {
-    const id = Array.isArray(params.id) ? params.id[0] : params.id;
+    const id = params.id;
     if (!id) return;
 
     // Use cached result from form submission to avoid a redundant GET request
@@ -237,10 +237,18 @@ export default function BuildResultPage() {
   }, [params.id]);
 
   if (error) {
+    const isExpired = error === "Build not found";
     return (
       <main className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-400 mb-4">{error}</p>
+          <p className="text-red-400 mb-2">
+            {isExpired ? "This build link has expired." : error}
+          </p>
+          {isExpired && (
+            <p className="text-gray-500 text-sm mb-4">
+              Builds are held in memory and cleared after inactivity. Start a new one below.
+            </p>
+          )}
           <Link href="/build" className="text-blue-400 hover:text-blue-300">
             &larr; Start a new build
           </Link>
@@ -254,7 +262,7 @@ export default function BuildResultPage() {
       <main className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Generating your build&hellip;</p>
+          <p className="text-gray-400">Loading your build&hellip;</p>
         </div>
       </main>
     );
@@ -328,7 +336,6 @@ export default function BuildResultPage() {
               {peripheralComponents.length > 0 ? "Core components" : "What\u2019s included"}
             </SectionHeading>
             <div className="space-y-3">
-              {/* Claude produces at most one component per category, so category is a stable unique key */}
               {coreComponents.map((c) => (
                 <ComponentCard key={c.category} component={c} />
               ))}

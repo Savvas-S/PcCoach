@@ -1,5 +1,5 @@
 .PHONY: help build up down dev dev-build dev-down logs logs-backend logs-frontend \
-        shell-backend shell-frontend test lint lock deploy init
+        shell-backend shell-frontend test lint lock deploy init sync-config
 
 help:
 	@echo "PcCoach - Available commands:"
@@ -20,6 +20,7 @@ help:
 	@echo "  make shell-frontend   Open shell in frontend container"
 	@echo ""
 	@echo "  make init             Copy .env.example to .env (skips if .env already exists)"
+	@echo "  make sync-config      Copy shared/budget_goals.json to all service directories"
 	@echo "  make deploy           Pull latest changes and restart production containers"
 	@echo "  make test             Run backend tests"
 	@echo "  make lint             Run backend linters"
@@ -27,7 +28,7 @@ help:
 
 # --- Production ---
 
-build:
+build: sync-config
 	docker compose build
 
 up:
@@ -38,10 +39,10 @@ down:
 
 # --- Development ---
 
-dev:
+dev: sync-config
 	docker compose -f docker-compose.dev.yml up
 
-dev-build:
+dev-build: sync-config
 	docker compose -f docker-compose.dev.yml build
 
 dev-down:
@@ -75,6 +76,17 @@ lint:
 	docker compose -f docker-compose.dev.yml exec backend uv run ruff check .
 	docker compose -f docker-compose.dev.yml exec backend uv run ruff format --check .
 
+# --- Config ---
+
+sync-config:
+	## Propagate shared/budget_goals.json to all service directories.
+	## Run this after editing shared/budget_goals.json.
+	@python3 -m json.tool shared/budget_goals.json > /dev/null \
+		|| (echo "ERROR: shared/budget_goals.json is not valid JSON — aborting sync" && exit 1)
+	cp shared/budget_goals.json backend/app/budget_goals.json
+	cp shared/budget_goals.json frontend/src/lib/budget_goals.json
+	cp shared/budget_goals.json telegram_bot/budget_goals.json
+
 # --- Init ---
 
 init:
@@ -86,6 +98,7 @@ init:
 
 deploy:
 	git pull --rebase origin master
+	$(MAKE) sync-config
 	docker compose build
 	docker compose up -d
 
