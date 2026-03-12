@@ -21,7 +21,7 @@ _MAX_BUILDS = 500
 
 
 @router.post("", response_model=BuildResult, status_code=201)
-@limiter.limit("10/hour")
+@limiter.limit("2/hour")
 async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
     build_id = secrets.token_urlsafe(8)
 
