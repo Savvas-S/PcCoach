@@ -14,7 +14,7 @@ router = APIRouter(prefix="/search", tags=["search"])
 
 
 @router.post("", response_model=ComponentSearchResult, status_code=200)
-@limiter.limit(lambda: settings.rate_limit_build)
+@limiter.limit(lambda: settings.rate_limit_search)
 async def search_component(request: Request, payload: ComponentSearchRequest) -> ComponentSearchResult:
     try:
         claude = get_claude_service()

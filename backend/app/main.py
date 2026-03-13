@@ -46,17 +46,37 @@ async def _unhandled_exception_handler(
 # Security headers middleware
 # ---------------------------------------------------------------------------
 
+_SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Content-Security-Policy": "default-src 'self'",
+    "Server": "pccoach",
+}
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
-    """Add security headers to every response."""
+    """Add security headers to every response.
+
+    Exceptions raised inside the route handler propagate through
+    BaseHTTPMiddleware.call_next() and bypass app.add_exception_handler().
+    We catch them here so the global Exception handler is always effective
+    and unhandled errors always return JSON (not Starlette's default HTML/text).
+    """
 
     async def dispatch(self, request: Request, call_next):
-        response = await call_next(request)
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Frame-Options"] = "DENY"
-        response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers["Content-Security-Policy"] = "default-src 'self'"
-        response.headers["Server"] = "pccoach"
+        try:
+            response = await call_next(request)
+        except Exception:
+            log.exception(
+                "Unhandled exception: %s %s", request.method, request.url.path
+            )
+            response = JSONResponse(
+                {"detail": "Internal server error"}, status_code=500
+            )
+        for header, value in _SECURITY_HEADERS.items():
+            response.headers[header] = value
         return response
 
 

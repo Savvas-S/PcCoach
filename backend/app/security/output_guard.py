@@ -202,9 +202,6 @@ class OutputGuardrail:
                 continue  # strip the component
             clean.append(comp)
 
-        result = result.model_copy(update={"components": clean})
-
-        # Overage check
         total = sum(c.price_eur for c in clean)
         budget_upper = _BUDGET_UPPER.get(budget_range, 3_000.0)
         if total > budget_upper * _BUDGET_OVERAGE_RATIO:
@@ -215,7 +212,15 @@ class OutputGuardrail:
             )
             warnings.append("Recommended build exceeds your stated budget")
 
-        return result.model_copy(update={"warnings": warnings})
+        # model_copy does NOT re-run @model_validator, so total_price_eur would
+        # be stale if components were stripped.  Recompute it explicitly.
+        return result.model_copy(
+            update={
+                "components": clean,
+                "total_price_eur": total if clean else None,
+                "warnings": warnings,
+            }
+        )
 
     def _strip_pii(self, result: BuildResult) -> BuildResult:
         summary = result.summary or ""

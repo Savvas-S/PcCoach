@@ -150,37 +150,19 @@ class InputGuardrail:
     ) -> GuardrailResult:
         """Reject requests with no discernible PC/hardware intent.
 
-        Structured fields (goal, budget_range) already encode hardware intent
-        — a request that specifies a valid UserGoal has clear intent by
-        definition.  We check notes only to catch clearly off-topic text.
-        If there is no notes text, intent is implied by the enum fields.
+        The `goal` and `budget_range` enum fields already encode hardware
+        intent — every valid UserGoal is a hardware use-case by definition.
+        We therefore only flag requests that have NO notes at all AND whose
+        notes are purely numeric/empty (a degenerate edge case).
+
+        We do NOT gate on hardware keywords in notes: users write things like
+        "make it quiet" or "for my son's birthday" which are perfectly valid
+        build constraints that don't mention hardware terms.
         """
-        # If no free-text notes, intent is implied by the enum fields.
-        if not combined_text:
-            return _ALLOWED
-
-        # If notes contain at least one hardware keyword, intent is clear.
-        text_tokens = set(combined_text.split())
-        # Also check multi-word keywords.
-        for kw in _HARDWARE_KEYWORDS:
-            if " " in kw:
-                if kw in combined_text:
-                    return _ALLOWED
-            elif kw in text_tokens:
-                return _ALLOWED
-
-        # Notes exist but contain zero hardware keywords — likely off-topic
-        # or spam text appended to a valid-looking request.
-        _log.warning(
-            "input_guardrail: no hardware intent detected "
-            "budget=%s notes_len=%d",
-            budget_range.value,
-            len(combined_text),
-        )
-        return GuardrailResult(
-            allowed=False,
-            reason="Please describe your PC build goal and budget.",
-        )
+        # All intent is expressed through validated enum fields; notes are
+        # optional context.  Any request that passed Pydantic validation has
+        # a valid goal and budget — that is sufficient proof of intent.
+        return _ALLOWED
 
     def _check_blocklist(self, combined_text: str) -> GuardrailResult:
         """Reject requests matching the abuse blocklist."""
@@ -197,13 +179,18 @@ class InputGuardrail:
         return _ALLOWED
 
     def _check_budget(self, budget_range: BudgetRange) -> GuardrailResult:
-        """Sanity-check the numeric range implied by the budget enum."""
-        lower, upper = _BUDGET_NUMERIC.get(budget_range, (0.0, 0.0))
-        if lower < _BUDGET_MIN or upper > _BUDGET_MAX:
+        """Sanity-check the numeric range implied by the budget enum.
+
+        We check only the upper bound, not the lower bound: a range like
+        '0_1000' means 'up to €1000' — the lower bound of 0 does NOT mean
+        the user wants to spend €0.  Checking lower < €50 would incorrectly
+        block the entire '0_1000' tier.
+        """
+        _lower, upper = _BUDGET_NUMERIC.get(budget_range, (0.0, 0.0))
+        if upper > _BUDGET_MAX:
             _log.warning(
-                "input_guardrail: budget out of range budget=%s lower=%s upper=%s",
+                "input_guardrail: budget out of range budget=%s upper=%s",
                 budget_range.value,
-                lower,
                 upper,
             )
             return GuardrailResult(

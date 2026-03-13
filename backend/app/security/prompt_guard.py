@@ -51,7 +51,7 @@ _XML_TAG_PATTERN = re.compile(
 )
 
 # Triple-dashes and backtick fences are used to break out of delimiters.
-_STRUCTURAL_CHARS = re.compile(r"`{3,}|---{3,}")
+_STRUCTURAL_CHARS = re.compile(r"`{3,}|-{3,}")
 
 
 def sanitize_user_input(text: str) -> str:
