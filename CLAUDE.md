@@ -4,7 +4,7 @@
 
 PcCoach is an AI-powered PC build recommendation tool for the Cyprus market (Limassol).
 Users describe their needs and budget; Claude recommends a full component list with affiliate links to buy each part.
-Revenue model: affiliate commissions (Skroutz CY, Amazon) — no inventory, no ordering, no services.
+Revenue model: affiliate commissions (Amazon.de, ComputerUniverse, Caseking) — no inventory, no ordering, no services.
 
 ## Stack
 
@@ -47,7 +47,7 @@ PcCoach/
 User fills form → POST /api/v1/build (BuildRequest)
                → Claude generates ComponentRecommendation list
                → BuildResult returned with affiliate links per component
-               → User clicks affiliate link → buys on Skroutz/Amazon
+               → User clicks affiliate link → buys on store
                → You earn commission
 ```
 
@@ -225,3 +225,11 @@ Format: `"N/period"` where period is `second`, `minute`, `hour`, or `day`.
 - `ANTHROPIC_API_KEY` and `DATABASE_URL` are `SecretStr` in `config.py`
 - Never log these values — log `"set"` / `"unset"` as a boolean indicator
 - Never commit `.env` files — only `.env.example` with placeholders
+
+---
+
+## Code Review
+
+The PR review skill lives at `.claude/skills/pccoach-pr-reviewer/SKILL.md`.
+Claude Code loads it automatically when assigned as a GitHub reviewer or asked to review a PR.
+Do not freeform review without loading the skill first.
