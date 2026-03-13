@@ -310,7 +310,7 @@ function BuildForm() {
                 type="checkbox"
                 checked={includePeripherals}
                 onChange={(e) => setIncludePeripherals(e.target.checked)}
-                className="w-4 h-4 mt-0.5 shrink-0 accent-[#C9A84C]"
+                className="w-4 h-4 mt-0.5 shrink-0 accent-obsidian"
               />
               <div>
                 <div className="font-body font-medium text-obsidian-text">Include peripherals</div>
