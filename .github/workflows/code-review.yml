@@ -25,7 +25,6 @@ jobs:
           model: ${{ vars.CLAUDE_REVIEW_MODEL || 'claude-sonnet-4-6' }}
           direct_prompt: |
             You are performing an automated code review on pull request #${{ github.event.pull_request.number }} in the ${{ github.repository }} repository.
-
             Follow these steps precisely:
             1. Read the root CLAUDE.md for project conventions if it exists.
             2. Run `gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }}` to get the full diff.
