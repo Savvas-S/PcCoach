@@ -92,7 +92,7 @@ async def lifespan(app: FastAPI):
             )
 
     if settings.environment == "production":
-        if not settings.anthropic_api_key:
+        if not settings.anthropic_api_key or not settings.anthropic_api_key.get_secret_value():
             raise RuntimeError("ANTHROPIC_API_KEY must be set in production")
         if any("localhost" in o for o in settings.cors_origins):
             raise RuntimeError(
@@ -106,10 +106,11 @@ async def lifespan(app: FastAPI):
                 "Set explicit allowed origins."
             )
     log.info(
-        "Starting PcCoach: environment=%s cors_origins=%s docs=%s",
+        "Starting PcCoach: environment=%s cors_origins=%s docs=%s api_key=%s",
         settings.environment,
         settings.cors_origins,
         "disabled" if settings.environment == "production" else "enabled",
+        "set" if settings.anthropic_api_key else "unset",
     )
     yield
 

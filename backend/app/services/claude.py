@@ -154,7 +154,12 @@ BUILD_TOOL = {
 
 class ClaudeService:
     def __init__(self):
-        self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key, timeout=_TIMEOUT)
+        api_key = (
+            settings.anthropic_api_key.get_secret_value()
+            if settings.anthropic_api_key
+            else None
+        )
+        self.client = anthropic.AsyncAnthropic(api_key=api_key, timeout=_TIMEOUT)
         self.model = settings.claude_model
 
     async def generate_build(

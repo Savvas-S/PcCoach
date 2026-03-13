@@ -6,6 +6,7 @@ import anthropic
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import ValidationError
 
+from app.config import settings
 from app.limiter import limiter
 from app.models.builder import BuildRequest, BuildResult
 from app.security import events as guardrail_events
@@ -23,7 +24,7 @@ _MAX_BUILDS = 500
 
 
 @router.post("", response_model=BuildResult, status_code=201)
-@limiter.limit("2/hour")
+@limiter.limit(lambda: settings.rate_limit_build)
 async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
     # ------------------------------------------------------------------
     # Input guardrails — run before any Claude call
@@ -89,7 +90,7 @@ async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
 
 
 @router.get("/{build_id}", response_model=BuildResult)
-@limiter.limit("120/minute")
+@limiter.limit(lambda: settings.rate_limit_read)
 async def get_build(request: Request, build_id: str) -> BuildResult:
     build = _builds.get(build_id)
     if not build:
