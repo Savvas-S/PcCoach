@@ -117,7 +117,15 @@ class BuildRequest(BaseModel):
         default_factory=list,
         description="Categories the customer already owns and wants to exclude",
     )
-    notes: str | None = Field(None, max_length=500)
+    notes: str | None = Field(None, min_length=1, max_length=500)
+
+    @field_validator("notes", mode="before")
+    @classmethod
+    def strip_notes(cls, v: str | None) -> str | None:
+        if isinstance(v, str):
+            stripped = v.strip()
+            return stripped if stripped else None
+        return v
 
     @field_validator("existing_parts", mode="after")
     @classmethod
@@ -143,15 +151,20 @@ class BuildRequest(BaseModel):
 class ComponentRecommendation(BaseModel):
     """A single recommended component with affiliate link."""
     category: ComponentCategory
-    name: str
-    brand: str
-    price_eur: float = Field(..., gt=0)
+    name: str = Field(..., min_length=1, max_length=200)
+    brand: str = Field(..., min_length=1, max_length=100)
+    price_eur: float = Field(..., gt=0, le=100_000)
     specs: dict[str, str] = Field(
         default_factory=dict,
         description="Key specs e.g. {'cores': '8', 'tdp': '65W'}",
     )
     affiliate_url: HttpUrl | None = None
     affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+
+    @field_validator("name", "brand", mode="before")
+    @classmethod
+    def strip_str_fields(cls, v: str) -> str:
+        return v.strip() if isinstance(v, str) else v
 
     @field_validator("affiliate_url", mode="after")
     @classmethod
@@ -195,6 +208,11 @@ class ComponentSearchRequest(BaseModel):
     """User's request to find a specific component."""
     category: ComponentCategory
     description: str = Field(..., min_length=1, max_length=300)
+
+    @field_validator("description", mode="before")
+    @classmethod
+    def strip_description(cls, v: str) -> str:
+        return v.strip() if isinstance(v, str) else v
 
 
 class StoreLink(BaseModel):
