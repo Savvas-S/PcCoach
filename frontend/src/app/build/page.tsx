@@ -19,48 +19,13 @@ import budgetGoalsData from "@/lib/budget_goals.json";
 
 const GOALS: { value: UserGoal; label: string; desc: string; icon: string }[] =
   [
-    {
-      value: "high_end_gaming",
-      label: "High-End Gaming",
-      desc: "4K, max settings, 144fps+",
-      icon: "🎮",
-    },
-    {
-      value: "mid_range_gaming",
-      label: "Mid-Range Gaming",
-      desc: "1080p/1440p, high settings",
-      icon: "🕹️",
-    },
-    {
-      value: "low_end_gaming",
-      label: "Budget Gaming",
-      desc: "1080p, medium settings",
-      icon: "👾",
-    },
-    {
-      value: "light_work",
-      label: "Everyday Use",
-      desc: "Office, web, video calls",
-      icon: "💼",
-    },
-    {
-      value: "heavy_work",
-      label: "Power User",
-      desc: "Video editing, rendering, VMs",
-      icon: "⚙️",
-    },
-    {
-      value: "designer",
-      label: "Design",
-      desc: "Photoshop, Illustrator, UI/UX",
-      icon: "🎨",
-    },
-    {
-      value: "architecture",
-      label: "Engineering",
-      desc: "CAD, AutoCAD, Revit",
-      icon: "🏗️",
-    },
+    { value: "high_end_gaming", label: "High-End Gaming", desc: "4K, max settings, 144fps+", icon: "🎮" },
+    { value: "mid_range_gaming", label: "Mid-Range Gaming", desc: "1080p/1440p, high settings", icon: "🕹️" },
+    { value: "low_end_gaming", label: "Budget Gaming", desc: "1080p, medium settings", icon: "👾" },
+    { value: "light_work", label: "Everyday Use", desc: "Office, web, video calls", icon: "💼" },
+    { value: "heavy_work", label: "Power User", desc: "Video editing, rendering, VMs", icon: "⚙️" },
+    { value: "designer", label: "Design", desc: "Photoshop, Illustrator, UI/UX", icon: "🎨" },
+    { value: "architecture", label: "Engineering", desc: "CAD, AutoCAD, Revit", icon: "🏗️" },
   ];
 
 // Goals available per budget — loaded from shared/budget_goals.json (see import above).
@@ -112,6 +77,10 @@ const COMPONENT_CATEGORIES: { value: ComponentCategory; label: string }[] = [
   { value: "mouse", label: "Mouse" },
 ];
 
+const selectedCls = "border-obsidian bg-obsidian/10 text-obsidian";
+const unselectedCls =
+  "border-obsidian-border bg-obsidian-surface hover:border-obsidian-bright text-obsidian-text";
+
 function BuildForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -128,24 +97,18 @@ function BuildForm() {
   const [includePeripherals, setIncludePeripherals] = useState(false);
   const [existingParts, setExistingParts] = useState<ComponentCategory[]>([]);
 
-  // Pre-select budget + goal from ?budget=...&goal=... query params (e.g. from example build cards)
   useEffect(() => {
     const b = searchParams.get("budget") as BudgetRange | null;
     const g = searchParams.get("goal") as UserGoal | null;
     if (b && Object.keys(BUDGET_GOALS).includes(b)) {
       setBudget(b);
-      if (g && BUDGET_GOALS[b].includes(g)) {
-        setGoal(g);
-      }
+      if (g && BUDGET_GOALS[b].includes(g)) setGoal(g);
     }
   }, [searchParams]);
 
   const handleBudgetChange = (b: BudgetRange) => {
     setBudget(b);
-    // Clear goal if it's no longer valid for the new budget
-    if (goal && !BUDGET_GOALS[b].includes(goal)) {
-      setGoal(null);
-    }
+    if (goal && !BUDGET_GOALS[b].includes(goal)) setGoal(null);
   };
 
   const filteredGoals = budget
@@ -161,13 +124,10 @@ function BuildForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!goal || !budget) return;
-
     setLoading(true);
     setError(null);
-
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 120_000);
-
     try {
       const result = await submitBuild(
         {
@@ -186,8 +146,7 @@ function BuildForm() {
       sessionStorage.setItem("build_result", JSON.stringify(result));
       router.push(`/build/${result.id}`);
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       setError(msg);
       setLoading(false);
     } finally {
@@ -200,39 +159,36 @@ function BuildForm() {
   const selectedBudgetLabel = BUDGETS.find((b) => b.value === budget)?.label;
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white py-12 px-4">
+    <main className="min-h-screen bg-obsidian-bg text-obsidian-text py-12 px-4">
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
-        <div className="mb-10">
-          <Link href="/" className="text-gray-400 hover:text-white text-sm">
+        <div className="mb-12">
+          <Link href="/" className="text-obsidian-muted hover:text-obsidian-text text-xs uppercase tracking-widest transition-colors">
             &larr; Home
           </Link>
-          <h1 className="text-3xl font-bold mt-4">Build Your PC</h1>
-          <p className="text-gray-400 mt-1">
-            Pick your budget and use case — everything else has sensible
-            defaults and can be skipped.
+          <h1 className="font-display font-light text-5xl text-obsidian-text mt-6 mb-2">Build Your PC</h1>
+          <p className="text-obsidian-muted text-sm">
+            Pick your budget and use case — everything else has sensible defaults and can be skipped.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-12">
+        <form onSubmit={handleSubmit} className="space-y-1">
 
-          {/* Budget — required */}
-          <section>
-            <div className="flex items-baseline gap-2 mb-4">
-              <h2 className="text-lg font-semibold">What&apos;s your budget?</h2>
-              <span className="text-xs text-blue-400 font-medium">required</span>
+          {/* Budget */}
+          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+            <div className="flex items-baseline gap-3 mb-6">
+              <h2 className="font-body font-semibold text-obsidian-text">What&apos;s your budget?</h2>
+              <span className="text-xs text-obsidian uppercase tracking-wider">required</span>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {BUDGETS.map((b) => (
                 <button
                   key={b.value}
                   type="button"
                   onClick={() => handleBudgetChange(b.value)}
-                  className={`p-4 rounded-xl border text-center font-medium transition-all ${
-                    budget === b.value
-                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                      : "border-gray-700 bg-gray-800 hover:border-gray-500 text-white"
+                  className={`p-4 border text-center text-sm font-body font-medium transition-all ${
+                    budget === b.value ? selectedCls : unselectedCls
                   }`}
                 >
                   {b.label}
@@ -241,153 +197,124 @@ function BuildForm() {
             </div>
           </section>
 
-          {/* Goal — required, filtered by budget */}
-          <section>
-            <div className="flex items-baseline gap-2 mb-1">
-              <h2 className="text-lg font-semibold">What will you use it for?</h2>
-              <span className="text-xs text-blue-400 font-medium">required</span>
+          {/* Goal */}
+          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+            <div className="flex items-baseline gap-3 mb-2">
+              <h2 className="font-body font-semibold text-obsidian-text">What will you use it for?</h2>
+              <span className="text-xs text-obsidian uppercase tracking-wider">required</span>
             </div>
             {!budget ? (
-              <p className="text-gray-500 text-sm mt-2">
-                Select a budget above — your options will appear here.
-              </p>
+              <p className="text-obsidian-muted text-sm mt-3">Select a budget above — your options will appear here.</p>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-6">
                 {filteredGoals.map((g) => (
                   <button
                     key={g.value}
                     type="button"
                     onClick={() => setGoal(g.value)}
-                    className={`p-4 rounded-xl border text-left transition-all ${
-                      goal === g.value
-                        ? "border-blue-500 bg-blue-500/10"
-                        : "border-gray-700 bg-gray-800 hover:border-gray-500"
+                    className={`p-4 border text-left transition-all ${
+                      goal === g.value ? selectedCls : unselectedCls
                     }`}
                   >
                     <div className="text-2xl mb-2">{g.icon}</div>
-                    <div className="font-medium text-sm">{g.label}</div>
-                    <div className="text-gray-400 text-xs mt-1">{g.desc}</div>
+                    <div className="font-body font-medium text-sm">{g.label}</div>
+                    <div className="text-obsidian-muted text-xs mt-1">{g.desc}</div>
                   </button>
                 ))}
               </div>
             )}
           </section>
 
-          {/* Preferences — optional */}
-          <section>
-            <div className="flex items-baseline gap-2 mb-1">
-              <h2 className="text-lg font-semibold">Build preferences</h2>
-              <span className="text-xs text-gray-500 font-medium">optional</span>
+          {/* Preferences */}
+          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+            <div className="flex items-baseline gap-3 mb-2">
+              <h2 className="font-body font-semibold text-obsidian-text">Build preferences</h2>
+              <span className="text-xs text-obsidian-muted uppercase tracking-wider">optional</span>
             </div>
-            <p className="text-gray-500 text-sm mb-6">
-              Leave at defaults and we&apos;ll pick the best value. Only change
-              these if you have a specific requirement.
+            <p className="text-obsidian-muted text-sm mb-8">
+              Leave at defaults and we&apos;ll pick the best value.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
-                <label className="text-sm text-gray-400 mb-2 block">
-                  Case Size
-                </label>
-                <div className="space-y-2">
-                  {FORM_FACTORS.map((f) => (
-                    <button
-                      key={f.value}
-                      type="button"
-                      onClick={() => setFormFactor(f.value)}
-                      className={`w-full p-3 rounded-lg border text-sm text-left transition-all ${
-                        formFactor === f.value
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-gray-700 bg-gray-800 hover:border-gray-500"
-                      }`}
-                    >
-                      <div>{f.label}</div>
-                      <div className="text-gray-400 text-xs mt-0.5">{f.desc}</div>
-                    </button>
-                  ))}
+              {[
+                {
+                  label: "Case Size",
+                  items: FORM_FACTORS.map((f) => ({
+                    key: f.value,
+                    active: formFactor === f.value,
+                    onClick: () => setFormFactor(f.value),
+                    primary: f.label,
+                    secondary: f.desc,
+                  })),
+                },
+                {
+                  label: "CPU Brand",
+                  items: CPU_BRANDS.map((b) => ({
+                    key: b.value,
+                    active: cpuBrand === b.value,
+                    onClick: () => setCpuBrand(b.value),
+                    primary: b.label,
+                    secondary: null,
+                  })),
+                },
+                {
+                  label: "GPU Brand",
+                  items: GPU_BRANDS.map((b) => ({
+                    key: b.value,
+                    active: gpuBrand === b.value,
+                    onClick: () => setGpuBrand(b.value),
+                    primary: b.label,
+                    secondary: null,
+                  })),
+                },
+                {
+                  label: "Cooling",
+                  items: COOLING_PREFERENCES.map((c) => ({
+                    key: c.value,
+                    active: coolingPreference === c.value,
+                    onClick: () => setCoolingPreference(c.value),
+                    primary: c.label,
+                    secondary: c.desc,
+                  })),
+                },
+              ].map((group) => (
+                <div key={group.label}>
+                  <label className="text-xs text-obsidian-muted uppercase tracking-widest mb-3 block">
+                    {group.label}
+                  </label>
+                  <div className="space-y-1.5">
+                    {group.items.map((item) => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        onClick={item.onClick}
+                        className={`w-full p-3 border text-sm text-left transition-all ${
+                          item.active ? selectedCls : unselectedCls
+                        }`}
+                      >
+                        <div className="font-body font-medium">{item.primary}</div>
+                        {item.secondary && (
+                          <div className="text-obsidian-muted text-xs mt-0.5">{item.secondary}</div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-400 mb-2 block">
-                  CPU Brand
-                </label>
-                <div className="space-y-2">
-                  {CPU_BRANDS.map((b) => (
-                    <button
-                      key={b.value}
-                      type="button"
-                      onClick={() => setCpuBrand(b.value)}
-                      className={`w-full p-3 rounded-lg border text-sm text-left transition-all ${
-                        cpuBrand === b.value
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-gray-700 bg-gray-800 hover:border-gray-500"
-                      }`}
-                    >
-                      {b.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-400 mb-2 block">
-                  GPU Brand
-                </label>
-                <div className="space-y-2">
-                  {GPU_BRANDS.map((b) => (
-                    <button
-                      key={b.value}
-                      type="button"
-                      onClick={() => setGpuBrand(b.value)}
-                      className={`w-full p-3 rounded-lg border text-sm text-left transition-all ${
-                        gpuBrand === b.value
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-gray-700 bg-gray-800 hover:border-gray-500"
-                      }`}
-                    >
-                      {b.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-400 mb-2 block">
-                  Cooling
-                </label>
-                <div className="space-y-2">
-                  {COOLING_PREFERENCES.map((c) => (
-                    <button
-                      key={c.value}
-                      type="button"
-                      onClick={() => setCoolingPreference(c.value)}
-                      className={`w-full p-3 rounded-lg border text-sm text-left transition-all ${
-                        coolingPreference === c.value
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-gray-700 bg-gray-800 hover:border-gray-500"
-                      }`}
-                    >
-                      <div>{c.label}</div>
-                      <div className="text-gray-400 text-xs mt-0.5">{c.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </section>
 
-          {/* Peripherals — styled as a card toggle, no section heading needed */}
+          {/* Peripherals */}
           <section>
-            <label className="flex items-start gap-4 p-4 rounded-xl border border-gray-700 bg-gray-800 hover:border-gray-600 cursor-pointer transition-colors">
+            <label className="flex items-start gap-4 p-6 border border-obsidian-border bg-obsidian-surface hover:border-obsidian-bright cursor-pointer transition-colors">
               <input
                 type="checkbox"
                 checked={includePeripherals}
                 onChange={(e) => setIncludePeripherals(e.target.checked)}
-                className="w-5 h-5 rounded accent-blue-500 mt-0.5 shrink-0"
+                className="w-4 h-4 mt-0.5 shrink-0 accent-[#C9A84C]"
               />
               <div>
-                <div className="font-medium">Include peripherals</div>
-                <div className="text-gray-400 text-sm mt-0.5">
+                <div className="font-body font-medium text-obsidian-text">Include peripherals</div>
+                <div className="text-obsidian-muted text-sm mt-0.5">
                   Add a monitor, keyboard, and mouse to the component list
                 </div>
               </div>
@@ -395,13 +322,10 @@ function BuildForm() {
           </section>
 
           {/* Existing Parts */}
-          <section>
-            <h2 className="text-lg font-semibold mb-1">
-              Parts you already own
-            </h2>
-            <p className="text-gray-400 text-sm mb-4">
-              Tag anything you already have — we&apos;ll build around it and
-              skip recommending those parts.
+          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+            <h2 className="font-body font-semibold text-obsidian-text mb-1">Parts you already own</h2>
+            <p className="text-obsidian-muted text-sm mb-6">
+              Tag anything you already have — we&apos;ll build around it and skip recommending those parts.
             </p>
             <div className="flex flex-wrap gap-2">
               {COMPONENT_CATEGORIES.map((c) => (
@@ -409,10 +333,8 @@ function BuildForm() {
                   key={c.value}
                   type="button"
                   onClick={() => toggleExistingPart(c.value)}
-                  className={`px-3 py-1.5 rounded-lg text-sm border transition-all ${
-                    existingParts.includes(c.value)
-                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                      : "border-gray-700 bg-gray-800 hover:border-gray-500 text-gray-300"
+                  className={`px-4 py-2 text-sm border transition-all font-body ${
+                    existingParts.includes(c.value) ? selectedCls : unselectedCls
                   }`}
                 >
                   {c.label}
@@ -422,49 +344,50 @@ function BuildForm() {
           </section>
 
           {/* Notes */}
-          <section>
-            <h2 className="text-lg font-semibold mb-1">Anything else?</h2>
-            <p className="text-gray-400 text-sm mb-4">
-              Optional — use this for anything specific: noise levels, RGB
-              preferences, a case you already own, expansion plans, etc.
+          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+            <h2 className="font-body font-semibold text-obsidian-text mb-1">Anything else?</h2>
+            <p className="text-obsidian-muted text-sm mb-5">
+              Optional — noise levels, RGB, a case you already own, expansion plans, etc.
             </p>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="e.g. Silent build preferred, no RGB, I already have a Fractal case, want room to upgrade RAM later..."
+              placeholder="e.g. Silent build preferred, no RGB, I already have a Fractal case…"
               maxLength={500}
               rows={3}
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full bg-obsidian-raised border border-obsidian-border px-4 py-3 text-obsidian-text placeholder-obsidian-muted-light focus:outline-none focus:border-obsidian resize-none transition-all text-sm font-body"
             />
-            <p className="text-gray-600 text-xs mt-1 text-right">
+            <p className="text-obsidian-muted-light text-xs mt-1 text-right font-mono">
               {notes.length}/500
             </p>
           </section>
 
           {/* Submit */}
-          <div>
+          <div className="pt-4">
             {readyToSubmit && !loading && (
-              <p className="text-center text-gray-400 text-sm mb-4">
+              <p className="text-center text-obsidian-muted text-sm mb-4">
                 Generating:{" "}
-                <span className="text-white font-medium">{selectedGoalLabel}</span>
+                <span className="text-obsidian-text font-medium">{selectedGoalLabel}</span>
                 {" · "}
-                <span className="text-white font-medium">{selectedBudgetLabel}</span>
+                <span className="text-obsidian-text font-medium">{selectedBudgetLabel}</span>
               </p>
             )}
             <button
               type="submit"
               disabled={!readyToSubmit || loading}
-              className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl text-lg transition-colors"
+              className={`w-full py-4 text-base font-body font-semibold transition-all ${
+                readyToSubmit && !loading
+                  ? "bg-obsidian text-obsidian-bg hover:brightness-110"
+                  : "bg-obsidian-surface border border-obsidian-border text-obsidian-muted cursor-not-allowed"
+              }`}
             >
               {loading
                 ? "Building your component list — usually 30–60 seconds…"
                 : "Build My PC \u2192"}
             </button>
             {!readyToSubmit && !loading && (
-              <p className="text-center text-gray-500 text-sm mt-2">
-                {!budget
-                  ? "Select a budget to continue"
-                  : "Select a use case to continue"}
+              <p className="text-center text-obsidian-muted text-sm mt-3">
+                {!budget ? "Select a budget to continue" : "Select a use case to continue"}
               </p>
             )}
           </div>

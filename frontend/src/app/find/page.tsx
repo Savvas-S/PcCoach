@@ -34,8 +34,6 @@ const CATEGORY_PLACEHOLDERS: Record<ComponentCategory, string> = {
   mouse: "e.g. lightweight wireless gaming mouse under €80",
 };
 
-
-// Acronyms that should not be title-cased — mirrors build/[id]/page.tsx
 const SPEC_KEY_OVERRIDES: Record<string, string> = {
   tdp: "TDP",
   rpm: "RPM",
@@ -51,10 +49,14 @@ function formatSpecKey(key: string): string {
 }
 
 const SOURCE_COLORS: Record<AffiliateSource, string> = {
-  amazon: "bg-orange-600 hover:bg-orange-500",
-  computeruniverse: "bg-blue-700 hover:bg-blue-600",
-  caseking: "bg-red-700 hover:bg-red-600",
+  amazon: "bg-orange-700 hover:bg-orange-600",
+  computeruniverse: "bg-blue-800 hover:bg-blue-700",
+  caseking: "bg-red-800 hover:bg-red-700",
 };
+
+const selectedCls = "border-obsidian bg-obsidian/10 text-obsidian";
+const unselectedCls =
+  "border-obsidian-border bg-obsidian-surface hover:border-obsidian-bright text-obsidian-text";
 
 export default function FindPage() {
   const [category, setCategory] = useState<ComponentCategory | null>(null);
@@ -66,29 +68,19 @@ export default function FindPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!category || !description.trim()) return;
-
     setLoading(true);
     setError(null);
     setResult(null);
-
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 60_000);
-
     try {
-      const res = await searchComponent(
-        {
-          category,
-          description: description.trim(),
-        },
-        controller.signal
-      );
+      const res = await searchComponent({ category, description: description.trim() }, controller.signal);
       setResult(res);
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
         setError("Request timed out. Please try again.");
       } else {
-        const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
-        setError(msg);
+        setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -97,22 +89,22 @@ export default function FindPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white py-12 px-4">
+    <main className="min-h-screen bg-obsidian-bg py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-10">
-          <Link href="/" className="text-gray-400 hover:text-white text-sm">
+        <div className="mb-12">
+          <Link href="/" className="text-obsidian-muted hover:text-obsidian-text text-xs uppercase tracking-widest transition-colors">
             &larr; Back
           </Link>
-          <h1 className="text-3xl font-bold mt-4">Find a Component</h1>
-          <p className="text-gray-400 mt-1">
+          <h1 className="font-display font-light text-5xl text-obsidian-text mt-6 mb-2">Find a Component</h1>
+          <p className="text-obsidian-muted text-sm">
             Tell us what you&apos;re looking for and we&apos;ll recommend the best match with store links.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-1">
           {/* Category */}
-          <section>
-            <h2 className="text-lg font-semibold mb-4">What type of component?</h2>
+          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+            <h2 className="font-body font-semibold text-obsidian-text mb-6">What type of component?</h2>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {CATEGORIES.map((c) => (
                 <button
@@ -121,10 +113,8 @@ export default function FindPage() {
                   aria-label={c.label}
                   aria-pressed={category === c.value}
                   onClick={() => setCategory(c.value)}
-                  className={`p-3 rounded-xl border text-sm font-medium transition-all flex flex-col items-center gap-1 ${
-                    category === c.value
-                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                      : "border-gray-700 bg-gray-800 hover:border-gray-500 text-white"
+                  className={`p-3 border text-sm font-body font-medium transition-all flex flex-col items-center gap-1.5 ${
+                    category === c.value ? selectedCls : unselectedCls
                   }`}
                 >
                   <span aria-hidden="true" className="text-xl">{c.icon}</span>
@@ -135,8 +125,8 @@ export default function FindPage() {
           </section>
 
           {/* Description */}
-          <section>
-            <label className="text-lg font-semibold mb-4 block">
+          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+            <label className="font-body font-semibold text-obsidian-text mb-5 block">
               Describe what you need
             </label>
             <textarea
@@ -149,45 +139,51 @@ export default function FindPage() {
               }
               maxLength={300}
               rows={3}
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full bg-obsidian-raised border border-obsidian-border px-4 py-3 text-obsidian-text placeholder-obsidian-muted-light focus:outline-none focus:border-obsidian resize-none transition-all text-sm font-body"
             />
-            <p className="text-gray-600 text-xs mt-1 text-right">{description.length}/300</p>
+            <p className="text-obsidian-muted-light text-xs mt-1 text-right font-mono">{description.length}/300</p>
           </section>
 
-          <button
-            type="submit"
-            disabled={!category || !description.trim() || loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl text-lg transition-colors"
-          >
-            {loading ? "Finding best match…" : "Find Component →"}
-          </button>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={!category || !description.trim() || loading}
+              className={`w-full py-4 text-base font-body font-semibold transition-all ${
+                !category || !description.trim() || loading
+                  ? "bg-obsidian-surface border border-obsidian-border text-obsidian-muted cursor-not-allowed"
+                  : "bg-obsidian text-obsidian-bg hover:brightness-110"
+              }`}
+            >
+              {loading ? "Finding best match…" : "Find Component →"}
+            </button>
+          </div>
         </form>
 
         {/* Result */}
         {result && (
-          <div className="mt-10 bg-gray-800 border border-gray-700 rounded-xl p-6">
-            <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="mt-8 bg-obsidian-surface border border-obsidian-border p-6">
+            <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <span className="text-xs font-medium text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-body text-obsidian border border-obsidian/30 px-2 py-0.5 uppercase tracking-wider">
                   {CATEGORIES.find((c) => c.value === result.category)?.label ?? result.category}
                 </span>
-                <h2 className="text-xl font-bold text-white mt-2">{result.name}</h2>
-                <p className="text-gray-400 text-sm">{result.brand}</p>
+                <h2 className="font-display font-normal text-2xl text-obsidian-text mt-3">{result.name}</h2>
+                <p className="text-obsidian-muted text-sm mt-0.5">{result.brand}</p>
               </div>
               <div className="text-right shrink-0">
-                <div className="text-2xl font-bold text-white">
+                <div className="font-mono text-2xl font-medium text-obsidian">
                   ~€{result.estimated_price_eur.toFixed(0)}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">estimated</div>
+                <div className="text-xs text-obsidian-muted mt-1">estimated</div>
               </div>
             </div>
 
             {Object.keys(result.specs).length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 mb-5">
                 {Object.entries(result.specs).map(([k, v]) => (
                   <span
                     key={k}
-                    className="text-xs text-gray-400 bg-gray-700/60 px-2 py-1 rounded-lg"
+                    className="font-mono text-xs text-obsidian-muted border border-obsidian-border px-2 py-1"
                   >
                     {formatSpecKey(k)}: {v}
                   </span>
@@ -195,10 +191,10 @@ export default function FindPage() {
               </div>
             )}
 
-            <p className="text-gray-300 text-sm leading-relaxed mb-6">{result.reason}</p>
+            <p className="text-obsidian-text text-sm leading-relaxed mb-6">{result.reason}</p>
 
             <div>
-              <p className="text-xs text-gray-500 mb-3 uppercase tracking-wide">Search on stores</p>
+              <p className="text-xs text-obsidian-muted mb-3 uppercase tracking-widest">Search on stores</p>
               <div className="flex flex-wrap gap-2">
                 {result.store_links.map((link) => (
                   <a
@@ -206,7 +202,7 @@ export default function FindPage() {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`${SOURCE_COLORS[link.store] ?? "bg-gray-700 hover:bg-gray-600"} text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors`}
+                    className={`${SOURCE_COLORS[link.store] ?? "bg-obsidian-raised hover:bg-obsidian-bright"} text-white text-xs font-body font-semibold px-4 py-2 uppercase tracking-wide transition-colors`}
                   >
                     {SOURCE_LABELS[link.store] ?? link.store} →
                   </a>
