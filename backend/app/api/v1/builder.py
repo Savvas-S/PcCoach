@@ -90,7 +90,8 @@ async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
 
 
 @router.get("/{build_id}", response_model=BuildResult)
-async def get_build(build_id: str) -> BuildResult:
+@limiter.limit(lambda: settings.rate_limit_read)
+async def get_build(request: Request, build_id: str) -> BuildResult:
     build = _builds.get(build_id)
     if not build:
         raise HTTPException(status_code=404, detail="Build not found")

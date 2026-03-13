@@ -214,9 +214,11 @@ cd backend && uv run pytest
 
 | Endpoint | Default | Env var |
 |----------|---------|---------|
-| POST /api/v1/build | 10/minute | `RATE_LIMIT_BUILD` |
+| POST /api/v1/build | 2/hour (shared pool) | `RATE_LIMIT_AI` |
+| POST /api/v1/search | 2/hour (shared pool) | `RATE_LIMIT_AI` |
 | GET /api/v1/build/{id} | 60/minute | `RATE_LIMIT_READ` |
-| POST /api/v1/search | 20/minute | `RATE_LIMIT_SEARCH` |
+
+`POST /build` and `POST /search` share a single rate-limit pool (`scope="ai_calls"`), so the combined limit across both endpoints is `RATE_LIMIT_AI`.
 
 Format: `"N/period"` where period is `second`, `minute`, `hour`, or `day`.
 

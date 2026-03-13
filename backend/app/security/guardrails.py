@@ -141,6 +141,30 @@ class InputGuardrail:
 
         return _ALLOWED
 
+    def check_search(
+        self,
+        *,
+        description: str,
+        client_ip: str,
+        body_hash: str,
+    ) -> GuardrailResult:
+        """Guardrail checks for POST /api/v1/search.
+
+        Applies blocklist and duplicate detection.  Budget and hardware-intent
+        checks are not relevant for the single-component search endpoint.
+        """
+        combined_text = description.lower()
+
+        result = self._check_blocklist(combined_text)
+        if not result.allowed:
+            return result
+
+        result = self._check_duplicate(client_ip, body_hash)
+        if not result.allowed:
+            return result
+
+        return _ALLOWED
+
     # ------------------------------------------------------------------
     # Individual checks
     # ------------------------------------------------------------------
@@ -181,10 +205,10 @@ class InputGuardrail:
     def _check_budget(self, budget_range: BudgetRange) -> GuardrailResult:
         """Sanity-check the numeric range implied by the budget enum.
 
-        We check only the upper bound, not the lower bound: a range like
-        '0_1000' means 'up to €1000' — the lower bound of 0 does NOT mean
-        the user wants to spend €0.  Checking lower < €50 would incorrectly
-        block the entire '0_1000' tier.
+        All valid BudgetRange values have upper bounds ≤ _BUDGET_MAX, so this
+        check never fires for enum-validated inputs (Pydantic enforces the enum
+        before we reach here).  It exists as a defence-in-depth guard against
+        future budget tiers being added with values outside the expected range.
         """
         _lower, upper = _BUDGET_NUMERIC.get(budget_range, (0.0, 0.0))
         if upper > _BUDGET_MAX:

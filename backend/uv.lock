@@ -543,6 +543,9 @@ dev = [
 [package.dev-dependencies]
 dev = [
     { name = "pip-audit" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -564,7 +567,12 @@ requires-dist = [
 provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pip-audit", specifier = ">=2.10.0" }]
+dev = [
+    { name = "pip-audit", specifier = ">=2.10.0" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "pytest-asyncio", specifier = ">=1.3.0" },
+    { name = "ruff", specifier = ">=0.15.5" },
+]
 
 [[package]]
 name = "pip"

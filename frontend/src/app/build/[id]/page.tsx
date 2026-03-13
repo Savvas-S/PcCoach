@@ -77,20 +77,23 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
           <div className="font-mono text-xl font-medium text-obsidian">
             ~&euro;{component.price_eur.toFixed(0)}
           </div>
-          {safeAffiliateUrl(component.affiliate_url) ? (
-            <a
-              href={safeAffiliateUrl(component.affiliate_url)!}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
-            >
-              {component.affiliate_source
-                ? `${SOURCE_LABELS[component.affiliate_source]} \u2192`
-                : "Check price \u2192"}
-            </a>
-          ) : (
-            <span className="text-xs text-obsidian-muted-light">No link yet</span>
-          )}
+          {(() => {
+            const safeUrl = safeAffiliateUrl(component.affiliate_url);
+            return safeUrl ? (
+              <a
+                href={safeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
+              >
+                {component.affiliate_source
+                  ? `${SOURCE_LABELS[component.affiliate_source]} \u2192`
+                  : "Check price \u2192"}
+              </a>
+            ) : (
+              <span className="text-xs text-obsidian-muted-light">No link yet</span>
+            );
+          })()}
         </div>
       </div>
     </div>
@@ -118,18 +121,21 @@ function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
           <div className="font-mono text-lg font-medium text-amber-400">
             ~+&euro;{suggestion.extra_cost_eur.toFixed(0)}
           </div>
-          {safeAffiliateUrl(suggestion.affiliate_url) && (
-            <a
-              href={safeAffiliateUrl(suggestion.affiliate_url)!}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-amber-700 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
-            >
-              {suggestion.affiliate_source
-                ? `${SOURCE_LABELS[suggestion.affiliate_source]} \u2192`
-                : "Check price \u2192"}
-            </a>
-          )}
+          {(() => {
+            const safeUrl = safeAffiliateUrl(suggestion.affiliate_url);
+            return safeUrl ? (
+              <a
+                href={safeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-amber-700 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
+              >
+                {suggestion.affiliate_source
+                  ? `${SOURCE_LABELS[suggestion.affiliate_source]} \u2192`
+                  : "Check price \u2192"}
+              </a>
+            ) : null;
+          })()}
         </div>
       </div>
     </div>
@@ -157,18 +163,21 @@ function DowngradeCard({ suggestion }: { suggestion: DowngradeSuggestion }) {
           <div className="font-mono text-lg font-medium text-green-400">
             Save ~&euro;{suggestion.savings_eur.toFixed(0)}
           </div>
-          {safeAffiliateUrl(suggestion.affiliate_url) && (
-            <a
-              href={safeAffiliateUrl(suggestion.affiliate_url)!}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-green-700 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
-            >
-              {suggestion.affiliate_source
-                ? `${SOURCE_LABELS[suggestion.affiliate_source]} \u2192`
-                : "Check price \u2192"}
-            </a>
-          )}
+          {(() => {
+            const safeUrl = safeAffiliateUrl(suggestion.affiliate_url);
+            return safeUrl ? (
+              <a
+                href={safeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-green-700 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
+              >
+                {suggestion.affiliate_source
+                  ? `${SOURCE_LABELS[suggestion.affiliate_source]} \u2192`
+                  : "Check price \u2192"}
+              </a>
+            ) : null;
+          })()}
         </div>
       </div>
     </div>
@@ -319,6 +328,15 @@ export default function BuildResultPage() {
               Why this build
             </p>
             <p className="text-obsidian-muted text-sm leading-relaxed">{build.summary}</p>
+          </div>
+        )}
+
+        {/* Guardrail warnings (e.g. budget overage) */}
+        {build.warnings && build.warnings.length > 0 && (
+          <div className="border border-amber-700/40 bg-amber-950/20 p-4 mb-8">
+            {build.warnings.map((w, i) => (
+              <p key={i} className="text-amber-400 text-sm">{w}</p>
+            ))}
           </div>
         )}
 
