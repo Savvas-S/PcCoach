@@ -216,7 +216,7 @@ cd backend && uv run pytest
 |----------|---------|---------|
 | POST /api/v1/build | 10/minute | `RATE_LIMIT_BUILD` |
 | GET /api/v1/build/{id} | 60/minute | `RATE_LIMIT_READ` |
-| POST /api/v1/search | 10/minute | `RATE_LIMIT_BUILD` |
+| POST /api/v1/search | 20/minute | `RATE_LIMIT_SEARCH` |
 
 Format: `"N/period"` where period is `second`, `minute`, `hour`, or `day`.
 
