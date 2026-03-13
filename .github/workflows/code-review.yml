@@ -1,5 +1,4 @@
 name: Claude Code Review
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -14,7 +13,6 @@ permissions:
 jobs:
   review:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,50 +23,19 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          model: ${{ vars.CLAUDE_REVIEW_MODEL || 'claude-sonnet-4-6' }}
-          direct_prompt: |
+          prompt: |
             You are performing an automated code review on pull request #${{ github.event.pull_request.number }} in the ${{ github.repository }} repository.
 
-            Follow these steps precisely:
+            First, read CLAUDE.md at the repo root for project conventions, security rules, and guardrails architecture.
+            Then read .claude/skills/pccoach-pr-reviewer/SKILL.md and follow its review process exactly.
 
-            1. Read the root CLAUDE.md for project conventions if it exists.
-            2. Run `gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }}` to get the full diff.
-            3. Review the changes for:
-               - Bugs or logic errors introduced by the diff
-               - Violations of conventions in CLAUDE.md
-               - Regressions relative to nearby code context
-            4. Ignore:
-               - Pre-existing issues
-               - Nitpicks
-               - Formatting
-               - Type errors already handled by CI
-               - Test coverage commentary
-            5. For each issue found, rate your confidence 0–100. Only report issues rated 80+.
-            6. Post a single comment on the PR using:
+            Steps:
+            1. Run `git diff origin/master...HEAD` to get the full diff.
+            2. Run `git diff origin/master...HEAD --name-status` to see changed files.
+            3. Work through every checklist category in the skill (A through E).
+            4. Post a single PR comment using:
                `gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body "..."`
 
-            Format your comment exactly as follows:
-
-            If issues found:
-            ---
-            ### Code review
-
-            Found N issues:
-
-            1. <brief description> (reason: bug / CLAUDE.md: "<relevant quote>")
-
-            https://github.com/${{ github.repository }}/blob/<full-sha>/<file>#L<start>-L<end>
+            Use the exact output format defined in Step 5 of the skill (Blockers, Major, Minor, Suggestions, Verdict).
 
             🤖 Generated with [Claude Code](https://claude.ai/code)
-
-            <sub>If this review was useful, react 👍. Otherwise 👎.</sub>
-            ---
-
-            If no issues found:
-            ---
-            ### Code review
-
-            No issues found. Checked for bugs and CLAUDE.md compliance.
-
-            🤖 Generated with [Claude Code](https://claude.ai/code)
-            ---
