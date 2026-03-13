@@ -1,59 +1,65 @@
 name: Claude Code Review
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [main, master]
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
-  id-token: write
+    branches: [master, main]
+
 jobs:
   review:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    permissions:
+      contents: read
+      pull-requests: write
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Claude Code Review
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           model: ${{ vars.CLAUDE_REVIEW_MODEL || 'claude-sonnet-4-6' }}
           direct_prompt: |
-            You are performing an automated code review on pull request #${{ github.event.pull_request.number }} in the ${{ github.repository }} repository.
+            You are performing an automated code review on pull request #${{ github.event.pull_request.number }} in the Savvas-S/PcCoach repository.
+
             Follow these steps precisely:
-            1. Read the root CLAUDE.md for project conventions if it exists.
-            2. Run `gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }}` to get the full diff.
+
+            1. Read the root CLAUDE.md for project conventions.
+            2. Run `gh pr diff ${{ github.event.pull_request.number }} --repo Savvas-S/PcCoach` to get the full diff.
             3. Review the changes for:
                - Bugs or logic errors introduced by the diff
                - Violations of conventions in CLAUDE.md
                - Regressions relative to nearby code context
-            4. Ignore:
-               - Pre-existing issues
-               - Nitpicks
-               - Formatting
-               - Type errors already handled by CI
-               - Test coverage commentary
+            4. Ignore: pre-existing issues, nitpicks, formatting, type errors (CI handles those), test coverage.
             5. For each issue found, rate your confidence 0–100. Only report issues rated 80+.
             6. Post a single comment on the PR using:
-               `gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body "..."`
-            Format your comment exactly as follows:
+               `gh pr comment ${{ github.event.pull_request.number }} --repo Savvas-S/PcCoach --body "..."`
+
+            Format your comment exactly as follows (no emojis except the robot line):
+
             If issues found:
             ---
             ### Code review
+
             Found N issues:
+
             1. <brief description> (reason: bug / CLAUDE.md: "<relevant quote>")
-            https://github.com/${{ github.repository }}/blob/<full-sha>/<file>#L<start>-L<end>
+
+            https://github.com/Savvas-S/PcCoach/blob/<full-sha>/<file>#L<start>-L<end>
+
             🤖 Generated with [Claude Code](https://claude.ai/code)
+
             <sub>If this review was useful, react 👍. Otherwise 👎.</sub>
             ---
+
             If no issues found:
             ---
             ### Code review
+
             No issues found. Checked for bugs and CLAUDE.md compliance.
+
             🤖 Generated with [Claude Code](https://claude.ai/code)
             ---
