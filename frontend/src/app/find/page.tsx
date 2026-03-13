@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { searchComponent, SOURCE_LABELS } from "@/lib/api";
+import { safeAffiliateUrl } from "@/lib/url";
 import { Toast } from "@/components/Toast";
 import type { AffiliateSource, ComponentCategory, ComponentSearchResult } from "@/lib/api";
 
@@ -196,17 +197,21 @@ export default function FindPage() {
             <div>
               <p className="text-xs text-obsidian-muted mb-3 uppercase tracking-widest">Search on stores</p>
               <div className="flex flex-wrap gap-2">
-                {result.store_links.map((link) => (
-                  <a
-                    key={link.store}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${SOURCE_COLORS[link.store] ?? "bg-obsidian-raised hover:bg-obsidian-bright"} text-white text-xs font-body font-semibold px-4 py-2 uppercase tracking-wide transition-colors`}
-                  >
-                    {SOURCE_LABELS[link.store] ?? link.store} →
-                  </a>
-                ))}
+                {result.store_links.map((link) => {
+                  const safeUrl = safeAffiliateUrl(link.url);
+                  if (!safeUrl) return null;
+                  return (
+                    <a
+                      key={link.store}
+                      href={safeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${SOURCE_COLORS[link.store] ?? "bg-obsidian-raised hover:bg-obsidian-bright"} text-white text-xs font-body font-semibold px-4 py-2 uppercase tracking-wide transition-colors`}
+                    >
+                      {SOURCE_LABELS[link.store] ?? link.store} →
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>
