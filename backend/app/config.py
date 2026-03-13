@@ -14,13 +14,9 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     environment: Literal["development", "production"] = "development"
 
-    # Rate limits (slowapi format: "N/period" where period is second/minute/hour/day)
-    # POST /api/v1/build — expensive AI call, keep conservative
-    rate_limit_build: str = "10/minute"
-    # POST /api/v1/search — also an AI call but lighter
-    rate_limit_search: str = "20/minute"
-    # GET read endpoints
-    rate_limit_read: str = "60/minute"
+    # Rate limit for AI endpoints (build + search share this pool)
+    # slowapi format: "N/period" where period is second/minute/hour/day
+    rate_limit_ai: str = "2/hour"
 
 
 settings = Settings()

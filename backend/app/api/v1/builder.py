@@ -24,7 +24,7 @@ _MAX_BUILDS = 500
 
 
 @router.post("", response_model=BuildResult, status_code=201)
-@limiter.limit(lambda: settings.rate_limit_build)
+@limiter.shared_limit(lambda: settings.rate_limit_ai, scope="ai_calls")
 async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
     # ------------------------------------------------------------------
     # Input guardrails — run before any Claude call
@@ -90,8 +90,7 @@ async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
 
 
 @router.get("/{build_id}", response_model=BuildResult)
-@limiter.limit(lambda: settings.rate_limit_read)
-async def get_build(request: Request, build_id: str) -> BuildResult:
+async def get_build(build_id: str) -> BuildResult:
     build = _builds.get(build_id)
     if not build:
         raise HTTPException(status_code=404, detail="Build not found")
