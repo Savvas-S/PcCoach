@@ -34,14 +34,6 @@ async def _http_exception_handler(
     return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
 
 
-async def _unhandled_exception_handler(
-    request: Request, exc: Exception
-) -> JSONResponse:
-    """Global fallback: log full traceback, return opaque 500 to client."""
-    log.exception("Unhandled exception: %s %s", request.method, request.url.path)
-    return JSONResponse({"detail": "Internal server error"}, status_code=500)
-
-
 # ---------------------------------------------------------------------------
 # Security headers middleware
 # ---------------------------------------------------------------------------
@@ -151,7 +143,6 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
 app.add_exception_handler(RequestValidationError, _validation_error_handler)
 app.add_exception_handler(StarletteHTTPException, _http_exception_handler)
-app.add_exception_handler(Exception, _unhandled_exception_handler)
 
 # Security headers on every response (applied before CORS to avoid conflicts)
 app.add_middleware(SecurityHeadersMiddleware)
