@@ -89,6 +89,7 @@ export interface BuildResult {
   upgrade_suggestion?: UpgradeSuggestion;
   downgrade_suggestion?: DowngradeSuggestion;
   status: "completed";
+  warnings?: string[];
 }
 
 export interface ComponentSearchRequest {

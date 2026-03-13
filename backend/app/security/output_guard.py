@@ -23,6 +23,7 @@ from app.models.builder import (
     BudgetRange,
     BuildResult,
     ComponentRecommendation,
+    ComponentSearchResult,
 )
 
 _log = logging.getLogger("security.output_guard")
@@ -221,6 +222,43 @@ class OutputGuardrail:
                 "warnings": warnings,
             }
         )
+
+    def check_search(
+        self,
+        result: ComponentSearchResult,
+    ) -> ComponentSearchResult | GuardrailBlocked:
+        """Run output checks on a search response.
+
+        Applies leak detection, off-topic detection, and PII stripping to the
+        free-text fields.  Store link URLs are validated by the StoreLink
+        Pydantic model, so URL allowlist enforcement is already handled there.
+        """
+        combined = f"{result.name} {result.brand} {result.reason}"
+
+        # 1. System-prompt leak — block entirely
+        for pattern in _LEAK_PATTERNS:
+            if pattern.search(combined):
+                _log.error(
+                    "output_guard: system-prompt leak in search response pattern=%s",
+                    pattern.pattern[:40],
+                )
+                return GuardrailBlocked(reason="system_prompt_leak")
+
+        # 2. Off-topic / refusal
+        for pattern in _REFUSAL_PATTERNS:
+            if pattern.search(combined):
+                _log.warning(
+                    "output_guard: off-topic response in search pattern=%s",
+                    pattern.pattern[:40],
+                )
+                return GuardrailBlocked(reason="off_topic_response")
+
+        # 3. PII strip from text fields
+        clean_reason = _strip_pii_from_text(result.reason)
+        if clean_reason != result.reason:
+            result = result.model_copy(update={"reason": clean_reason})
+
+        return result
 
     def _strip_pii(self, result: BuildResult) -> BuildResult:
         summary = result.summary or ""

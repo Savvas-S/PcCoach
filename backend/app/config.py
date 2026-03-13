@@ -1,6 +1,7 @@
+from typing import Literal
+
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Literal
 
 
 class Settings(BaseSettings):
@@ -14,9 +15,11 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     environment: Literal["development", "production"] = "development"
 
-    # Rate limit for AI endpoints (build + search share this pool)
-    # slowapi format: "N/period" where period is second/minute/hour/day
+    # Rate limits — slowapi format: "N/period" (second/minute/hour/day)
+    # AI endpoints (POST /build and POST /search share a single pool)
     rate_limit_ai: str = "2/hour"
+    # Read endpoint (GET /build/{id})
+    rate_limit_read: str = "60/minute"
 
 
 settings = Settings()
