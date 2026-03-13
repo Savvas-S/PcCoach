@@ -5,6 +5,7 @@ import anthropic
 from app.config import settings
 from app.models.builder import (
     BuildRequest,
+    BuildResult,
     ComponentRecommendation,
     ComponentSearchRequest,
     ComponentSearchResult,
@@ -13,6 +14,8 @@ from app.models.builder import (
     UpgradeSuggestion,
 )
 from app.prompts.manager import build_system_prompt, search_system_prompt
+from app.security import events as guardrail_events
+from app.security.output_guard import GuardrailBlocked, output_guardrail
 from app.security.prompt_guard import sanitize_user_input
 
 # Prepended to every system prompt — Claude must see this before any other
@@ -154,7 +157,18 @@ class ClaudeService:
         self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key, timeout=_TIMEOUT)
         self.model = settings.claude_model
 
-    async def generate_build(self, request: BuildRequest) -> tuple[list[ComponentRecommendation], str, UpgradeSuggestion | None, DowngradeSuggestion | None]:
+    async def generate_build(
+        self,
+        request: BuildRequest,
+        build_id: str,
+        client_ip: str = "unknown",
+    ) -> BuildResult:
+        """Call Claude and return a guardrail-checked BuildResult.
+
+        Raises:
+            ValueError: if Claude returns no tool_use block or a schema error.
+            GuardrailBlocked: re-raised as ValueError so callers map it to HTTP.
+        """
         # Sanitize the only free-text field before embedding it in the prompt.
         safe_notes = sanitize_user_input(request.notes or "none")
 
@@ -170,7 +184,8 @@ class ClaudeService:
             f"- GPU brand preference: {request.gpu_brand.value}\n"
             f"- Cooling preference: {request.cooling_preference.value}\n"
             f"- Include peripherals: {request.include_peripherals}\n"
-            f"- Parts already owned (exclude these): {[p.value for p in request.existing_parts] or 'none'}\n"
+            f"- Parts already owned (exclude these): "
+            f"{[p.value for p in request.existing_parts] or 'none'}\n"
             f"- Additional notes: <user_request>{safe_notes}</user_request>"
         )
 
@@ -179,7 +194,13 @@ class ClaudeService:
         response = await self.client.messages.create(
             model=self.model,
             max_tokens=4096,
-            system=[{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}],
+            system=[
+                {
+                    "type": "text",
+                    "text": system_prompt,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
             tools=[BUILD_TOOL],
             tool_choice={"type": "tool", "name": "recommend_build"},
             messages=[{"role": "user", "content": user_message}],
@@ -203,7 +224,45 @@ class ClaudeService:
             else None
         )
 
-        return components, summary, upgrade_suggestion, downgrade_suggestion
+        build = BuildResult(
+            id=build_id,
+            components=components,
+            summary=summary,
+            upgrade_suggestion=upgrade_suggestion,
+            downgrade_suggestion=downgrade_suggestion,
+        )
+
+        # --- Output guardrails ---
+        checked = output_guardrail.check(
+            result=build,
+            budget_range=request.budget_range,
+        )
+        if isinstance(checked, GuardrailBlocked):
+            guardrail_events.emit(
+                ip=client_ip,
+                guardrail_name="OutputGuardrail",
+                action_taken="blocked",
+                reason=checked.reason,
+            )
+            if checked.reason == "off_topic_response":
+                raise ValueError(
+                    "The AI was unable to generate a recommendation for this "
+                    "request. Please rephrase your requirements."
+                )
+            # system_prompt_leak or other hard blocks → 500
+            raise ValueError(
+                "Could not generate a valid recommendation. Please try again."
+            )
+
+        if checked.warnings:
+            guardrail_events.emit(
+                ip=client_ip,
+                guardrail_name="OutputGuardrail.price_check",
+                action_taken="warned",
+                reason="; ".join(checked.warnings),
+            )
+
+        return checked
 
     async def search_component(self, request: ComponentSearchRequest) -> ComponentSearchResult:
         safe_description = sanitize_user_input(request.description)
