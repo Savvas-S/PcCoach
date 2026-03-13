@@ -230,6 +230,10 @@ class BuildResult(BaseModel):
     upgrade_suggestion: UpgradeSuggestion | None = None
     downgrade_suggestion: DowngradeSuggestion | None = None
     status: BuildStatus = BuildStatus.completed
+    warnings: list[str] = Field(
+        default_factory=list,
+        description="Non-fatal warnings from output guardrails (e.g. budget overage)",
+    )
 
     @model_validator(mode="after")
     def compute_total_price(self) -> "BuildResult":
