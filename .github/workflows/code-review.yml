@@ -12,6 +12,9 @@ jobs:
       contents: read
       pull-requests: write
 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,8 +24,8 @@ jobs:
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          model: ${{ vars.CLAUDE_REVIEW_MODEL || 'claude-sonnet-4-6' }}
-          direct_prompt: |
+          claude_args: --model ${{ vars.CLAUDE_REVIEW_MODEL || 'claude-sonnet-4-6' }}
+          prompt: |
             You are performing an automated code review on pull request #${{ github.event.pull_request.number }} in the Savvas-S/PcCoach repository.
 
             Follow these steps precisely:
