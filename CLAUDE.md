@@ -113,3 +113,115 @@ Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`)
 - Do not add abstraction layers unless clearly needed
 - Always use `uv run` inside containers, never bare `python` or `pip`
 - Do not commit `.env` files
+
+---
+
+## Security & Guardrails
+
+### Forbidden Patterns
+
+| Pattern | Why forbidden |
+|---------|---------------|
+| Raw SQL strings with f-strings or `.format()` from user input | SQL injection. Never construct SQL strings from user input. Use SQLAlchemy ORM or `text(...).bindparams(...)` only. |
+| `dangerouslySetInnerHTML` with unsanitized data | XSS. Use text content or DOMPurify if HTML rendering is ever needed. |
+| `CORS_ORIGINS = ["*"]` in production | Opens all cross-origin requests. Always set explicit origin list. |
+| Raw user strings interpolated directly into Claude system prompt | Prompt injection. User text must go through `sanitize_user_input()` and be wrapped in `<user_request>…</user_request>`. |
+| Logging `anthropic_api_key`, `database_url`, or any secret value | Secret leakage. Use `SecretStr` — access via `.get_secret_value()` only in the code that needs it, never in logs. |
+| Catching `Exception` without re-raising a clean HTTP response | Information leakage. Always log the full traceback server-side and return only `{"detail": "Internal server error"}` to the client. |
+
+### Guardrails Architecture
+
+Every POST /api/v1/build request flows through three guardrail layers:
+
+```
+Request
+  │
+  ▼
+[InputGuardrail]  ← backend/app/security/guardrails.py
+  │  • Scope check: hardware keyword allowlist
+  │  • Toxicity/abuse blocklist
+  │  • Budget sanity (€50–€100,000)
+  │  • Duplicate flooding (SHA-256 hash + TTLCache)
+  │
+  ▼ (passes)
+[ClaudeService]   ← backend/app/services/claude.py
+  │  • sanitize_user_input() on all free-text fields
+  │  • _ROLE_LOCK prepended to system prompt
+  │  • User text wrapped in <user_request>…</user_request>
+  │
+  ▼ (Claude responds)
+[OutputGuardrail] ← backend/app/security/output_guard.py
+  │  • System-prompt leak detection → 500
+  │  • Off-topic/refusal detection → 400
+  │  • Affiliate URL allowlist enforcement (strip non-allowed)
+  │  • Price sanity (strip ≤0 or >€50k; warn if >150% budget)
+  │  • PII strip from text (phone, email, external URLs)
+  │
+  ▼ (clean)
+Client
+```
+
+All guardrail events are emitted via `backend/app/security/events.py` as
+structured JSON at WARNING level to the `security.events` logger.
+
+### Affiliate URL Allowlist
+
+Only URLs from these hosts are permitted (backend + frontend):
+
+| Store | Allowed hosts |
+|-------|--------------|
+| Amazon.de | `amazon.de`, `www.amazon.de` |
+| ComputerUniverse | `computeruniverse.net`, `www.computeruniverse.net` |
+| Caseking | `caseking.de`, `www.caseking.de` |
+
+Backend: `backend/app/models/builder.py:_ALLOWED_AFFILIATE_HOSTS`
+Backend output guard: `backend/app/security/output_guard.py:_AFFILIATE_ALLOWED_HOSTS`
+Frontend: `frontend/src/lib/url.ts:ALLOWED_AFFILIATE_HOSTS`
+
+All three lists must be kept in sync when stores change.
+
+### Guardrail Event Log Format
+
+Every block/warn/strip emits a JSON line at `WARNING` level:
+
+```json
+{
+  "timestamp": "2026-03-13T12:00:00.000000+00:00",
+  "ip": "1.2.3.4",
+  "guardrail": "InputGuardrail",
+  "action": "blocked",
+  "reason": "Duplicate request detected. Please wait before resubmitting."
+}
+```
+
+`action` values: `"blocked"` | `"warned"` | `"stripped"`
+
+### How to Run Security Tools
+
+```bash
+# Dependency vulnerability scan (run after every uv lock)
+cd backend && uv run pip-audit
+
+# Linter + formatter
+cd backend && uv run ruff check app/
+cd backend && uv run ruff format --check app/
+
+# Full test suite
+cd backend && uv run pytest
+```
+
+### Rate Limits (configurable via env vars)
+
+| Endpoint | Default | Env var |
+|----------|---------|---------|
+| POST /api/v1/build | 10/minute | `RATE_LIMIT_BUILD` |
+| GET /api/v1/build/{id} | 60/minute | `RATE_LIMIT_READ` |
+| POST /api/v1/search | 10/minute | `RATE_LIMIT_BUILD` |
+
+Format: `"N/period"` where period is `second`, `minute`, `hour`, or `day`.
+
+### Secrets
+
+- `ANTHROPIC_API_KEY` and `DATABASE_URL` are `SecretStr` in `config.py`
+- Never log these values — log `"set"` / `"unset"` as a boolean indicator
+- Never commit `.env` files — only `.env.example` with placeholders

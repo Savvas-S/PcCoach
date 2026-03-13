@@ -3,15 +3,81 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api.v1.router import router as v1_router
 from app.config import settings
 from app.limiter import limiter
 
 log = logging.getLogger(__name__)
+
+
+async def _validation_error_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    """Return clean 422s without leaking internal field names in production."""
+    if settings.environment == "production":
+        return JSONResponse({"detail": "Invalid request."}, status_code=422)
+    # In development, pass through the full Pydantic error detail for debugging.
+    return JSONResponse({"detail": exc.errors()}, status_code=422)
+
+
+async def _http_exception_handler(
+    request: Request, exc: StarletteHTTPException
+) -> JSONResponse:
+    """Ensure all HTTPExceptions return JSON."""
+    return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+
+
+async def _unhandled_exception_handler(
+    request: Request, exc: Exception
+) -> JSONResponse:
+    """Global fallback: log full traceback, return opaque 500 to client."""
+    log.exception("Unhandled exception: %s %s", request.method, request.url.path)
+    return JSONResponse({"detail": "Internal server error"}, status_code=500)
+
+
+# ---------------------------------------------------------------------------
+# Security headers middleware
+# ---------------------------------------------------------------------------
+
+_SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Content-Security-Policy": "default-src 'self'",
+    "Server": "pccoach",
+}
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security headers to every response.
+
+    Exceptions raised inside the route handler propagate through
+    BaseHTTPMiddleware.call_next() and bypass app.add_exception_handler().
+    We catch them here so the global Exception handler is always effective
+    and unhandled errors always return JSON (not Starlette's default HTML/text).
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        try:
+            response = await call_next(request)
+        except Exception:
+            log.exception(
+                "Unhandled exception: %s %s", request.method, request.url.path
+            )
+            response = JSONResponse(
+                {"detail": "Internal server error"}, status_code=500
+            )
+        for header, value in _SECURITY_HEADERS.items():
+            response.headers[header] = value
+        return response
 
 
 async def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
@@ -46,18 +112,25 @@ async def lifespan(app: FastAPI):
             )
 
     if settings.environment == "production":
-        if not settings.anthropic_api_key:
+        if not settings.anthropic_api_key or not settings.anthropic_api_key.get_secret_value():
             raise RuntimeError("ANTHROPIC_API_KEY must be set in production")
         if any("localhost" in o for o in settings.cors_origins):
             raise RuntimeError(
                 "CORS_ORIGINS contains 'localhost' in production — "
                 "likely a typo (e.g. CORS_ORIGIN instead of CORS_ORIGINS)"
             )
+        # CORS wildcard is never acceptable in production
+        if "*" in settings.cors_origins:
+            raise RuntimeError(
+                "CORS_ORIGINS must not contain '*' in production. "
+                "Set explicit allowed origins."
+            )
     log.info(
-        "Starting PcCoach: environment=%s cors_origins=%s docs=%s",
+        "Starting PcCoach: environment=%s cors_origins=%s docs=%s api_key=%s",
         settings.environment,
         settings.cors_origins,
         "disabled" if settings.environment == "production" else "enabled",
+        "set" if settings.anthropic_api_key else "unset",
     )
     yield
 
@@ -76,6 +149,12 @@ app = FastAPI(
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
+app.add_exception_handler(RequestValidationError, _validation_error_handler)
+app.add_exception_handler(StarletteHTTPException, _http_exception_handler)
+app.add_exception_handler(Exception, _unhandled_exception_handler)
+
+# Security headers on every response (applied before CORS to avoid conflicts)
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

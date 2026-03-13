@@ -4,6 +4,7 @@ import anthropic
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import ValidationError
 
+from app.config import settings
 from app.limiter import limiter
 from app.models.builder import ComponentSearchRequest, ComponentSearchResult
 from app.services.claude import get_claude_service
@@ -13,7 +14,7 @@ router = APIRouter(prefix="/search", tags=["search"])
 
 
 @router.post("", response_model=ComponentSearchResult, status_code=200)
-@limiter.limit("20/hour")
+@limiter.limit(lambda: settings.rate_limit_search)
 async def search_component(request: Request, payload: ComponentSearchRequest) -> ComponentSearchResult:
     try:
         claude = get_claude_service()

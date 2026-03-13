@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getBuild, SOURCE_LABELS } from "@/lib/api";
+import { safeAffiliateUrl } from "@/lib/url";
 import type {
   AffiliateSource,
   BuildResult,
@@ -76,9 +77,9 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
           <div className="font-mono text-xl font-medium text-obsidian">
             ~&euro;{component.price_eur.toFixed(0)}
           </div>
-          {component.affiliate_url ? (
+          {safeAffiliateUrl(component.affiliate_url) ? (
             <a
-              href={component.affiliate_url}
+              href={safeAffiliateUrl(component.affiliate_url)!}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
@@ -117,9 +118,9 @@ function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
           <div className="font-mono text-lg font-medium text-amber-400">
             ~+&euro;{suggestion.extra_cost_eur.toFixed(0)}
           </div>
-          {suggestion.affiliate_url && (
+          {safeAffiliateUrl(suggestion.affiliate_url) && (
             <a
-              href={suggestion.affiliate_url}
+              href={safeAffiliateUrl(suggestion.affiliate_url)!}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block bg-amber-700 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
@@ -156,9 +157,9 @@ function DowngradeCard({ suggestion }: { suggestion: DowngradeSuggestion }) {
           <div className="font-mono text-lg font-medium text-green-400">
             Save ~&euro;{suggestion.savings_eur.toFixed(0)}
           </div>
-          {suggestion.affiliate_url && (
+          {safeAffiliateUrl(suggestion.affiliate_url) && (
             <a
-              href={suggestion.affiliate_url}
+              href={safeAffiliateUrl(suggestion.affiliate_url)!}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block bg-green-700 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"

@@ -1,15 +1,26 @@
-from typing import Literal
-
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Literal
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    anthropic_api_key: str | None = None  # required in production
+    # Sensitive secrets — accessed via .get_secret_value(), never logged directly
+    anthropic_api_key: SecretStr | None = None  # required in production
+    database_url: SecretStr | None = None        # required when DB is wired up
+
     claude_model: str = "claude-sonnet-4-6"
     cors_origins: list[str] = ["http://localhost:3000"]
     environment: Literal["development", "production"] = "development"
+
+    # Rate limits (slowapi format: "N/period" where period is second/minute/hour/day)
+    # POST /api/v1/build — expensive AI call, keep conservative
+    rate_limit_build: str = "10/minute"
+    # POST /api/v1/search — also an AI call but lighter
+    rate_limit_search: str = "20/minute"
+    # GET read endpoints
+    rate_limit_read: str = "60/minute"
 
 
 settings = Settings()

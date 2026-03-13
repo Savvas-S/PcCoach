@@ -6,8 +6,11 @@ import anthropic
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import ValidationError
 
+from app.config import settings
 from app.limiter import limiter
-from app.models.builder import BuildRequest, BuildResult, BuildStatus
+from app.models.builder import BuildRequest, BuildResult
+from app.security import events as guardrail_events
+from app.security.guardrails import hash_request_body, input_guardrail
 from app.services.claude import get_claude_service
 
 log = logging.getLogger(__name__)
@@ -21,20 +24,40 @@ _MAX_BUILDS = 500
 
 
 @router.post("", response_model=BuildResult, status_code=201)
-@limiter.limit("2/hour")
+@limiter.limit(lambda: settings.rate_limit_build)
 async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
+    # ------------------------------------------------------------------
+    # Input guardrails — run before any Claude call
+    # ------------------------------------------------------------------
+    client_ip = request.client.host if request.client else "unknown"
+    raw_body = await request.body()
+    body_hash = hash_request_body(raw_body)
+
+    guard_result = input_guardrail.check(
+        notes=payload.notes,
+        budget_range=payload.budget_range,
+        client_ip=client_ip,
+        body_hash=body_hash,
+    )
+    if not guard_result.allowed:
+        guardrail_events.emit(
+            ip=client_ip,
+            guardrail_name="InputGuardrail",
+            action_taken="blocked",
+            reason=guard_result.reason,
+        )
+        status = 429 if "Duplicate" in guard_result.reason else 400
+        raise HTTPException(status_code=status, detail=guard_result.reason)
+
+    # ------------------------------------------------------------------
+    # Claude call
+    # ------------------------------------------------------------------
     build_id = secrets.token_urlsafe(8)
 
     try:
         claude = get_claude_service()
-        components, summary, upgrade_suggestion, downgrade_suggestion = await claude.generate_build(payload)
-        build = BuildResult(
-            id=build_id,
-            components=components,
-            summary=summary,
-            upgrade_suggestion=upgrade_suggestion,
-            downgrade_suggestion=downgrade_suggestion,
-            status=BuildStatus.completed,
+        build = await claude.generate_build(
+            payload, build_id=build_id, client_ip=client_ip
         )
     except anthropic.APITimeoutError as e:
         log.warning("Claude API timed out: goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
@@ -50,10 +73,10 @@ async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
         raise HTTPException(status_code=503, detail="The AI service is temporarily overloaded. Please try again in a moment.")
     except (ValidationError, ValueError) as e:
         log.error("Invalid Claude response structure: goal=%s budget=%s error=%s", payload.goal, payload.budget_range, e)
-        raise HTTPException(status_code=502, detail="The AI returned an unexpected response. Please try again.")
+        raise HTTPException(status_code=500, detail="Could not generate a valid recommendation. Please try again.")
     except Exception:
         log.exception("Unexpected error generating build: goal=%s budget=%s", payload.goal, payload.budget_range)
-        raise HTTPException(status_code=502, detail="Something went wrong. Please try again.")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     _builds[build_id] = build
     if len(_builds) > _MAX_BUILDS:
@@ -61,13 +84,13 @@ async def create_build(request: Request, payload: BuildRequest) -> BuildResult:
 
     log.info(
         "Build generated: id=%s goal=%s budget=%s components=%d",
-        build_id, payload.goal.value, payload.budget_range.value, len(components),
+        build_id, payload.goal.value, payload.budget_range.value, len(build.components),
     )
     return build
 
 
 @router.get("/{build_id}", response_model=BuildResult)
-@limiter.limit("120/minute")
+@limiter.limit(lambda: settings.rate_limit_read)
 async def get_build(request: Request, build_id: str) -> BuildResult:
     build = _builds.get(build_id)
     if not build:
