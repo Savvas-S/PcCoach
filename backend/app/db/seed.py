@@ -214,7 +214,7 @@ SEED_COMPONENTS: list[dict] = [
             "length_mm": "282",
             "interface": "PCIe 4.0 x16",
         },
-        "links": [{"store": "amazon", "asin": "B0CS5SZ6VN", "price_eur": 599.00}],
+        "links": [{"store": "amazon", "asin": "B0CQTNRTWR", "price_eur": 599.00}],
     },
     {
         "category": "gpu",
@@ -313,7 +313,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "ATX",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BHCQX1DG", "price_eur": 209.00}],
+        "links": [{"store": "amazon", "asin": "B0BDS873GF", "price_eur": 209.00}],
     },
     {
         "category": "motherboard",
@@ -432,7 +432,7 @@ SEED_COMPONENTS: list[dict] = [
             "modules": "2x16GB",
             "cas_latency": "30",
         },
-        "links": [{"store": "amazon", "asin": "B0BFW3LXS1", "price_eur": 99.00}],
+        "links": [{"store": "amazon", "asin": "B0DD295CNY", "price_eur": 99.00}],
     },
     {
         "category": "ram",
@@ -509,7 +509,7 @@ SEED_COMPONENTS: list[dict] = [
             "read_mbps": "7450",
             "write_mbps": "6900",
         },
-        "links": [{"store": "amazon", "asin": "B0CHGT4KLB", "price_eur": 99.00}],
+        "links": [{"store": "amazon", "asin": "B0B9C3ZVHR", "price_eur": 99.00}],
     },
     {
         "category": "storage",
