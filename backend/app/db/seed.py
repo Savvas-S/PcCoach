@@ -126,7 +126,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp": "65",
             "boost_ghz": "4.7",
         },
-        "links": [{"store": "amazon", "asin": "B0CTW2LMTQ", "price_eur": 179.00}],
+        "links": [{"store": "amazon", "asin": "B0CQ3142LB", "price_eur": 179.00}],
     },
     {
         "category": "cpu",
@@ -139,7 +139,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp": "125",
             "boost_ghz": "5.3",
         },
-        "links": [{"store": "amazon", "asin": "B0CGJ4MLC2", "price_eur": 269.00}],
+        "links": [{"store": "amazon", "asin": "B0CHBGVFHP", "price_eur": 269.00}],
     },
     {
         "category": "cpu",
@@ -152,7 +152,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp": "125",
             "boost_ghz": "5.6",
         },
-        "links": [{"store": "amazon", "asin": "B0CGJ1WMM1", "price_eur": 369.00}],
+        "links": [{"store": "amazon", "asin": "B0CGJ41C9W", "price_eur": 369.00}],
     },
     {
         "category": "cpu",
