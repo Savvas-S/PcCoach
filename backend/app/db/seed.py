@@ -639,7 +639,7 @@ SEED_COMPONENTS: list[dict] = [
             "max_cooler_height_mm": "170",
             "included_fans": "3",
         },
-        "links": [{"store": "amazon", "asin": "B0B1NLFNC1", "price_eur": 99.00}],
+        "links": [{"store": "amazon", "asin": "B08T1VC921", "price_eur": 99.00}],
     },
     {
         "category": "case",
@@ -651,7 +651,7 @@ SEED_COMPONENTS: list[dict] = [
             "max_cooler_height_mm": "165",
             "included_fans": "2",
         },
-        "links": [{"store": "amazon", "asin": "B0D2N4SHY3", "price_eur": 89.00}],
+        "links": [{"store": "amazon", "asin": "B0D2MK6NML", "price_eur": 89.00}],
     },
     {
         "category": "case",
@@ -675,7 +675,7 @@ SEED_COMPONENTS: list[dict] = [
             "max_cooler_height_mm": "176",
             "included_fans": "3",
         },
-        "links": [{"store": "amazon", "asin": "B08DX68X3D", "price_eur": 109.00}],
+        "links": [{"store": "amazon", "asin": "B09MLYYT7S", "price_eur": 109.00}],
     },
     {
         "category": "case",
@@ -687,7 +687,7 @@ SEED_COMPONENTS: list[dict] = [
             "max_cooler_height_mm": "190",
             "included_fans": "3",
         },
-        "links": [{"store": "amazon", "asin": "B087D61YMP", "price_eur": 109.00}],
+        "links": [{"store": "amazon", "asin": "B087D7DBW6", "price_eur": 109.00}],
     },
     {
         "category": "case",
@@ -699,7 +699,7 @@ SEED_COMPONENTS: list[dict] = [
             "max_cooler_height_mm": "170",
             "included_fans": "2",
         },
-        "links": [{"store": "amazon", "asin": "B0BXPYCFH3", "price_eur": 129.00}],
+        "links": [{"store": "amazon", "asin": "B09V8HNWW9", "price_eur": 129.00}],
     },
     {
         "category": "case",
@@ -711,7 +711,7 @@ SEED_COMPONENTS: list[dict] = [
             "max_cooler_height_mm": "159",
             "included_fans": "1",
         },
-        "links": [{"store": "amazon", "asin": "B0C3FYPCZX", "price_eur": 49.00}],
+        "links": [{"store": "amazon", "asin": "B0C94R8YQW", "price_eur": 49.00}],
     },
     {
         "category": "case",
@@ -723,7 +723,7 @@ SEED_COMPONENTS: list[dict] = [
             "max_cooler_height_mm": "170",
             "included_fans": "3",
         },
-        "links": [{"store": "amazon", "asin": "B0B1NNB1DM", "price_eur": 89.00}],
+        "links": [{"store": "amazon", "asin": "B08T1XD4V2", "price_eur": 89.00}],
     },
     # ===== Cases — Mini-ITX =====
     {
@@ -736,7 +736,7 @@ SEED_COMPONENTS: list[dict] = [
             "max_cooler_height_mm": "155",
             "included_fans": "2",
         },
-        "links": [{"store": "amazon", "asin": "B08BFJX4SN", "price_eur": 89.00}],
+        "links": [{"store": "amazon", "asin": "B08BK6W7CS", "price_eur": 89.00}],
     },
     {
         "category": "case",
@@ -748,7 +748,7 @@ SEED_COMPONENTS: list[dict] = [
             "max_cooler_height_mm": "77",
             "included_fans": "1",
         },
-        "links": [{"store": "amazon", "asin": "B0CB6CFLGS", "price_eur": 149.00}],
+        "links": [{"store": "amazon", "asin": "B09DKMQ5L1", "price_eur": 149.00}],
     },
     # ===== Motherboards — Mini-ITX =====
     {
@@ -788,7 +788,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp_rating": "150",
             "socket_support": "AM5,LGA1700",
         },
-        "links": [{"store": "amazon", "asin": "B087VM79LV", "price_eur": 35.00}],
+        "links": [{"store": "amazon", "asin": "B087VL2Z21", "price_eur": 35.00}],
     },
     {
         "category": "cooling",
@@ -800,7 +800,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp_rating": "180",
             "socket_support": "AM5,LGA1700",
         },
-        "links": [{"store": "amazon", "asin": "B09K3MMZQL", "price_eur": 49.00}],
+        "links": [{"store": "amazon", "asin": "B08WPDD6GD", "price_eur": 49.00}],
     },
     {
         "category": "cooling",
@@ -812,7 +812,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp_rating": "260",
             "socket_support": "AM5,LGA1700",
         },
-        "links": [{"store": "amazon", "asin": "B0BXJ5MMHP", "price_eur": 35.00}],
+        "links": [{"store": "amazon", "asin": "B0CCF2PQPF", "price_eur": 35.00}],
     },
     {
         "category": "cooling",
@@ -849,7 +849,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp_rating": "300",
             "socket_support": "AM5,LGA1700",
         },
-        "links": [{"store": "amazon", "asin": "B07WSDLRR3", "price_eur": 69.00}],
+        "links": [{"store": "amazon", "asin": "B07WSDLRVP", "price_eur": 69.00}],
     },
     {
         "category": "cooling",
@@ -861,7 +861,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp_rating": "400",
             "socket_support": "AM5,LGA1700",
         },
-        "links": [{"store": "amazon", "asin": "B07WPBSP5C", "price_eur": 89.00}],
+        "links": [{"store": "amazon", "asin": "B07XT8X6J7", "price_eur": 89.00}],
     },
     {
         "category": "cooling",
@@ -873,7 +873,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp_rating": "400",
             "socket_support": "AM5,LGA1700",
         },
-        "links": [{"store": "amazon", "asin": "B0D4TN418G", "price_eur": 199.00}],
+        "links": [{"store": "amazon", "asin": "B0BQWSP2ZP", "price_eur": 199.00}],
     },
     # ===== Monitors =====
     {
@@ -887,7 +887,7 @@ SEED_COMPONENTS: list[dict] = [
             "refresh_hz": "165",
             "response_ms": "1",
         },
-        "links": [{"store": "amazon", "asin": "B09QG3SJG3", "price_eur": 279.00}],
+        "links": [{"store": "amazon", "asin": "B08VS8YG8H", "price_eur": 279.00}],
     },
     {
         "category": "monitor",
@@ -900,7 +900,7 @@ SEED_COMPONENTS: list[dict] = [
             "refresh_hz": "165",
             "response_ms": "1",
         },
-        "links": [{"store": "amazon", "asin": "B09PVZD74D", "price_eur": 249.00}],
+        "links": [{"store": "amazon", "asin": "B095C3341T", "price_eur": 249.00}],
     },
     {
         "category": "monitor",
@@ -913,7 +913,7 @@ SEED_COMPONENTS: list[dict] = [
             "refresh_hz": "170",
             "response_ms": "1",
         },
-        "links": [{"store": "amazon", "asin": "B09GFL94HH", "price_eur": 269.00}],
+        "links": [{"store": "amazon", "asin": "B08J4D98JB", "price_eur": 269.00}],
     },
     {
         "category": "monitor",
@@ -926,7 +926,7 @@ SEED_COMPONENTS: list[dict] = [
             "refresh_hz": "180",
             "response_ms": "1",
         },
-        "links": [{"store": "amazon", "asin": "B0D2C1FJPB", "price_eur": 139.00}],
+        "links": [{"store": "amazon", "asin": "B0CYQGRTHX", "price_eur": 139.00}],
     },
     {
         "category": "monitor",
@@ -939,7 +939,7 @@ SEED_COMPONENTS: list[dict] = [
             "refresh_hz": "144",
             "response_ms": "1",
         },
-        "links": [{"store": "amazon", "asin": "B0B3H4SK6C", "price_eur": 449.00}],
+        "links": [{"store": "amazon", "asin": "B0BRL9PJLY", "price_eur": 449.00}],
     },
     # ===== Keyboards =====
     {
@@ -952,7 +952,7 @@ SEED_COMPONENTS: list[dict] = [
             "layout": "full",
             "backlight": "white",
         },
-        "links": [{"store": "amazon", "asin": "B09ZK3R3QN", "price_eur": 49.00}],
+        "links": [{"store": "amazon", "asin": "B07W7L7S6W", "price_eur": 49.00}],
     },
     {
         "category": "keyboard",
@@ -964,7 +964,7 @@ SEED_COMPONENTS: list[dict] = [
             "layout": "TKL",
             "backlight": "RGB",
         },
-        "links": [{"store": "amazon", "asin": "B0CJZRFWPN", "price_eur": 69.00}],
+        "links": [{"store": "amazon", "asin": "B0BCR29GFW", "price_eur": 69.00}],
     },
     {
         "category": "keyboard",
@@ -976,7 +976,7 @@ SEED_COMPONENTS: list[dict] = [
             "layout": "TKL",
             "backlight": "RGB",
         },
-        "links": [{"store": "amazon", "asin": "B07YMN61NS", "price_eur": 59.00}],
+        "links": [{"store": "amazon", "asin": "B07YMHGP86", "price_eur": 59.00}],
     },
     # ===== Mice =====
     {
@@ -989,7 +989,7 @@ SEED_COMPONENTS: list[dict] = [
             "wireless": "yes",
             "dpi_max": "25600",
         },
-        "links": [{"store": "amazon", "asin": "B0B18GMV71", "price_eur": 89.00}],
+        "links": [{"store": "amazon", "asin": "B07W6JNY7T", "price_eur": 89.00}],
     },
     {
         "category": "mouse",
@@ -1013,7 +1013,7 @@ SEED_COMPONENTS: list[dict] = [
             "wireless": "no",
             "dpi_max": "30000",
         },
-        "links": [{"store": "amazon", "asin": "B0CY65WFVH", "price_eur": 69.00}],
+        "links": [{"store": "amazon", "asin": "B09ZLTV8B3", "price_eur": 69.00}],
     },
     {
         "category": "mouse",
@@ -1025,7 +1025,7 @@ SEED_COMPONENTS: list[dict] = [
             "wireless": "no",
             "dpi_max": "8500",
         },
-        "links": [{"store": "amazon", "asin": "B07THJKG53", "price_eur": 29.00}],
+        "links": [{"store": "amazon", "asin": "B082XQHPCL", "price_eur": 29.00}],
     },
 ]
 
