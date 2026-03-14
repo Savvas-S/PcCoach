@@ -829,14 +829,14 @@ SEED_COMPONENTS: list[dict] = [
     {
         "category": "cooling",
         "brand": "DeepCool",
-        "model": "AK400",
+        "model": "AK400 Digital",
         "specs": {
             "type": "air",
             "height_mm": "155",
             "tdp_rating": "220",
             "socket_support": "AM5,LGA1700",
         },
-        "links": [{"store": "amazon", "asin": "B0B4NXL2F2", "price_eur": 29.00}],
+        "links": [{"store": "amazon", "asin": "B0C65FH1QT", "price_eur": 39.00}],
     },
     # ===== Cooling — Liquid =====
     {
