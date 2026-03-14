@@ -445,7 +445,7 @@ SEED_COMPONENTS: list[dict] = [
             "modules": "2x16GB",
             "cas_latency": "36",
         },
-        "links": [{"store": "amazon", "asin": "B0CJ2LCLTR", "price_eur": 89.00}],
+        "links": [{"store": "amazon", "asin": "B0BD5TF3T3", "price_eur": 89.00}],
     },
     {
         "category": "ram",
@@ -458,7 +458,7 @@ SEED_COMPONENTS: list[dict] = [
             "modules": "2x16GB",
             "cas_latency": "30",
         },
-        "links": [{"store": "amazon", "asin": "B0CMSCXQF7", "price_eur": 109.00}],
+        "links": [{"store": "amazon", "asin": "B0CBRJ63RT", "price_eur": 109.00}],
     },
     {
         "category": "ram",
@@ -471,7 +471,7 @@ SEED_COMPONENTS: list[dict] = [
             "modules": "2x32GB",
             "cas_latency": "30",
         },
-        "links": [{"store": "amazon", "asin": "B0CJ2G36LQ", "price_eur": 189.00}],
+        "links": [{"store": "amazon", "asin": "B0BJP3MRW1", "price_eur": 189.00}],
     },
     {
         "category": "ram",
@@ -484,7 +484,7 @@ SEED_COMPONENTS: list[dict] = [
             "modules": "2x8GB",
             "cas_latency": "36",
         },
-        "links": [{"store": "amazon", "asin": "B0CJ2K5DHJ", "price_eur": 49.00}],
+        "links": [{"store": "amazon", "asin": "B0BRTJCLBJ", "price_eur": 49.00}],
     },
     # ===== Storage =====
     {
@@ -497,7 +497,7 @@ SEED_COMPONENTS: list[dict] = [
             "read_mbps": "5000",
             "write_mbps": "4200",
         },
-        "links": [{"store": "amazon", "asin": "B0CXKGHKH1", "price_eur": 79.00}],
+        "links": [{"store": "amazon", "asin": "B0CP43PS7B", "price_eur": 79.00}],
     },
     {
         "category": "storage",
@@ -521,7 +521,7 @@ SEED_COMPONENTS: list[dict] = [
             "read_mbps": "7450",
             "write_mbps": "6900",
         },
-        "links": [{"store": "amazon", "asin": "B0CHGT6LN5", "price_eur": 169.00}],
+        "links": [{"store": "amazon", "asin": "B0B9C4DKKG", "price_eur": 169.00}],
     },
     {
         "category": "storage",
@@ -557,7 +557,7 @@ SEED_COMPONENTS: list[dict] = [
             "read_mbps": "3500",
             "write_mbps": "2100",
         },
-        "links": [{"store": "amazon", "asin": "B0BBJHQ14J", "price_eur": 35.00}],
+        "links": [{"store": "amazon", "asin": "B0BBWJH1P8", "price_eur": 35.00}],
     },
     {
         "category": "storage",
@@ -569,7 +569,7 @@ SEED_COMPONENTS: list[dict] = [
             "read_mbps": "7300",
             "write_mbps": "6800",
         },
-        "links": [{"store": "amazon", "asin": "B0CK1SBLVD", "price_eur": 89.00}],
+        "links": [{"store": "amazon", "asin": "B0CK39YR9V", "price_eur": 89.00}],
     },
     # ===== PSU =====
     {
@@ -591,28 +591,28 @@ SEED_COMPONENTS: list[dict] = [
         "brand": "Corsair",
         "model": "RM750e (2023) 750W 80+ Gold",
         "specs": {"wattage": "750", "efficiency": "80+ Gold", "modular": "full"},
-        "links": [{"store": "amazon", "asin": "B0BYDL13HJ", "price_eur": 89.00}],
+        "links": [{"store": "amazon", "asin": "B0BVL2CTX4", "price_eur": 89.00}],
     },
     {
         "category": "psu",
         "brand": "Corsair",
         "model": "RM850e (2023) 850W 80+ Gold",
         "specs": {"wattage": "850", "efficiency": "80+ Gold", "modular": "full"},
-        "links": [{"store": "amazon", "asin": "B0BYDNKQKK", "price_eur": 109.00}],
+        "links": [{"store": "amazon", "asin": "B0BVL17341", "price_eur": 109.00}],
     },
     {
         "category": "psu",
         "brand": "be quiet!",
         "model": "Pure Power 12 M 650W 80+ Gold",
         "specs": {"wattage": "650", "efficiency": "80+ Gold", "modular": "full"},
-        "links": [{"store": "amazon", "asin": "B0BRF8F4PM", "price_eur": 85.00}],
+        "links": [{"store": "amazon", "asin": "B0BT33WJ38", "price_eur": 85.00}],
     },
     {
         "category": "psu",
         "brand": "be quiet!",
         "model": "Pure Power 12 M 750W 80+ Gold",
         "specs": {"wattage": "750", "efficiency": "80+ Gold", "modular": "full"},
-        "links": [{"store": "amazon", "asin": "B0BRF9SN11", "price_eur": 95.00}],
+        "links": [{"store": "amazon", "asin": "B0BT2YZGZK", "price_eur": 95.00}],
     },
     {
         "category": "psu",
@@ -626,7 +626,7 @@ SEED_COMPONENTS: list[dict] = [
         "brand": "Corsair",
         "model": "RM1000e (2023) 1000W 80+ Gold",
         "specs": {"wattage": "1000", "efficiency": "80+ Gold", "modular": "full"},
-        "links": [{"store": "amazon", "asin": "B0BYDN7SL9", "price_eur": 149.00}],
+        "links": [{"store": "amazon", "asin": "B0BYL3MPDC", "price_eur": 149.00}],
     },
     # ===== Cases =====
     {
