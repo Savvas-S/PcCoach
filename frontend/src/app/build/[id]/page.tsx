@@ -347,8 +347,8 @@ export default function BuildResultPage() {
               {peripheralComponents.length > 0 ? "Core components" : "What\u2019s included"}
             </SectionHeading>
             <div className="space-y-px bg-obsidian-border">
-              {coreComponents.map((c) => (
-                <ComponentCard key={c.category} component={c} />
+              {coreComponents.map((c, i) => (
+                <ComponentCard key={`${c.category}-${i}`} component={c} />
               ))}
             </div>
           </div>
@@ -359,8 +359,8 @@ export default function BuildResultPage() {
           <div className="mb-6">
             <SectionHeading>Peripherals</SectionHeading>
             <div className="space-y-px bg-obsidian-border">
-              {peripheralComponents.map((c) => (
-                <ComponentCard key={c.category} component={c} />
+              {peripheralComponents.map((c, i) => (
+                <ComponentCard key={`${c.category}-${i}`} component={c} />
               ))}
             </div>
           </div>

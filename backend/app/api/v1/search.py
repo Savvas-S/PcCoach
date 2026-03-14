@@ -8,7 +8,7 @@ from app.config import settings
 from app.limiter import limiter
 from app.models.builder import ComponentSearchRequest, ComponentSearchResult
 from app.security import events as guardrail_events
-from app.security.guardrails import hash_request_body, input_guardrail
+from app.security.guardrails import hash_search_request, input_guardrail
 from app.security.output_guard import GuardrailBlocked, output_guardrail
 from app.services.claude import get_claude_service
 
@@ -23,8 +23,7 @@ async def search_component(request: Request, payload: ComponentSearchRequest) ->
     # Input guardrails — blocklist + duplicate detection
     # ------------------------------------------------------------------
     client_ip = request.client.host if request.client else "unknown"
-    raw_body = await request.body()
-    body_hash = hash_request_body(raw_body)
+    body_hash = hash_search_request(payload)
 
     guard_result = input_guardrail.check_search(
         description=payload.description,

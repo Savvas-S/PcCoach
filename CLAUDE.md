@@ -26,11 +26,17 @@ PcCoach/
 │   │   ├── api/v1/
 │   │   │   ├── router.py         # Registers all routers
 │   │   │   └── builder.py        # Build recommendation endpoints
+│   │   ├── db/
+│   │   │   └── models.py         # SQLAlchemy ORM models (Build)
 │   │   ├── models/
-│   │   │   └── builder.py        # BuildRequest, ComponentRecommendation, BuildResult
-│   │   ├── services/claude.py    # Claude integration (wired up later)
+│   │   │   └── builder.py        # Pydantic models: BuildRequest, BuildResult, etc.
+│   │   ├── services/claude.py    # Claude integration
+│   │   ├── database.py           # Async engine, session factory, Base
 │   │   ├── config.py             # Settings (pydantic-settings)
 │   │   └── main.py               # FastAPI app + CORS
+│   ├── alembic/                  # DB migrations
+│   │   └── versions/             # One file per migration
+│   └── alembic.ini
 │   ├── pyproject.toml
 │   └── uv.lock
 ├── frontend/
@@ -64,6 +70,7 @@ User fills form → POST /api/v1/build (BuildRequest)
 ```bash
 make dev          # Start dev environment (hot reload)
 make dev-build    # Rebuild dev images
+make migrate      # Run pending Alembic migrations (dev)
 make lock         # Regenerate uv.lock and package-lock.json
 make test         # Run pytest in backend container
 make lint         # Run ruff check + format check
@@ -83,14 +90,20 @@ make logs         # Tail all container logs
 
 Backend (`.env` in `backend/`):
 ```
-ANTHROPIC_API_KEY=...           # Optional until AI is wired up
+ANTHROPIC_API_KEY=...
 CORS_ORIGINS=["http://localhost:3000"]
 ENVIRONMENT=development
-DATABASE_URL=postgresql+asyncpg://pccoach:pccoach@db:5432/pccoach
-POSTGRES_USER=pccoach
-POSTGRES_PASSWORD=pccoach
-POSTGRES_DB=pccoach
+DATABASE_URL=postgresql+asyncpg://pccoach:<password>@db:5432/pccoach
 ```
+
+Production shell environment (set on the droplet, not in `.env`):
+```
+POSTGRES_PASSWORD=<strong-password>   # used by docker-compose.yml for the db service
+```
+
+The password in `DATABASE_URL` must match `POSTGRES_PASSWORD`. In dev,
+`docker-compose.dev.yml` hardcodes `POSTGRES_PASSWORD=pccoach`, so
+`DATABASE_URL` should use `pccoach` as the password locally.
 
 Frontend (`.env` in `frontend/`):
 ```
@@ -232,6 +245,6 @@ Format: `"N/period"` where period is `second`, `minute`, `hour`, or `day`.
 
 ## Code Review
 
-The PR review skill lives at `.claude/skills/pccoach-pr-reviewer/SKILL.md`.
-Claude Code loads it automatically when assigned as a GitHub reviewer or asked to review a PR.
+The review skill lives at `.claude/skills/pccoach-review/SKILL.md`.
+Trigger it by saying **"do a comprehensive review"** (or "review the code", "review my changes").
 Do not freeform review without loading the skill first.
