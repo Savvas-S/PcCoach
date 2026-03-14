@@ -533,7 +533,7 @@ SEED_COMPONENTS: list[dict] = [
             "read_mbps": "5150",
             "write_mbps": "4900",
         },
-        "links": [{"store": "amazon", "asin": "B09QV5KJHV", "price_eur": 69.00}],
+        "links": [{"store": "amazon", "asin": "B09QV692XY", "price_eur": 69.00}],
     },
     {
         "category": "storage",
@@ -545,7 +545,7 @@ SEED_COMPONENTS: list[dict] = [
             "read_mbps": "5150",
             "write_mbps": "4850",
         },
-        "links": [{"store": "amazon", "asin": "B09QV692XY", "price_eur": 129.00}],
+        "links": [{"store": "amazon", "asin": "B09QV5KJHV", "price_eur": 129.00}],
     },
     {
         "category": "storage",
