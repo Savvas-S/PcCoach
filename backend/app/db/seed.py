@@ -61,7 +61,7 @@ SEED_COMPONENTS: list[dict] = [
             "tdp": "105",
             "boost_ghz": "5.3",
         },
-        "links": [{"store": "amazon", "asin": "B0BBJM9Y9C", "price_eur": 219.00}],
+        "links": [{"store": "amazon", "asin": "B0BBJDS62N", "price_eur": 219.00}],
     },
     {
         "category": "cpu",
