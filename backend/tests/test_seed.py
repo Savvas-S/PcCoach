@@ -1,6 +1,5 @@
 """Tests for seed data integrity."""
 
-
 from app.db.seed import SEED_COMPONENTS, _amazon_url
 from app.models.builder import _ALLOWED_AFFILIATE_HOSTS, ComponentCategory
 
@@ -34,9 +33,7 @@ class TestSeedDataIntegrity:
     def test_all_prices_are_positive(self):
         for item in SEED_COMPONENTS:
             for link in item["links"]:
-                assert link["price_eur"] > 0, (
-                    f"Non-positive price for {_label(item)}"
-                )
+                assert link["price_eur"] > 0, f"Non-positive price for {_label(item)}"
 
     def test_all_affiliate_urls_pass_allowlist(self):
         from urllib.parse import urlparse
@@ -55,22 +52,24 @@ class TestSeedDataIntegrity:
             required = REQUIRED_SPECS.get(category, set())
             specs = set(item["specs"].keys())
             missing = required - specs
-            assert not missing, (
-                f"{_label(item)} ({category}) missing: {missing}"
-            )
+            assert not missing, f"{_label(item)} ({category}) missing: {missing}"
 
     def test_every_component_has_at_least_one_link(self):
         for item in SEED_COMPONENTS:
-            assert len(item["links"]) > 0, (
-                f"{_label(item)} has no affiliate links"
-            )
+            assert len(item["links"]) > 0, f"{_label(item)} has no affiliate links"
 
     def test_minimum_catalog_coverage(self):
         """Ensure the seed covers all core categories."""
         categories = {item["category"] for item in SEED_COMPONENTS}
         core = {
-            "cpu", "gpu", "motherboard", "ram",
-            "storage", "psu", "case", "cooling",
+            "cpu",
+            "gpu",
+            "motherboard",
+            "ram",
+            "storage",
+            "psu",
+            "case",
+            "cooling",
         }
         missing = core - categories
         assert not missing, f"Missing categories: {missing}"
@@ -81,25 +80,25 @@ class TestSeedDataIntegrity:
 
         counts = Counter(item["category"] for item in SEED_COMPONENTS)
         for cat in [
-            "cpu", "gpu", "motherboard", "ram",
-            "storage", "psu", "case", "cooling",
+            "cpu",
+            "gpu",
+            "motherboard",
+            "ram",
+            "storage",
+            "psu",
+            "case",
+            "cooling",
         ]:
-            assert counts[cat] >= 3, (
-                f"'{cat}' has {counts[cat]} (need >= 3)"
-            )
+            assert counts[cat] >= 3, f"'{cat}' has {counts[cat]} (need >= 3)"
 
     def test_all_stores_are_amazon(self):
         """MVP: only Amazon.de affiliate links."""
         for item in SEED_COMPONENTS:
             for link in item["links"]:
-                assert link["store"] == "amazon", (
-                    f"Non-Amazon store for {_label(item)}"
-                )
+                assert link["store"] == "amazon", f"Non-Amazon store for {_label(item)}"
 
     def test_amazon_urls_contain_affiliate_tag(self):
         for item in SEED_COMPONENTS:
             for link in item["links"]:
                 url = _amazon_url(link["asin"])
-                assert "tag=thepccoach-21" in url, (
-                    f"Missing tag for {_label(item)}"
-                )
+                assert "tag=thepccoach-21" in url, f"Missing tag for {_label(item)}"

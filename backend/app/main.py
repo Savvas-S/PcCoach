@@ -86,7 +86,8 @@ async def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONR
     return JSONResponse({"detail": detail}, status_code=429, headers=headers)
 
 
-# Known env var name typos — extra="ignore" silently drops these; warn at startup instead.
+# Known env var name typos — extra="ignore" silently drops these;
+# warn at startup instead.
 _ENV_VAR_TYPOS: dict[str, str] = {
     "CORS_ORIGIN": "CORS_ORIGINS",
     "ANTHROPIC_KEY": "ANTHROPIC_API_KEY",
@@ -102,7 +103,8 @@ async def lifespan(app: FastAPI):
     for typo, correct in _ENV_VAR_TYPOS.items():
         if typo in os.environ:
             log.warning(
-                "Env var '%s' looks like a typo for '%s' — it is being ignored by config",
+                "Env var '%s' looks like a typo for '%s' "
+                "— it is being ignored by config",
                 typo,
                 correct,
             )

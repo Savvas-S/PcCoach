@@ -15,7 +15,7 @@ from app.limiter import limiter
 from app.models.builder import BuildRequest, BuildResult
 from app.security import events as guardrail_events
 from app.security.guardrails import hash_build_request, input_guardrail
-from app.services.catalog import CatalogService
+from app.services.catalog import get_catalog_service
 from app.services.claude import get_claude_service
 
 log = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ async def create_build(
 
     try:
         # Query catalog for candidate components
-        catalog = CatalogService()
+        catalog = get_catalog_service()
         candidates = await catalog.get_candidates(db, payload)
 
         claude = get_claude_service()
@@ -106,7 +106,10 @@ async def create_build(
         )
         raise HTTPException(
             status_code=503,
-            detail="The AI service is temporarily overloaded. Please try again in a moment.",
+            detail=(
+                "The AI service is temporarily overloaded. "
+                "Please try again in a moment."
+            ),
         )
     except (ValidationError, ValueError) as e:
         log.error(

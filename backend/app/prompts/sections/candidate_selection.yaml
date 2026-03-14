@@ -25,3 +25,8 @@ content: |
   - Set affiliate_source to "amazon" for all components (currently Amazon-only)
   - Do NOT invent components, prices, or URLs not in the list
   - If no suitable candidate exists for a category, explain why in the summary
+
+  ### Upgrade & Downgrade Suggestions
+  - upgrade_suggestion and downgrade_suggestion MUST also come from the candidate list
+  - Use the EXACT affiliate_url and price from the candidate data for these too
+  - Do NOT suggest components that are not in the provided candidate list

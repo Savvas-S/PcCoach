@@ -2,6 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.builder import (
+    _VALID_GOALS_FOR_BUDGET,
     BudgetRange,
     BuildRequest,
     BuildResult,
@@ -10,7 +11,6 @@ from app.models.builder import (
     ComponentRecommendation,
     StoreLink,
     UserGoal,
-    _VALID_GOALS_FOR_BUDGET,
 )
 
 
@@ -119,7 +119,8 @@ class TestBudgetGoalsJson:
     def test_every_budget_range_is_present(self):
         for budget in BudgetRange:
             assert budget in _VALID_GOALS_FOR_BUDGET, (
-                f"BudgetRange.{budget.name} ({budget.value}) is missing from budget_goals.json"
+                f"BudgetRange.{budget.name} ({budget.value}) "
+                f"is missing from budget_goals.json"
             )
 
     def test_every_budget_has_at_least_one_goal(self):

@@ -1,5 +1,5 @@
 import json
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Literal
 from urllib.parse import urlparse
@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, Field, HttpUrl, field_validator, model_validator
 
 
-class UserGoal(str, Enum):
+class UserGoal(StrEnum):
     high_end_gaming = "high_end_gaming"
     mid_range_gaming = "mid_range_gaming"
     low_end_gaming = "low_end_gaming"
@@ -17,7 +17,7 @@ class UserGoal(str, Enum):
     architecture = "architecture"
 
 
-class BudgetRange(str, Enum):
+class BudgetRange(StrEnum):
     range_0_1000 = "0_1000"
     range_1000_1500 = "1000_1500"
     range_1500_2000 = "1500_2000"
@@ -25,31 +25,31 @@ class BudgetRange(str, Enum):
     over_3000 = "over_3000"
 
 
-class FormFactor(str, Enum):
+class FormFactor(StrEnum):
     atx = "atx"
     micro_atx = "micro_atx"
     mini_itx = "mini_itx"
 
 
-class CPUBrand(str, Enum):
+class CPUBrand(StrEnum):
     intel = "intel"
     amd = "amd"
     no_preference = "no_preference"
 
 
-class GPUBrand(str, Enum):
+class GPUBrand(StrEnum):
     nvidia = "nvidia"
     amd = "amd"
     no_preference = "no_preference"
 
 
-class CoolingPreference(str, Enum):
+class CoolingPreference(StrEnum):
     no_preference = "no_preference"
     liquid = "liquid"
     air = "air"
 
 
-class ComponentCategory(str, Enum):
+class ComponentCategory(StrEnum):
     cpu = "cpu"
     gpu = "gpu"
     motherboard = "motherboard"
@@ -63,7 +63,7 @@ class ComponentCategory(str, Enum):
     mouse = "mouse"
 
 
-class BuildStatus(str, Enum):
+class BuildStatus(StrEnum):
     completed = "completed"
 
 
@@ -148,7 +148,8 @@ class BuildRequest(BaseModel):
         valid = _VALID_GOALS_FOR_BUDGET.get(self.budget_range, set())
         if self.goal not in valid:
             raise ValueError(
-                f"Goal '{self.goal.value}' is not available for budget '{self.budget_range.value}'"
+                f"Goal '{self.goal.value}' is not available "
+                f"for budget '{self.budget_range.value}'"
             )
         return self
 
@@ -196,7 +197,7 @@ class UpgradeSuggestion(BaseModel):
 
 
 class DowngradeSuggestion(BaseModel):
-    """Optional single-component downgrade that saves money while still meeting the use case."""
+    """Optional downgrade that saves money while meeting the use case."""
 
     component_category: ComponentCategory
     current_name: str

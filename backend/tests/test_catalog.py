@@ -245,3 +245,45 @@ class TestCatalogServiceCandidates:
         models = [c.model for c in result["motherboard"]]
         assert "B650M" in models
         assert "B650 ATX" not in models
+
+    async def test_motherboard_socket_filtered_by_cpu_brand(self, db):
+        """When cpu_brand is AMD, only AM5 motherboards should be returned."""
+        await _seed_component(
+            db,
+            "motherboard",
+            "Gigabyte",
+            "B650 Gaming X",
+            {"socket": "AM5", "form_factor": "ATX", "ddr_type": "DDR5"},
+            169,
+        )
+        await _seed_component(
+            db,
+            "motherboard",
+            "Gigabyte",
+            "B760 Gaming X",
+            {"socket": "LGA1700", "form_factor": "ATX", "ddr_type": "DDR5"},
+            159,
+        )
+
+        catalog = CatalogService()
+        result = await catalog.get_candidates(db, _request(cpu_brand=CPUBrand.amd))
+
+        models = [c.model for c in result["motherboard"]]
+        assert "B650 Gaming X" in models
+        assert "B760 Gaming X" not in models
+
+    async def test_brand_filter_case_insensitive(self, db):
+        """Brand filter should work regardless of DB capitalization."""
+        await _seed_component(
+            db,
+            "cpu",
+            "amd",
+            "Ryzen 5 7600",
+            {"socket": "AM5"},
+            199,
+        )
+
+        catalog = CatalogService()
+        result = await catalog.get_candidates(db, _request(cpu_brand=CPUBrand.amd))
+
+        assert len(result["cpu"]) == 1

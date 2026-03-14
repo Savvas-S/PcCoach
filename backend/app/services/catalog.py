@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -37,7 +38,8 @@ class CandidateComponent:
 
     @property
     def cheapest_price(self) -> float:
-        return self.stores[0].price_eur if self.stores else 0.0
+        """Cheapest store price (stores is always non-empty)."""
+        return self.stores[0].price_eur
 
 
 # Categories that Claude must always fill (unless excluded by existing_parts)
@@ -58,12 +60,9 @@ _PERIPHERAL_CATEGORIES = [
     ComponentCategory.mouse,
 ]
 
-# Map form factor enum values to the DB spec values
-_FORM_FACTOR_MAP: dict[FormFactor, list[str]] = {
-    FormFactor.atx: ["ATX"],
-    FormFactor.micro_atx: ["micro_atx", "ATX"],  # mATX boards fit ATX cases too
-    FormFactor.mini_itx: ["mini_itx", "micro_atx", "ATX"],
-}
+# Socket values used in the seed data
+_AMD_SOCKET = "AM5"
+_INTEL_SOCKET = "LGA1700"
 
 
 class CatalogService:
@@ -93,6 +92,14 @@ class CatalogService:
             cats.extend(c for c in _PERIPHERAL_CATEGORIES if c not in excluded)
         return cats
 
+    def _required_sockets(self, request: BuildRequest) -> list[str] | None:
+        """Determine which CPU sockets to include based on brand preference."""
+        if request.cpu_brand == CPUBrand.amd:
+            return [_AMD_SOCKET]
+        if request.cpu_brand == CPUBrand.intel:
+            return [_INTEL_SOCKET]
+        return None  # no preference → all sockets
+
     async def _query_category(
         self,
         db: AsyncSession,
@@ -111,21 +118,28 @@ class CatalogService:
             )
         )
 
-        # Brand filters
-        if category == "cpu" and request.cpu_brand not in (CPUBrand.no_preference,):
-            brand_map = {"intel": "Intel", "amd": "AMD"}
-            stmt = stmt.where(Component.brand == brand_map[request.cpu_brand.value])
+        # Brand filters (case-insensitive)
+        if category == "cpu" and request.cpu_brand != CPUBrand.no_preference:
+            stmt = stmt.where(
+                func.lower(Component.brand) == request.cpu_brand.value.lower()
+            )
 
-        if category == "gpu" and request.gpu_brand not in (GPUBrand.no_preference,):
-            brand_map = {"nvidia": "NVIDIA", "amd": "AMD"}
-            stmt = stmt.where(Component.brand == brand_map[request.gpu_brand.value])
+        if category == "gpu" and request.gpu_brand != GPUBrand.no_preference:
+            stmt = stmt.where(
+                func.lower(Component.brand) == request.gpu_brand.value.lower()
+            )
+
+        # Socket compatibility: motherboards must match CPU socket
+        sockets = self._required_sockets(request)
+        if sockets and category == "motherboard":
+            stmt = stmt.where(Component.specs["socket"].astext.in_(sockets))
 
         # Cooling preference filter
         if (
             category == "cooling"
             and request.cooling_preference != CoolingPreference.no_preference
         ):
-            cooling_type = request.cooling_preference.value  # "air" or "liquid"
+            cooling_type = request.cooling_preference.value
             stmt = stmt.where(Component.specs["type"].astext == cooling_type)
 
         # Form factor filter for cases
@@ -182,3 +196,8 @@ class CatalogService:
         # Sort by cheapest price
         candidates.sort(key=lambda c: c.cheapest_price)
         return candidates
+
+
+@lru_cache(maxsize=1)
+def get_catalog_service() -> CatalogService:
+    return CatalogService()

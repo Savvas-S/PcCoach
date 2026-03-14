@@ -36,7 +36,10 @@ _TIMEOUT = 90.0
 
 SEARCH_TOOL = {
     "name": "recommend_component",
-    "description": "Return the best single component matching the user's description with a search link to Amazon.de",
+    "description": (
+        "Return the best single component matching the user's "
+        "description with a search link to Amazon.de"
+    ),
     "input_schema": {
         "type": "object",
         "properties": {
@@ -52,7 +55,10 @@ SEARCH_TOOL = {
             },
             "reason": {
                 "type": "string",
-                "description": "2-3 sentences explaining why this component best matches the request",
+                "description": (
+                    "2-3 sentences explaining why this "
+                    "component best matches the request"
+                ),
             },
             "specs": {
                 "type": "object",
@@ -66,7 +72,7 @@ SEARCH_TOOL = {
                     "properties": {
                         "store": {
                             "type": "string",
-                            "enum": ["computeruniverse", "caseking", "amazon"],
+                            "enum": ["amazon"],
                         },
                         "url": {"type": "string", "format": "uri"},
                     },
@@ -87,13 +93,19 @@ SEARCH_TOOL = {
 
 BUILD_TOOL = {
     "name": "recommend_build",
-    "description": "Return a structured PC build recommendation with components and affiliate links",
+    "description": (
+        "Return a structured PC build recommendation "
+        "with components and affiliate links"
+    ),
     "input_schema": {
         "type": "object",
         "properties": {
             "summary": {
                 "type": "string",
-                "description": "2-3 sentence explanation of the build choices and why they fit the user's needs",
+                "description": (
+                    "2-3 sentence explanation of the build "
+                    "choices and why they fit the user's needs"
+                ),
             },
             "components": {
                 "type": "array",
@@ -126,7 +138,7 @@ BUILD_TOOL = {
                         "affiliate_url": {"type": "string", "format": "uri"},
                         "affiliate_source": {
                             "type": "string",
-                            "enum": ["computeruniverse", "caseking", "amazon"],
+                            "enum": ["amazon"],
                         },
                     },
                     "required": [
@@ -142,7 +154,10 @@ BUILD_TOOL = {
             },
             "upgrade_suggestion": {
                 "type": "object",
-                "description": "Optional single-component upgrade if it meaningfully improves the build for under €75 extra",
+                "description": (
+                    "Optional single-component upgrade if it "
+                    "meaningfully improves the build for under €75 extra"
+                ),
                 "properties": {
                     "component_category": {
                         "type": "string",
@@ -153,12 +168,14 @@ BUILD_TOOL = {
                     "extra_cost_eur": {"type": "number", "minimum": 0.01},
                     "reason": {
                         "type": "string",
-                        "description": "One sentence explaining why the upgrade is worth it",
+                        "description": (
+                            "One sentence explaining why the upgrade is worth it"
+                        ),
                     },
                     "affiliate_url": {"type": "string", "format": "uri"},
                     "affiliate_source": {
                         "type": "string",
-                        "enum": ["computeruniverse", "caseking", "amazon"],
+                        "enum": ["amazon"],
                     },
                 },
                 "required": [
@@ -173,7 +190,10 @@ BUILD_TOOL = {
             },
             "downgrade_suggestion": {
                 "type": "object",
-                "description": "Optional single-component downgrade that saves money while still adequately meeting the use case",
+                "description": (
+                    "Optional single-component downgrade that saves "
+                    "money while still adequately meeting the use case"
+                ),
                 "properties": {
                     "component_category": {
                         "type": "string",
@@ -184,12 +204,16 @@ BUILD_TOOL = {
                     "savings_eur": {"type": "number", "minimum": 0.01},
                     "reason": {
                         "type": "string",
-                        "description": "One sentence explaining the trade-off — what is saved and what is slightly compromised",
+                        "description": (
+                            "One sentence explaining the trade-off "
+                            "— what is saved and what is slightly "
+                            "compromised"
+                        ),
                     },
                     "affiliate_url": {"type": "string", "format": "uri"},
                     "affiliate_source": {
                         "type": "string",
-                        "enum": ["computeruniverse", "caseking", "amazon"],
+                        "enum": ["amazon"],
                     },
                 },
                 "required": [
@@ -246,11 +270,12 @@ def _format_candidates(candidates: dict[str, list[CandidateComponent]]) -> str:
             specs_str = ", ".join(
                 f"{k}={item.specs[k]}" for k in spec_keys if k in item.specs
             )
-            store = item.stores[0]  # cheapest
+            store_strs = [
+                f"{s.store} €{s.price_eur:.0f} url: {s.url}" for s in item.stores
+            ]
             parts.append(
-                f"  {i}. {item.brand} {item.model} | {specs_str} "
-                f"| €{store.price_eur:.0f} | {store.store} "
-                f"| url: {store.url}"
+                f"  {i}. {item.brand} {item.model} "
+                f"| {specs_str} | " + " | ".join(store_strs)
             )
 
         parts.append("")  # blank line between categories
@@ -392,7 +417,8 @@ class ClaudeService:
 
         user_message = (
             f"Category: {request.category.value}\n"
-            f"You must recommend a {request.category.value}. Do not recommend any other component type.\n\n"
+            f"You must recommend a {request.category.value}. "
+            f"Do not recommend any other component type.\n\n"
             f"User description:\n<user_request>{safe_description}</user_request>"
         )
 

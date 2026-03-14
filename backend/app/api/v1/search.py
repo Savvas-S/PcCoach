@@ -70,7 +70,10 @@ async def search_component(
         log.warning("Claude API overloaded: category=%s error=%s", payload.category, e)
         raise HTTPException(
             status_code=503,
-            detail="The AI service is temporarily overloaded. Please try again in a moment.",
+            detail=(
+                "The AI service is temporarily overloaded. "
+                "Please try again in a moment."
+            ),
         )
     except (ValidationError, ValueError) as e:
         log.error(
@@ -102,7 +105,10 @@ async def search_component(
         if checked.reason == "off_topic_response":
             raise HTTPException(
                 status_code=400,
-                detail="The AI was unable to find a matching component. Please rephrase your description.",
+                detail=(
+                    "The AI was unable to find a matching "
+                    "component. Please rephrase your description."
+                ),
             )
         raise HTTPException(
             status_code=500,

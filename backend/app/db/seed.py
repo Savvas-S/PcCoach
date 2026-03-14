@@ -725,6 +725,58 @@ SEED_COMPONENTS: list[dict] = [
         },
         "links": [{"store": "amazon", "asin": "B0B1NNB1DM", "price_eur": 89.00}],
     },
+    # ===== Cases — Mini-ITX =====
+    {
+        "category": "case",
+        "brand": "Cooler Master",
+        "model": "NR200P",
+        "specs": {
+            "form_factor": "mini_itx",
+            "max_gpu_length_mm": "330",
+            "max_cooler_height_mm": "155",
+            "included_fans": "2",
+        },
+        "links": [{"store": "amazon", "asin": "B08BFJX4SN", "price_eur": 89.00}],
+    },
+    {
+        "category": "case",
+        "brand": "Fractal Design",
+        "model": "Terra",
+        "specs": {
+            "form_factor": "mini_itx",
+            "max_gpu_length_mm": "322",
+            "max_cooler_height_mm": "77",
+            "included_fans": "1",
+        },
+        "links": [{"store": "amazon", "asin": "B0CB6CFLGS", "price_eur": 149.00}],
+    },
+    # ===== Motherboards — Mini-ITX =====
+    {
+        "category": "motherboard",
+        "brand": "Gigabyte",
+        "model": "B650I AORUS ULTRA",
+        "specs": {
+            "socket": "AM5",
+            "chipset": "B650",
+            "ddr_type": "DDR5",
+            "form_factor": "mini_itx",
+            "max_ram_gb": "96",
+        },
+        "links": [{"store": "amazon", "asin": "B0BH6CMDDL", "price_eur": 239.00}],
+    },
+    {
+        "category": "motherboard",
+        "brand": "ASUS",
+        "model": "ROG STRIX B760-I GAMING WIFI",
+        "specs": {
+            "socket": "LGA1700",
+            "chipset": "B760",
+            "ddr_type": "DDR5",
+            "form_factor": "mini_itx",
+            "max_ram_gb": "96",
+        },
+        "links": [{"store": "amazon", "asin": "B0BRGWP8LJ", "price_eur": 219.00}],
+    },
     # ===== Cooling — Air =====
     {
         "category": "cooling",

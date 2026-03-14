@@ -44,7 +44,7 @@ class TestFormatCandidates:
         text = _format_candidates(candidates)
         assert "NVIDIA RTX 4060" in text
         assert "€299" in text
-        assert "amazon" in text
+        assert "amazon €299" in text
 
     def test_includes_specs(self):
         candidates = {
