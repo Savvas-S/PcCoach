@@ -33,15 +33,26 @@ DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 @pytest.fixture
 async def db_session():
     """Create a fresh in-memory SQLite DB for each test."""
-    engine = create_async_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+    engine = create_async_engine(
+        DATABASE_URL, connect_args={"check_same_thread": False}
+    )
 
-    # SQLite doesn't support JSONB — temporarily patch the column type to plain
-    # JSON at the ORM level, then restore it after the test to avoid leaking
-    # into other tests in the same process.
+    # SQLite doesn't support JSONB — temporarily patch JSONB column types to
+    # plain JSON at the ORM level, then restore after the test.
     import sqlalchemy as sa
+    from sqlalchemy.dialects.postgresql import JSONB
+
     from app.db import models as db_models
-    original_type = db_models.Build.result.property.columns[0].type
-    db_models.Build.result.property.columns[0].type = sa.JSON()
+
+    jsonb_patches: list[tuple] = []
+    for model in (db_models.Build, db_models.Component):
+        for attr_name in dir(model):
+            attr = getattr(model, attr_name, None)
+            if hasattr(attr, "property") and hasattr(attr.property, "columns"):
+                col = attr.property.columns[0]
+                if isinstance(col.type, JSONB):
+                    jsonb_patches.append((col, col.type))
+                    col.type = sa.JSON()
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -53,12 +64,16 @@ async def db_session():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
-    db_models.Build.result.property.columns[0].type = original_type
+
+    # Restore original types
+    for col, original_type in jsonb_patches:
+        col.type = original_type
 
 
 @pytest.fixture
 def client(db_session: AsyncSession):
     """TestClient with get_db overridden to use the test session."""
+
     async def _override_get_db():
         yield db_session
 
@@ -102,15 +117,20 @@ _VALID_PAYLOAD = {
 # POST /api/v1/build — cache miss (calls Claude)
 # ---------------------------------------------------------------------------
 
+
 class TestCreateBuildCacheMiss:
+    @patch("app.api.v1.builder.CatalogService")
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
-    def test_new_build_saved_and_returned(self, mock_guardrail, mock_get_service, client):
+    def test_new_build_saved_and_returned(
+        self, mock_guardrail, mock_get_service, mock_catalog_cls, client
+    ):
         build = _make_build_result()
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build = AsyncMock(return_value=build)
         mock_get_service.return_value = mock_service
+        mock_catalog_cls.return_value.get_candidates = AsyncMock(return_value={})
 
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
 
@@ -120,14 +140,18 @@ class TestCreateBuildCacheMiss:
         assert len(data["components"]) == 1
         mock_service.generate_build.assert_awaited_once()
 
+    @patch("app.api.v1.builder.CatalogService")
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
-    def test_build_persisted_retrievable_by_id(self, mock_guardrail, mock_get_service, client):
+    def test_build_persisted_retrievable_by_id(
+        self, mock_guardrail, mock_get_service, mock_catalog_cls, client
+    ):
         build = _make_build_result("persist01")
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build = AsyncMock(return_value=build)
         mock_get_service.return_value = mock_service
+        mock_catalog_cls.return_value.get_candidates = AsyncMock(return_value={})
 
         client.post("/api/v1/build", json=_VALID_PAYLOAD)
         resp = client.get(f"/api/v1/build/{build.id}")
@@ -140,15 +164,20 @@ class TestCreateBuildCacheMiss:
 # POST /api/v1/build — cache hit (skips Claude)
 # ---------------------------------------------------------------------------
 
+
 class TestCreateBuildCacheHit:
+    @patch("app.api.v1.builder.CatalogService")
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
-    def test_identical_request_returns_cached_result(self, mock_guardrail, mock_get_service, client):
+    def test_identical_request_returns_cached_result(
+        self, mock_guardrail, mock_get_service, mock_catalog_cls, client
+    ):
         build = _make_build_result()
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build = AsyncMock(return_value=build)
         mock_get_service.return_value = mock_service
+        mock_catalog_cls.return_value.get_candidates = AsyncMock(return_value={})
 
         # First request — calls Claude
         resp1 = client.post("/api/v1/build", json=_VALID_PAYLOAD)
@@ -165,15 +194,20 @@ class TestCreateBuildCacheHit:
 # GET /api/v1/build/{id}
 # ---------------------------------------------------------------------------
 
+
 class TestGetBuild:
+    @patch("app.api.v1.builder.CatalogService")
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
-    def test_existing_build_returned(self, mock_guardrail, mock_get_service, client):
+    def test_existing_build_returned(
+        self, mock_guardrail, mock_get_service, mock_catalog_cls, client
+    ):
         build = _make_build_result("gettest1")
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build = AsyncMock(return_value=build)
         mock_get_service.return_value = mock_service
+        mock_catalog_cls.return_value.get_candidates = AsyncMock(return_value={})
 
         client.post("/api/v1/build", json=_VALID_PAYLOAD)
         resp = client.get(f"/api/v1/build/{build.id}")
@@ -191,6 +225,7 @@ class TestGetBuild:
 # Input guardrail blocking
 # ---------------------------------------------------------------------------
 
+
 class TestGuardrailBlocking:
     @patch("app.api.v1.builder.input_guardrail")
     def test_blocked_request_returns_400(self, mock_guardrail, client):
@@ -204,7 +239,8 @@ class TestGuardrailBlocking:
     @patch("app.api.v1.builder.input_guardrail")
     def test_duplicate_request_returns_429(self, mock_guardrail, client):
         mock_guardrail.check.return_value = MagicMock(
-            allowed=False, reason="Duplicate request detected. Please wait before resubmitting."
+            allowed=False,
+            reason="Duplicate request detected. Please wait before resubmitting.",
         )
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
         assert resp.status_code == 429

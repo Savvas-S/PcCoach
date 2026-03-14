@@ -1,0 +1,27 @@
+title: Candidate Selection
+content: |
+  ## How to Select Components
+
+  You are given a pre-filtered list of available components per category.
+  ALL components are in stock and ship to Cyprus via Amazon.de.
+
+  ### Your job
+  1. Pick ONE component per required category from the candidates provided
+  2. Optimize for the user's goal priorities (see Goals section)
+  3. Stay within the budget range
+  4. Ensure compatibility across all picks:
+     - CPU socket must match motherboard socket
+     - RAM DDR type must match motherboard DDR type
+     - Case must fit the motherboard form factor
+     - PSU wattage must cover CPU TDP + GPU TDP + 80W baseline with 30% headroom
+     - GPU length must fit the case (check max_gpu_length_mm)
+     - Cooler height must fit the case (check max_cooler_height_mm)
+  5. Pick the best value per priority tier for the user's goal
+
+  ### Rules
+  - ONLY select components from the provided candidate list
+  - Use the EXACT affiliate_url from the candidate data — do NOT construct your own URLs
+  - Use the EXACT price_eur from the candidate data — do NOT estimate or round
+  - Set affiliate_source to "amazon" for all components (currently Amazon-only)
+  - Do NOT invent components, prices, or URLs not in the list
+  - If no suitable candidate exists for a category, explain why in the summary

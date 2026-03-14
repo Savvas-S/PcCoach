@@ -57,10 +57,9 @@ export default function AboutPage() {
             <h2 className="font-display font-normal text-2xl text-obsidian-text mb-4">Affiliate Disclosure</h2>
             <p>
               PcCoach is free to use. We earn a small commission when you purchase through our
-              affiliate links — at no extra cost to you. We participate in affiliate programmes
-              with <strong className="text-obsidian-text">Amazon</strong>,{" "}
-              <strong className="text-obsidian-text">ComputerUniverse</strong>, and{" "}
-              <strong className="text-obsidian-text">Caseking</strong>.
+              affiliate links — at no extra cost to you. We currently participate in the{" "}
+              <strong className="text-obsidian-text">Amazon</strong> affiliate programme,
+              with more stores coming soon.
             </p>
             <p className="mt-3">
               Affiliate relationships do not influence which products the AI recommends.
