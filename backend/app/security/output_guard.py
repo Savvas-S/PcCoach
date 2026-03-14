@@ -31,14 +31,12 @@ _log = logging.getLogger("security.output_guard")
 # ---------------------------------------------------------------------------
 # Allowlisted affiliate domains (must stay in sync with models/builder.py)
 # ---------------------------------------------------------------------------
+# Amazon-only for MVP — widen when new stores are added.
+# Must stay in sync with models/builder.py and frontend/src/lib/url.ts.
 _AFFILIATE_ALLOWED_HOSTS: frozenset[str] = frozenset(
     {
         "amazon.de",
         "www.amazon.de",
-        "computeruniverse.net",
-        "www.computeruniverse.net",
-        "caseking.de",
-        "www.caseking.de",
     }
 )
 

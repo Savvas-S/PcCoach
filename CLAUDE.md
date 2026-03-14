@@ -4,7 +4,7 @@
 
 PcCoach is an AI-powered PC build recommendation tool for the Cyprus market (Limassol).
 Users describe their needs and budget; Claude recommends a full component list with affiliate links to buy each part.
-Revenue model: affiliate commissions (Amazon.de, ComputerUniverse, Caseking) — no inventory, no ordering, no services.
+Revenue model: affiliate commissions (Amazon.de for MVP, more stores planned) — no inventory, no ordering, no services.
 
 ## Stack
 
@@ -27,10 +27,13 @@ PcCoach/
 │   │   │   ├── router.py         # Registers all routers
 │   │   │   └── builder.py        # Build recommendation endpoints
 │   │   ├── db/
-│   │   │   └── models.py         # SQLAlchemy ORM models (Build)
+│   │   │   ├── models.py         # SQLAlchemy ORM: Build, Component, AffiliateLink
+│   │   │   └── seed.py           # Seed catalog with real Amazon.de products
 │   │   ├── models/
 │   │   │   └── builder.py        # Pydantic models: BuildRequest, BuildResult, etc.
-│   │   ├── services/claude.py    # Claude integration
+│   │   ├── services/
+│   │   │   ├── catalog.py        # CatalogService — query candidates from DB
+│   │   │   └── claude.py         # Claude integration + candidate formatting
 │   │   ├── database.py           # Async engine, session factory, Base
 │   │   ├── config.py             # Settings (pydantic-settings)
 │   │   └── main.py               # FastAPI app + CORS
@@ -51,11 +54,15 @@ PcCoach/
 
 ```
 User fills form → POST /api/v1/build (BuildRequest)
-               → Claude generates ComponentRecommendation list
+               → CatalogService queries DB for candidate components
+               → Candidates injected into Claude's user message
+               → Claude picks from real products with real prices/URLs
                → BuildResult returned with affiliate links per component
-               → User clicks affiliate link → buys on store
+               → User clicks affiliate link → buys on Amazon.de
                → You earn commission
 ```
+
+Note: `/api/v1/search` does NOT use the catalog yet — Claude uses training data for single-component searches.
 
 ## API Endpoints
 
@@ -71,6 +78,7 @@ User fills form → POST /api/v1/build (BuildRequest)
 make dev          # Start dev environment (hot reload)
 make dev-build    # Rebuild dev images
 make migrate      # Run pending Alembic migrations (dev)
+make seed         # Seed the component catalog (idempotent)
 make lock         # Regenerate uv.lock and package-lock.json
 make test         # Run pytest in backend container
 make lint         # Run ruff check + format check
@@ -121,8 +129,9 @@ Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`)
 ## Notes for Claude Code
 
 - No services (cleaning/repair), no cart, no checkout — this is an affiliate tool
-- `anthropic_api_key` is optional until AI features are wired up
-- In-memory stores are placeholders — DB layer coming next
+- Amazon-only MVP — all affiliate links point to Amazon.de with tag `thepccoach-21`
+- Catalog seed data lives in `backend/app/db/seed.py` (~84 real products)
+- `CatalogService` pre-filters candidates by brand, socket, form factor, cooling
 - Do not add abstraction layers unless clearly needed
 - Always use `uv run` inside containers, never bare `python` or `pip`
 - Do not commit `.env` files
@@ -179,13 +188,12 @@ structured JSON at WARNING level to the `security.events` logger.
 
 ### Affiliate URL Allowlist
 
-Only URLs from these hosts are permitted (backend + frontend):
+Only URLs from these hosts are permitted (backend + frontend).
+Currently Amazon-only for MVP — widen when new stores are added.
 
 | Store | Allowed hosts |
 |-------|--------------|
 | Amazon.de | `amazon.de`, `www.amazon.de` |
-| ComputerUniverse | `computeruniverse.net`, `www.computeruniverse.net` |
-| Caseking | `caseking.de`, `www.caseking.de` |
 
 Backend: `backend/app/models/builder.py:_ALLOWED_AFFILIATE_HOSTS`
 Backend output guard: `backend/app/security/output_guard.py:_AFFILIATE_ALLOWED_HOSTS`

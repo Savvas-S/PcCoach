@@ -155,21 +155,21 @@ class TestAffiliateUrlValidation:
         )
         assert comp.affiliate_url is not None
 
-    def test_valid_computeruniverse_url(self):
-        comp = ComponentRecommendation(
-            **self._base_component(),
-            affiliate_url="https://www.computeruniverse.net/en/p/123",
-            affiliate_source="computeruniverse",
-        )
-        assert comp.affiliate_url is not None
+    def test_computeruniverse_url_rejected(self):
+        with pytest.raises(ValidationError):
+            ComponentRecommendation(
+                **self._base_component(),
+                affiliate_url="https://www.computeruniverse.net/en/p/123",
+                affiliate_source="amazon",
+            )
 
-    def test_valid_caseking_url(self):
-        comp = ComponentRecommendation(
-            **self._base_component(),
-            affiliate_url="https://www.caseking.de/en/product/123",
-            affiliate_source="caseking",
-        )
-        assert comp.affiliate_url is not None
+    def test_caseking_url_rejected(self):
+        with pytest.raises(ValidationError):
+            ComponentRecommendation(
+                **self._base_component(),
+                affiliate_url="https://www.caseking.de/en/product/123",
+                affiliate_source="amazon",
+            )
 
     def test_none_affiliate_url_allowed(self):
         comp = ComponentRecommendation(**self._base_component(), affiliate_url=None)
@@ -191,18 +191,19 @@ class TestStoreLinkValidation:
         )
         assert link.url is not None
 
-    def test_valid_computeruniverse_link(self):
-        link = StoreLink(
-            store="computeruniverse",
-            url="https://www.computeruniverse.net/en/search?query=RTX+4070",
-        )
-        assert link.url is not None
+    def test_computeruniverse_link_rejected(self):
+        with pytest.raises(ValidationError):
+            StoreLink(
+                store="amazon",
+                url="https://www.computeruniverse.net/en/search?query=RTX+4070",
+            )
 
-    def test_valid_caseking_link(self):
-        link = StoreLink(
-            store="caseking", url="https://www.caseking.de/en/search?q=RTX+4070"
-        )
-        assert link.url is not None
+    def test_caseking_link_rejected(self):
+        with pytest.raises(ValidationError):
+            StoreLink(
+                store="amazon",
+                url="https://www.caseking.de/en/search?q=RTX+4070",
+            )
 
     def test_disallowed_domain_raises(self):
         with pytest.raises(ValidationError, match="not an allowed store"):

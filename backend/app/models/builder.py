@@ -82,14 +82,11 @@ except FileNotFoundError:
         "Run `make sync-config` to copy it from shared/budget_goals.json."
     ) from None
 
+# Amazon-only for MVP. Widen when ComputerUniverse / Caseking are added.
 _ALLOWED_AFFILIATE_HOSTS: frozenset[str] = frozenset(
     {
         "amazon.de",
         "www.amazon.de",
-        "computeruniverse.net",
-        "www.computeruniverse.net",
-        "caseking.de",
-        "www.caseking.de",
     }
 )
 
@@ -166,7 +163,7 @@ class ComponentRecommendation(BaseModel):
         description="Key specs e.g. {'cores': '8', 'tdp': '65W'}",
     )
     affiliate_url: HttpUrl | None = None
-    affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+    affiliate_source: Literal["amazon"] | None = None
 
     @field_validator("name", "brand", mode="before")
     @classmethod
@@ -188,7 +185,7 @@ class UpgradeSuggestion(BaseModel):
     extra_cost_eur: float = Field(..., gt=0)
     reason: str
     affiliate_url: HttpUrl | None = None
-    affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+    affiliate_source: Literal["amazon"] | None = None
 
     @field_validator("affiliate_url", mode="after")
     @classmethod
@@ -205,7 +202,7 @@ class DowngradeSuggestion(BaseModel):
     savings_eur: float = Field(..., gt=0)
     reason: str
     affiliate_url: HttpUrl | None = None
-    affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+    affiliate_source: Literal["amazon"] | None = None
 
     @field_validator("affiliate_url", mode="after")
     @classmethod
@@ -226,7 +223,7 @@ class ComponentSearchRequest(BaseModel):
 
 
 class StoreLink(BaseModel):
-    store: Literal["computeruniverse", "caseking", "amazon"]
+    store: Literal["amazon"]
     url: HttpUrl
 
     @field_validator("url", mode="after")
