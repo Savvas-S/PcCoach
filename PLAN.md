@@ -421,8 +421,41 @@ db.add(Build(
 
 ---
 
+## Amazon-Only MVP
+
+Only Amazon.de affiliate links are available right now. ComputerUniverse and Caseking pending affiliate approval. The architecture stays multi-store (future-proof), but MVP ships Amazon-only.
+
+### What stays multi-store (no changes needed)
+- **DB schema**: `affiliate_links.store` supports any store — just no rows for other stores yet
+- **Backend allowlists**: `_ALLOWED_AFFILIATE_HOSTS` in `models/builder.py` and `output_guard.py` — keep all 3 stores listed (adding stores later = just inserting DB rows, not code changes)
+- **Frontend allowlist**: `url.ts:ALLOWED_AFFILIATE_HOSTS` — keep all 3 stores
+- **Frontend types**: `AffiliateSource` type stays `"amazon" | "computeruniverse" | "caseking"`
+- **`SOURCE_LABELS`** and **`SOURCE_COLORS`** in frontend — keep all 3 (unused stores just won't appear)
+
+### What changes for Amazon-only MVP
+
+| File | Change |
+|------|--------|
+| `backend/app/db/seed.py` | Only Amazon.de affiliate links in seed data |
+| `backend/app/prompts/sections/stores.yaml` | Update to say "Currently only Amazon.de available". Remove search URL patterns for ComputerUniverse/Caseking (Claude shouldn't reference stores with no data) |
+| `backend/app/prompts/sections/candidate_selection.yaml` | Remove shipping consolidation logic (single store = no consolidation needed). Keep the rule structure so it's easy to re-add |
+| `backend/app/services/claude.py` | `SEARCH_TOOL` schema: keep all 3 in enum (schema validation), but candidates will only contain Amazon. `BUILD_TOOL` schema: same — keep enum, data drives what's available |
+| `frontend/src/app/about/page.tsx` | Update affiliate disclosure to mention only Amazon.de for now. Add note that more stores coming soon |
+| `backend/app/prompts/search.yaml` | Only Amazon.de search URL format (used by `/api/v1/search` endpoint) |
+
+### Adding a new store later (checklist)
+
+When ComputerUniverse or Caseking approve affiliate access:
+1. Add affiliate link rows to DB (via seed script update or admin tool)
+2. Update `stores.yaml` prompt to include the new store
+3. Update `search.yaml` with the store's search URL pattern
+4. Update `about/page.tsx` affiliate disclosure
+5. Re-enable shipping consolidation logic in `candidate_selection.yaml`
+6. **No code changes needed** — types, allowlists, and DB schema already support it
+
+---
+
 ## Open Decisions
 
-1. **Seed data source**: Manual curation with real current prices? Or start with a JSON fixture file?
-2. **Price staleness**: How often to update prices? (Future: scraper/API. For now: manual updates + `last_checked` timestamp)
-3. **Catalog size**: ~80-100 components enough for MVP? Or need more coverage?
+1. **Catalog size**: ~80-100 components enough for MVP? Or need more coverage?
+2. **Price staleness**: How often to update Amazon prices? (Manual for now, scraper/API later)
