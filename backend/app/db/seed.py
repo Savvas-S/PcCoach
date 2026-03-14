@@ -300,7 +300,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "ATX",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BH6XNDVW", "price_eur": 169.00}],
+        "links": [{"store": "amazon", "asin": "B0CSKH56WN", "price_eur": 169.00}],
     },
     {
         "category": "motherboard",
@@ -326,7 +326,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "ATX",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BHCCZ6H2", "price_eur": 239.00}],
+        "links": [{"store": "amazon", "asin": "B0BHHVHQXZ", "price_eur": 239.00}],
     },
     {
         "category": "motherboard",
@@ -339,7 +339,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "ATX",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BHCHDQF6", "price_eur": 289.00}],
+        "links": [{"store": "amazon", "asin": "B09YCV8XQG", "price_eur": 289.00}],
     },
     {
         "category": "motherboard",
@@ -352,7 +352,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "micro_atx",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BH6C4TLK", "price_eur": 119.00}],
+        "links": [{"store": "amazon", "asin": "B0BKL4JJD8", "price_eur": 119.00}],
     },
     {
         "category": "motherboard",
@@ -365,7 +365,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "micro_atx",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BHCCR2K9", "price_eur": 189.00}],
+        "links": [{"store": "amazon", "asin": "B0BDSBNWMH", "price_eur": 189.00}],
     },
     # ===== Motherboards — LGA1700 =====
     {
@@ -379,7 +379,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "ATX",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BS28JNGL", "price_eur": 159.00}],
+        "links": [{"store": "amazon", "asin": "B0BSHC2ZD4", "price_eur": 159.00}],
     },
     {
         "category": "motherboard",
@@ -392,7 +392,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "ATX",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BS28BGKB", "price_eur": 189.00}],
+        "links": [{"store": "amazon", "asin": "B0BMM7NZDX", "price_eur": 189.00}],
     },
     {
         "category": "motherboard",
@@ -405,7 +405,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "ATX",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BG6LPR5Y", "price_eur": 339.00}],
+        "links": [{"store": "amazon", "asin": "B0BSVD47ZC", "price_eur": 339.00}],
     },
     {
         "category": "motherboard",
@@ -418,7 +418,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "micro_atx",
             "max_ram_gb": "192",
         },
-        "links": [{"store": "amazon", "asin": "B0BS2B28G5", "price_eur": 109.00}],
+        "links": [{"store": "amazon", "asin": "B0C6HY2FZV", "price_eur": 109.00}],
     },
     # ===== RAM — DDR5 =====
     {
@@ -762,7 +762,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "mini_itx",
             "max_ram_gb": "96",
         },
-        "links": [{"store": "amazon", "asin": "B0BH6CMDDL", "price_eur": 239.00}],
+        "links": [{"store": "amazon", "asin": "B083R826VW", "price_eur": 239.00}],
     },
     {
         "category": "motherboard",
@@ -775,7 +775,7 @@ SEED_COMPONENTS: list[dict] = [
             "form_factor": "mini_itx",
             "max_ram_gb": "96",
         },
-        "links": [{"store": "amazon", "asin": "B0BRGWP8LJ", "price_eur": 219.00}],
+        "links": [{"store": "amazon", "asin": "B0BNQFXLJR", "price_eur": 219.00}],
     },
     # ===== Cooling — Air =====
     {
