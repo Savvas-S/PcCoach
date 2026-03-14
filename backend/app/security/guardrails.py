@@ -18,12 +18,13 @@ multi-process / multi-node deployments.
 """
 
 import hashlib
+import json
 import logging
 from dataclasses import dataclass
 
 from cachetools import TTLCache
 
-from app.models.builder import BudgetRange
+from app.models.builder import BudgetRange, BuildRequest, ComponentSearchRequest
 from app.security.blocklist import BLOCKLIST
 
 _log = logging.getLogger("security.guardrails")
@@ -247,6 +248,27 @@ class InputGuardrail:
 def hash_request_body(body: bytes) -> str:
     """Return a compact SHA-256 hex digest of a raw request body."""
     return hashlib.sha256(body).hexdigest()
+
+
+def hash_build_request(payload: BuildRequest) -> str:
+    """Return a stable SHA-256 hex digest of a BuildRequest.
+
+    Uses a canonical JSON form (sorted keys, no whitespace) derived from the
+    parsed Pydantic model rather than the raw request bytes. This ensures that
+    two requests with identical field values always produce the same hash,
+    regardless of key ordering or whitespace differences in the original JSON.
+
+    Notes are already stripped by BuildRequest's field_validator, so no extra
+    trimming is needed here.
+    """
+    canonical = json.dumps(payload.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def hash_search_request(payload: ComponentSearchRequest) -> str:
+    """Return a stable SHA-256 hex digest of a ComponentSearchRequest."""
+    canonical = json.dumps(payload.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode()).hexdigest()
 
 
 # Module-level singleton — share the duplicate cache across all requests.

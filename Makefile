@@ -1,16 +1,17 @@
-.PHONY: help build up down dev dev-build dev-down logs logs-backend logs-frontend \
-        shell-backend shell-frontend test lint lock deploy init sync-config
+.PHONY: help build up down down-clean dev dev-build dev-down logs logs-backend logs-frontend \
+        shell-backend shell-frontend test lint lock deploy init sync-config migrate
 
 help:
 	@echo "PcCoach - Available commands:"
 	@echo ""
 	@echo "  make build            Build production Docker images"
 	@echo "  make up               Start production containers (detached)"
-	@echo "  make down             Stop and remove containers"
+	@echo "  make down             Stop containers, keep volumes (data preserved)"
+	@echo "  make down-clean       Stop containers AND delete volumes (data lost — irreversible)"
 	@echo ""
 	@echo "  make dev              Start dev environment with hot reload"
 	@echo "  make dev-build        Rebuild dev Docker images"
-	@echo "  make dev-down         Stop dev containers"
+	@echo "  make dev-down         Stop dev containers (data preserved)"
 	@echo ""
 	@echo "  make logs             Tail logs from all containers"
 	@echo "  make logs-backend     Tail backend logs only"
@@ -21,7 +22,8 @@ help:
 	@echo ""
 	@echo "  make init             Copy .env.example to .env (skips if .env already exists)"
 	@echo "  make sync-config      Copy shared/budget_goals.json to all service directories"
-	@echo "  make deploy           Pull latest changes and restart production containers"
+	@echo "  make deploy           Pull latest, run migrations, restart production containers"
+	@echo "  make migrate          Run pending Alembic migrations (dev)"
 	@echo "  make test             Run backend tests"
 	@echo "  make lint             Run backend linters"
 	@echo "  make lock             Generate/update uv.lock and package-lock.json"
@@ -36,6 +38,11 @@ up:
 
 down:
 	docker compose down
+
+down-clean:
+	@echo "WARNING: this will delete all volumes including the database. Press Ctrl+C to cancel."
+	@python3 -c "import time; time.sleep(5)"
+	docker compose down -v
 
 # --- Development ---
 
@@ -66,6 +73,11 @@ shell-backend:
 
 shell-frontend:
 	docker compose exec frontend /bin/sh
+
+# --- Database ---
+
+migrate:
+	docker compose -f docker-compose.dev.yml exec backend uv run alembic upgrade head
 
 # --- Quality ---
 
@@ -100,6 +112,7 @@ deploy:
 	git pull --rebase origin master
 	$(MAKE) sync-config
 	docker compose build
+	docker compose run --rm backend uv run alembic upgrade head
 	docker compose up -d
 
 # --- Dependencies ---
