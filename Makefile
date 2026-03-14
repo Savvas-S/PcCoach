@@ -1,4 +1,4 @@
-.PHONY: help build up down down-clean dev dev-build dev-down logs logs-backend logs-frontend \
+.PHONY: help build up down down-clean dev dev-build dev-deploy dev-down logs logs-backend logs-frontend \
         shell-backend shell-frontend test lint lock deploy init sync-config migrate
 
 help:
@@ -11,6 +11,7 @@ help:
 	@echo ""
 	@echo "  make dev              Start dev environment with hot reload"
 	@echo "  make dev-build        Rebuild dev Docker images"
+	@echo "  make dev-deploy       Build, migrate, and start dev containers (detached)"
 	@echo "  make dev-down         Stop dev containers (data preserved)"
 	@echo ""
 	@echo "  make logs             Tail logs from all containers"
@@ -51,6 +52,11 @@ dev: sync-config
 
 dev-build: sync-config
 	docker compose -f docker-compose.dev.yml build
+
+dev-deploy: sync-config
+	docker compose -f docker-compose.dev.yml build
+	docker compose -f docker-compose.dev.yml run --rm backend uv run alembic upgrade head
+	docker compose -f docker-compose.dev.yml up -d
 
 dev-down:
 	docker compose -f docker-compose.dev.yml down
