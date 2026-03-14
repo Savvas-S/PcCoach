@@ -178,7 +178,7 @@ SEED_COMPONENTS: list[dict] = [
             "length_mm": "240",
             "interface": "PCIe 4.0 x8",
         },
-        "links": [{"store": "amazon", "asin": "B0C9S8LHKB", "price_eur": 299.00}],
+        "links": [{"store": "amazon", "asin": "B0C8ZQTRD7", "price_eur": 299.00}],
     },
     {
         "category": "gpu",
@@ -190,7 +190,7 @@ SEED_COMPONENTS: list[dict] = [
             "length_mm": "251",
             "interface": "PCIe 4.0 x8",
         },
-        "links": [{"store": "amazon", "asin": "B0C9SFYMHX", "price_eur": 399.00}],
+        "links": [{"store": "amazon", "asin": "B0C4F7KX1B", "price_eur": 399.00}],
     },
     {
         "category": "gpu",
@@ -202,7 +202,7 @@ SEED_COMPONENTS: list[dict] = [
             "length_mm": "242",
             "interface": "PCIe 4.0 x16",
         },
-        "links": [{"store": "amazon", "asin": "B0BYLTV3T3", "price_eur": 549.00}],
+        "links": [{"store": "amazon", "asin": "B0BYZJWDNC", "price_eur": 549.00}],
     },
     {
         "category": "gpu",
@@ -226,19 +226,19 @@ SEED_COMPONENTS: list[dict] = [
             "length_mm": "305",
             "interface": "PCIe 4.0 x16",
         },
-        "links": [{"store": "amazon", "asin": "B0CS5TG3VQ", "price_eur": 799.00}],
+        "links": [{"store": "amazon", "asin": "B0CS3X3DTG", "price_eur": 799.00}],
     },
     {
         "category": "gpu",
         "brand": "NVIDIA",
-        "model": "GeForce RTX 4080 Super (Gigabyte Windforce OC)",
+        "model": "GeForce RTX 4080 Super (Gigabyte Windforce V2)",
         "specs": {
             "vram_gb": "16",
             "tdp": "320",
             "length_mm": "329",
             "interface": "PCIe 4.0 x16",
         },
-        "links": [{"store": "amazon", "asin": "B0CS5R72D3", "price_eur": 999.00}],
+        "links": [{"store": "amazon", "asin": "B0CSK2GHR8", "price_eur": 999.00}],
     },
     {
         "category": "gpu",
@@ -250,7 +250,7 @@ SEED_COMPONENTS: list[dict] = [
             "length_mm": "336",
             "interface": "PCIe 4.0 x16",
         },
-        "links": [{"store": "amazon", "asin": "B0BGPJ26Y9", "price_eur": 1899.00}],
+        "links": [{"store": "amazon", "asin": "B0C82C1PWN", "price_eur": 1899.00}],
     },
     {
         "category": "gpu",
@@ -262,7 +262,7 @@ SEED_COMPONENTS: list[dict] = [
             "length_mm": "260",
             "interface": "PCIe 4.0 x8",
         },
-        "links": [{"store": "amazon", "asin": "B0D1YFC2KL", "price_eur": 259.00}],
+        "links": [{"store": "amazon", "asin": "B0C49S5R55", "price_eur": 259.00}],
     },
     {
         "category": "gpu",
@@ -274,7 +274,7 @@ SEED_COMPONENTS: list[dict] = [
             "length_mm": "267",
             "interface": "PCIe 4.0 x16",
         },
-        "links": [{"store": "amazon", "asin": "B0CGLHH7GM", "price_eur": 479.00}],
+        "links": [{"store": "amazon", "asin": "B0CGM19NMS", "price_eur": 479.00}],
     },
     {
         "category": "gpu",
@@ -286,7 +286,7 @@ SEED_COMPONENTS: list[dict] = [
             "length_mm": "280",
             "interface": "PCIe 4.0 x16",
         },
-        "links": [{"store": "amazon", "asin": "B0BSYFQ18P", "price_eur": 749.00}],
+        "links": [{"store": "amazon", "asin": "B0BQNDB95D", "price_eur": 749.00}],
     },
     # ===== Motherboards — AM5 =====
     {
