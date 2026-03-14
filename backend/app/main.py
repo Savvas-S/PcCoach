@@ -103,11 +103,15 @@ async def lifespan(app: FastAPI):
         if typo in os.environ:
             log.warning(
                 "Env var '%s' looks like a typo for '%s' — it is being ignored by config",
-                typo, correct,
+                typo,
+                correct,
             )
 
     if settings.environment == "production":
-        if not settings.anthropic_api_key or not settings.anthropic_api_key.get_secret_value():
+        if (
+            not settings.anthropic_api_key
+            or not settings.anthropic_api_key.get_secret_value()
+        ):
             raise RuntimeError("ANTHROPIC_API_KEY must be set in production")
         if not settings.database_url or not settings.database_url.get_secret_value():
             raise RuntimeError("DATABASE_URL must be set in production")

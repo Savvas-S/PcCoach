@@ -82,14 +82,16 @@ except FileNotFoundError:
         "Run `make sync-config` to copy it from shared/budget_goals.json."
     ) from None
 
-_ALLOWED_AFFILIATE_HOSTS: frozenset[str] = frozenset({
-    "amazon.de",
-    "www.amazon.de",
-    "computeruniverse.net",
-    "www.computeruniverse.net",
-    "caseking.de",
-    "www.caseking.de",
-})
+_ALLOWED_AFFILIATE_HOSTS: frozenset[str] = frozenset(
+    {
+        "amazon.de",
+        "www.amazon.de",
+        "computeruniverse.net",
+        "www.computeruniverse.net",
+        "caseking.de",
+        "www.caseking.de",
+    }
+)
 
 
 def _validate_affiliate_url(v: HttpUrl | None) -> HttpUrl | None:
@@ -104,6 +106,7 @@ def _validate_affiliate_url(v: HttpUrl | None) -> HttpUrl | None:
 
 class BuildRequest(BaseModel):
     """User's requirements — passed to Claude to generate a build recommendation."""
+
     goal: UserGoal
     budget_range: BudgetRange
     form_factor: FormFactor = FormFactor.atx
@@ -129,7 +132,9 @@ class BuildRequest(BaseModel):
 
     @field_validator("existing_parts", mode="after")
     @classmethod
-    def deduplicate_existing_parts(cls, v: list[ComponentCategory]) -> list[ComponentCategory]:
+    def deduplicate_existing_parts(
+        cls, v: list[ComponentCategory]
+    ) -> list[ComponentCategory]:
         seen: set[ComponentCategory] = set()
         result = []
         for x in v:
@@ -150,6 +155,7 @@ class BuildRequest(BaseModel):
 
 class ComponentRecommendation(BaseModel):
     """A single recommended component with affiliate link."""
+
     category: ComponentCategory
     name: str = Field(..., min_length=1, max_length=200)
     brand: str = Field(..., min_length=1, max_length=100)
@@ -174,6 +180,7 @@ class ComponentRecommendation(BaseModel):
 
 class UpgradeSuggestion(BaseModel):
     """Optional single-component upgrade that meaningfully improves the build."""
+
     component_category: ComponentCategory
     current_name: str
     upgrade_name: str
@@ -190,6 +197,7 @@ class UpgradeSuggestion(BaseModel):
 
 class DowngradeSuggestion(BaseModel):
     """Optional single-component downgrade that saves money while still meeting the use case."""
+
     component_category: ComponentCategory
     current_name: str
     downgrade_name: str
@@ -206,6 +214,7 @@ class DowngradeSuggestion(BaseModel):
 
 class ComponentSearchRequest(BaseModel):
     """User's request to find a specific component."""
+
     category: ComponentCategory
     description: str = Field(..., min_length=1, max_length=300)
 
@@ -228,6 +237,7 @@ class StoreLink(BaseModel):
 
 class ComponentSearchResult(BaseModel):
     """AI recommendation for a single component with search links to all stores."""
+
     name: str
     brand: str
     category: ComponentCategory
@@ -239,6 +249,7 @@ class ComponentSearchResult(BaseModel):
 
 class BuildResult(BaseModel):
     """The full build recommendation returned to the user."""
+
     id: str
     components: list[ComponentRecommendation] = []
     total_price_eur: float | None = None

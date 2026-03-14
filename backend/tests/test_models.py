@@ -16,30 +16,47 @@ from app.models.builder import (
 
 class TestBuildRequestGoalBudgetValidation:
     def test_valid_goal_for_budget(self):
-        req = BuildRequest(goal=UserGoal.low_end_gaming, budget_range=BudgetRange.range_0_1000)
+        req = BuildRequest(
+            goal=UserGoal.low_end_gaming, budget_range=BudgetRange.range_0_1000
+        )
         assert req.goal == UserGoal.low_end_gaming
 
     def test_invalid_goal_for_budget_raises(self):
         with pytest.raises(ValidationError, match="not available for budget"):
-            BuildRequest(goal=UserGoal.high_end_gaming, budget_range=BudgetRange.range_0_1000)
+            BuildRequest(
+                goal=UserGoal.high_end_gaming, budget_range=BudgetRange.range_0_1000
+            )
 
     def test_all_over_3000_goals_are_valid(self):
-        for goal in [UserGoal.high_end_gaming, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture]:
+        for goal in [
+            UserGoal.high_end_gaming,
+            UserGoal.heavy_work,
+            UserGoal.designer,
+            UserGoal.architecture,
+        ]:
             req = BuildRequest(goal=goal, budget_range=BudgetRange.over_3000)
             assert req.goal == goal
 
     def test_light_work_valid_across_lower_budgets(self):
-        for budget in [BudgetRange.range_0_1000, BudgetRange.range_1000_1500, BudgetRange.range_1500_2000]:
+        for budget in [
+            BudgetRange.range_0_1000,
+            BudgetRange.range_1000_1500,
+            BudgetRange.range_1500_2000,
+        ]:
             req = BuildRequest(goal=UserGoal.light_work, budget_range=budget)
             assert req.goal == UserGoal.light_work
 
     def test_light_work_invalid_for_high_budget(self):
         with pytest.raises(ValidationError, match="not available for budget"):
-            BuildRequest(goal=UserGoal.light_work, budget_range=BudgetRange.range_2000_3000)
+            BuildRequest(
+                goal=UserGoal.light_work, budget_range=BudgetRange.range_2000_3000
+            )
 
 
 class TestBuildResultTotalPrice:
-    def _make_component(self, category: ComponentCategory, price: float) -> ComponentRecommendation:
+    def _make_component(
+        self, category: ComponentCategory, price: float
+    ) -> ComponentRecommendation:
         return ComponentRecommendation(
             category=category,
             name="Test Component",
@@ -78,11 +95,15 @@ class TestDeduplicateExistingParts:
         )
 
     def test_duplicates_removed_preserving_order(self):
-        req = self._base([ComponentCategory.cpu, ComponentCategory.gpu, ComponentCategory.cpu])
+        req = self._base(
+            [ComponentCategory.cpu, ComponentCategory.gpu, ComponentCategory.cpu]
+        )
         assert req.existing_parts == [ComponentCategory.cpu, ComponentCategory.gpu]
 
     def test_all_duplicates(self):
-        req = self._base([ComponentCategory.ram, ComponentCategory.ram, ComponentCategory.ram])
+        req = self._base(
+            [ComponentCategory.ram, ComponentCategory.ram, ComponentCategory.ram]
+        )
         assert req.existing_parts == [ComponentCategory.ram]
 
     def test_no_duplicates_unchanged(self):
@@ -103,7 +124,9 @@ class TestBudgetGoalsJson:
 
     def test_every_budget_has_at_least_one_goal(self):
         for budget, goals in _VALID_GOALS_FOR_BUDGET.items():
-            assert len(goals) > 0, f"Budget {budget.value} has no goals in budget_goals.json"
+            assert len(goals) > 0, (
+                f"Budget {budget.value} has no goals in budget_goals.json"
+            )
 
     def test_all_goal_values_are_valid_enums(self):
         for budget, goals in _VALID_GOALS_FOR_BUDGET.items():
@@ -162,15 +185,22 @@ class TestAffiliateUrlValidation:
 
 class TestStoreLinkValidation:
     def test_valid_store_link(self):
-        link = StoreLink(store="amazon", url="https://www.amazon.de/s?k=RTX+4070&tag=thepccoach-21")
+        link = StoreLink(
+            store="amazon", url="https://www.amazon.de/s?k=RTX+4070&tag=thepccoach-21"
+        )
         assert link.url is not None
 
     def test_valid_computeruniverse_link(self):
-        link = StoreLink(store="computeruniverse", url="https://www.computeruniverse.net/en/search?query=RTX+4070")
+        link = StoreLink(
+            store="computeruniverse",
+            url="https://www.computeruniverse.net/en/search?query=RTX+4070",
+        )
         assert link.url is not None
 
     def test_valid_caseking_link(self):
-        link = StoreLink(store="caseking", url="https://www.caseking.de/en/search?q=RTX+4070")
+        link = StoreLink(
+            store="caseking", url="https://www.caseking.de/en/search?q=RTX+4070"
+        )
         assert link.url is not None
 
     def test_disallowed_domain_raises(self):

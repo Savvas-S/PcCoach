@@ -291,6 +291,7 @@ def _strip_pii_from_text(text: str) -> str:
     text = _PHONE_PATTERN.sub("[removed]", text)
     # Strip email addresses
     text = _EMAIL_PATTERN.sub("[removed]", text)
+
     # Strip external URLs not in the affiliate allowlist
     def _maybe_strip_url(m: re.Match) -> str:  # noqa: E306
         url = m.group(0)
