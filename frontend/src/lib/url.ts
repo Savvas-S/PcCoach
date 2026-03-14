@@ -8,13 +8,11 @@
  * Use `safeAffiliateUrl()` on every URL before rendering it as <a href=...>.
  */
 
+// Amazon-only for MVP — widen when new stores are added.
+// Must stay in sync with backend models/builder.py and security/output_guard.py.
 const ALLOWED_AFFILIATE_HOSTS = new Set([
   "amazon.de",
   "www.amazon.de",
-  "computeruniverse.net",
-  "www.computeruniverse.net",
-  "caseking.de",
-  "www.caseking.de",
 ]);
 
 /**

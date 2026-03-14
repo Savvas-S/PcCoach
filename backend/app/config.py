@@ -5,11 +5,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
     # Sensitive secrets — accessed via .get_secret_value(), never logged directly
     anthropic_api_key: SecretStr | None = None  # required in production
-    database_url: SecretStr | None = None        # required when DB is wired up
+    database_url: SecretStr | None = None  # required when DB is wired up
 
     claude_model: str = "claude-sonnet-4-6"
     cors_origins: list[str] = ["http://localhost:3000"]

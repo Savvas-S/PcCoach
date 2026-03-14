@@ -31,14 +31,12 @@ _log = logging.getLogger("security.output_guard")
 # ---------------------------------------------------------------------------
 # Allowlisted affiliate domains (must stay in sync with models/builder.py)
 # ---------------------------------------------------------------------------
+# Amazon-only for MVP — widen when new stores are added.
+# Must stay in sync with models/builder.py and frontend/src/lib/url.ts.
 _AFFILIATE_ALLOWED_HOSTS: frozenset[str] = frozenset(
     {
         "amazon.de",
         "www.amazon.de",
-        "computeruniverse.net",
-        "www.computeruniverse.net",
-        "caseking.de",
-        "www.caseking.de",
     }
 )
 
@@ -291,6 +289,7 @@ def _strip_pii_from_text(text: str) -> str:
     text = _PHONE_PATTERN.sub("[removed]", text)
     # Strip email addresses
     text = _EMAIL_PATTERN.sub("[removed]", text)
+
     # Strip external URLs not in the affiliate allowlist
     def _maybe_strip_url(m: re.Match) -> str:  # noqa: E306
         url = m.group(0)

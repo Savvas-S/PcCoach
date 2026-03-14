@@ -1,5 +1,5 @@
 import json
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Literal
 from urllib.parse import urlparse
@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, Field, HttpUrl, field_validator, model_validator
 
 
-class UserGoal(str, Enum):
+class UserGoal(StrEnum):
     high_end_gaming = "high_end_gaming"
     mid_range_gaming = "mid_range_gaming"
     low_end_gaming = "low_end_gaming"
@@ -17,7 +17,7 @@ class UserGoal(str, Enum):
     architecture = "architecture"
 
 
-class BudgetRange(str, Enum):
+class BudgetRange(StrEnum):
     range_0_1000 = "0_1000"
     range_1000_1500 = "1000_1500"
     range_1500_2000 = "1500_2000"
@@ -25,31 +25,31 @@ class BudgetRange(str, Enum):
     over_3000 = "over_3000"
 
 
-class FormFactor(str, Enum):
+class FormFactor(StrEnum):
     atx = "atx"
     micro_atx = "micro_atx"
     mini_itx = "mini_itx"
 
 
-class CPUBrand(str, Enum):
+class CPUBrand(StrEnum):
     intel = "intel"
     amd = "amd"
     no_preference = "no_preference"
 
 
-class GPUBrand(str, Enum):
+class GPUBrand(StrEnum):
     nvidia = "nvidia"
     amd = "amd"
     no_preference = "no_preference"
 
 
-class CoolingPreference(str, Enum):
+class CoolingPreference(StrEnum):
     no_preference = "no_preference"
     liquid = "liquid"
     air = "air"
 
 
-class ComponentCategory(str, Enum):
+class ComponentCategory(StrEnum):
     cpu = "cpu"
     gpu = "gpu"
     motherboard = "motherboard"
@@ -63,7 +63,7 @@ class ComponentCategory(str, Enum):
     mouse = "mouse"
 
 
-class BuildStatus(str, Enum):
+class BuildStatus(StrEnum):
     completed = "completed"
 
 
@@ -82,14 +82,13 @@ except FileNotFoundError:
         "Run `make sync-config` to copy it from shared/budget_goals.json."
     ) from None
 
-_ALLOWED_AFFILIATE_HOSTS: frozenset[str] = frozenset({
-    "amazon.de",
-    "www.amazon.de",
-    "computeruniverse.net",
-    "www.computeruniverse.net",
-    "caseking.de",
-    "www.caseking.de",
-})
+# Amazon-only for MVP. Widen when ComputerUniverse / Caseking are added.
+_ALLOWED_AFFILIATE_HOSTS: frozenset[str] = frozenset(
+    {
+        "amazon.de",
+        "www.amazon.de",
+    }
+)
 
 
 def _validate_affiliate_url(v: HttpUrl | None) -> HttpUrl | None:
@@ -104,6 +103,7 @@ def _validate_affiliate_url(v: HttpUrl | None) -> HttpUrl | None:
 
 class BuildRequest(BaseModel):
     """User's requirements — passed to Claude to generate a build recommendation."""
+
     goal: UserGoal
     budget_range: BudgetRange
     form_factor: FormFactor = FormFactor.atx
@@ -129,7 +129,9 @@ class BuildRequest(BaseModel):
 
     @field_validator("existing_parts", mode="after")
     @classmethod
-    def deduplicate_existing_parts(cls, v: list[ComponentCategory]) -> list[ComponentCategory]:
+    def deduplicate_existing_parts(
+        cls, v: list[ComponentCategory]
+    ) -> list[ComponentCategory]:
         seen: set[ComponentCategory] = set()
         result = []
         for x in v:
@@ -143,13 +145,15 @@ class BuildRequest(BaseModel):
         valid = _VALID_GOALS_FOR_BUDGET.get(self.budget_range, set())
         if self.goal not in valid:
             raise ValueError(
-                f"Goal '{self.goal.value}' is not available for budget '{self.budget_range.value}'"
+                f"Goal '{self.goal.value}' is not available "
+                f"for budget '{self.budget_range.value}'"
             )
         return self
 
 
 class ComponentRecommendation(BaseModel):
     """A single recommended component with affiliate link."""
+
     category: ComponentCategory
     name: str = Field(..., min_length=1, max_length=200)
     brand: str = Field(..., min_length=1, max_length=100)
@@ -159,7 +163,7 @@ class ComponentRecommendation(BaseModel):
         description="Key specs e.g. {'cores': '8', 'tdp': '65W'}",
     )
     affiliate_url: HttpUrl | None = None
-    affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+    affiliate_source: Literal["amazon"] | None = None
 
     @field_validator("name", "brand", mode="before")
     @classmethod
@@ -174,13 +178,14 @@ class ComponentRecommendation(BaseModel):
 
 class UpgradeSuggestion(BaseModel):
     """Optional single-component upgrade that meaningfully improves the build."""
+
     component_category: ComponentCategory
     current_name: str
     upgrade_name: str
     extra_cost_eur: float = Field(..., gt=0)
     reason: str
     affiliate_url: HttpUrl | None = None
-    affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+    affiliate_source: Literal["amazon"] | None = None
 
     @field_validator("affiliate_url", mode="after")
     @classmethod
@@ -189,14 +194,15 @@ class UpgradeSuggestion(BaseModel):
 
 
 class DowngradeSuggestion(BaseModel):
-    """Optional single-component downgrade that saves money while still meeting the use case."""
+    """Optional downgrade that saves money while meeting the use case."""
+
     component_category: ComponentCategory
     current_name: str
     downgrade_name: str
     savings_eur: float = Field(..., gt=0)
     reason: str
     affiliate_url: HttpUrl | None = None
-    affiliate_source: Literal["computeruniverse", "caseking", "amazon"] | None = None
+    affiliate_source: Literal["amazon"] | None = None
 
     @field_validator("affiliate_url", mode="after")
     @classmethod
@@ -206,6 +212,7 @@ class DowngradeSuggestion(BaseModel):
 
 class ComponentSearchRequest(BaseModel):
     """User's request to find a specific component."""
+
     category: ComponentCategory
     description: str = Field(..., min_length=1, max_length=300)
 
@@ -216,7 +223,7 @@ class ComponentSearchRequest(BaseModel):
 
 
 class StoreLink(BaseModel):
-    store: Literal["computeruniverse", "caseking", "amazon"]
+    store: Literal["amazon"]
     url: HttpUrl
 
     @field_validator("url", mode="after")
@@ -228,6 +235,7 @@ class StoreLink(BaseModel):
 
 class ComponentSearchResult(BaseModel):
     """AI recommendation for a single component with search links to all stores."""
+
     name: str
     brand: str
     category: ComponentCategory
@@ -239,6 +247,7 @@ class ComponentSearchResult(BaseModel):
 
 class BuildResult(BaseModel):
     """The full build recommendation returned to the user."""
+
     id: str
     components: list[ComponentRecommendation] = []
     total_price_eur: float | None = None

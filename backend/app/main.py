@@ -86,7 +86,8 @@ async def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONR
     return JSONResponse({"detail": detail}, status_code=429, headers=headers)
 
 
-# Known env var name typos — extra="ignore" silently drops these; warn at startup instead.
+# Known env var name typos — extra="ignore" silently drops these;
+# warn at startup instead.
 _ENV_VAR_TYPOS: dict[str, str] = {
     "CORS_ORIGIN": "CORS_ORIGINS",
     "ANTHROPIC_KEY": "ANTHROPIC_API_KEY",
@@ -102,12 +103,17 @@ async def lifespan(app: FastAPI):
     for typo, correct in _ENV_VAR_TYPOS.items():
         if typo in os.environ:
             log.warning(
-                "Env var '%s' looks like a typo for '%s' — it is being ignored by config",
-                typo, correct,
+                "Env var '%s' looks like a typo for '%s' "
+                "— it is being ignored by config",
+                typo,
+                correct,
             )
 
     if settings.environment == "production":
-        if not settings.anthropic_api_key or not settings.anthropic_api_key.get_secret_value():
+        if (
+            not settings.anthropic_api_key
+            or not settings.anthropic_api_key.get_secret_value()
+        ):
             raise RuntimeError("ANTHROPIC_API_KEY must be set in production")
         if not settings.database_url or not settings.database_url.get_secret_value():
             raise RuntimeError("DATABASE_URL must be set in production")

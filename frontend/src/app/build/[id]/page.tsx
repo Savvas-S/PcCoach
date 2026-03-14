@@ -73,9 +73,8 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
         </div>
 
         <div className="text-right shrink-0 flex flex-col items-end gap-3">
-          {/* TODO: remove ~ when real product URLs land */}
           <div className="font-mono text-xl font-medium text-obsidian">
-            ~&euro;{component.price_eur.toFixed(0)}
+            &euro;{component.price_eur.toFixed(2)}
           </div>
           {(() => {
             const safeUrl = safeAffiliateUrl(component.affiliate_url);
@@ -309,9 +308,8 @@ export default function BuildResultPage() {
           <h1 className="font-display font-light text-5xl text-obsidian-text">Your PC Build</h1>
           {build.total_price_eur != null && (
             <div className="flex items-baseline gap-3 mt-3 flex-wrap">
-              {/* TODO: when real product URLs land, remove ~ and toFixed(0) → toFixed(2) */}
               <span className="font-mono text-3xl font-medium text-obsidian">
-                ~&euro;{build.total_price_eur.toFixed(0)}
+                &euro;{build.total_price_eur.toFixed(2)}
               </span>
               <span className="text-obsidian-muted text-sm">
                 estimated total &middot;{" "}
@@ -367,7 +365,7 @@ export default function BuildResultPage() {
         )}
 
         <p className="text-obsidian-muted-light text-xs mb-10 font-mono">
-          Prices are AI estimates. Verify current prices on the store before ordering.
+          Prices from catalog &middot; may vary on the store. Verify before ordering.
         </p>
 
         {/* Alternatives */}
