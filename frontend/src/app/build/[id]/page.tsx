@@ -387,8 +387,8 @@ export default function BuildResultPage() {
         <div className="border border-obsidian-border bg-obsidian-surface p-5 mb-8">
           <p className="font-body font-semibold text-obsidian-text mb-1">Ready to order?</p>
           <p className="text-obsidian-muted text-sm leading-relaxed">
-            Click each component above to search for it on the store. Prices shown
-            here are AI estimates — always confirm the current price before purchasing.
+            Click each component above to buy it on the store. Prices are from our
+            catalog and may change — always confirm the current price before purchasing.
           </p>
         </div>
 

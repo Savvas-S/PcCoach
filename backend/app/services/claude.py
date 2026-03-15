@@ -247,7 +247,7 @@ _CATEGORY_SPEC_KEYS: dict[str, list[str]] = {
     "storage": ["type", "capacity_gb", "read_mbps"],
     "psu": ["wattage", "efficiency"],
     "case": ["form_factor"],
-    "cooling": ["type", "radiator_size_mm"],
+    "cooling": ["type", "radiator_mm"],
     "monitor": ["resolution", "size_inches", "panel", "refresh_hz"],
     "keyboard": ["type", "switch", "layout"],
     "mouse": ["sensor", "weight_g", "wireless"],
