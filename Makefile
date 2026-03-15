@@ -1,5 +1,5 @@
 .PHONY: help build up down down-clean dev dev-build dev-deploy dev-down logs logs-backend logs-frontend \
-        shell-backend shell-frontend test lint lock deploy init sync-config migrate
+        shell-backend shell-frontend test lint lock deploy init sync-config migrate seed
 
 help:
 	@echo "PcCoach - Available commands:"
@@ -25,6 +25,7 @@ help:
 	@echo "  make sync-config      Copy shared/budget_goals.json to all service directories"
 	@echo "  make deploy           Pull latest, run migrations, restart production containers"
 	@echo "  make migrate          Run pending Alembic migrations (dev)"
+	@echo "  make seed             Seed component catalog (dev)"
 	@echo "  make test             Run backend tests"
 	@echo "  make lint             Run backend linters"
 	@echo "  make lock             Generate/update uv.lock and package-lock.json"
@@ -84,6 +85,9 @@ shell-frontend:
 
 migrate:
 	docker compose -f docker-compose.dev.yml exec backend uv run alembic upgrade head
+
+seed:
+	docker compose -f docker-compose.dev.yml exec backend uv run python -m app.db.seed
 
 # --- Quality ---
 

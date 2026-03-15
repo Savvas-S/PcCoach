@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from functools import lru_cache
 
 import anthropic
+from pydantic import ValidationError
 
 from app.config import settings
 from app.models.builder import (
@@ -17,6 +20,7 @@ from app.prompts.manager import build_system_prompt, search_system_prompt
 from app.security import events as guardrail_events
 from app.security.output_guard import GuardrailBlocked, output_guardrail
 from app.security.prompt_guard import sanitize_user_input
+from app.services.catalog import CandidateComponent
 
 # Prepended to every system prompt — Claude must see this before any other
 # instruction so that injection payloads embedded later in the conversation
@@ -33,44 +37,76 @@ _TIMEOUT = 90.0
 
 SEARCH_TOOL = {
     "name": "recommend_component",
-    "description": "Return the best single component matching the user's description with search links to all three stores",
+    "description": (
+        "Return the best single component matching the user's "
+        "description with a search link to Amazon.de"
+    ),
     "input_schema": {
         "type": "object",
         "properties": {
-            "name": {"type": "string", "description": "Specific product name, e.g. 'AMD Ryzen 5 7600X'"},
+            "name": {
+                "type": "string",
+                "description": "Specific product name, e.g. 'AMD Ryzen 5 7600X'",
+            },
             "brand": {"type": "string"},
-            "estimated_price_eur": {"type": "number", "minimum": 0.01, "description": "Best estimate of current EUR price"},
-            "reason": {"type": "string", "description": "2-3 sentences explaining why this component best matches the request"},
+            "estimated_price_eur": {
+                "type": "number",
+                "minimum": 0.01,
+                "description": "Best estimate of current EUR price",
+            },
+            "reason": {
+                "type": "string",
+                "description": (
+                    "2-3 sentences explaining why this "
+                    "component best matches the request"
+                ),
+            },
             "specs": {
                 "type": "object",
                 "additionalProperties": {"type": "string"},
             },
             "store_links": {
                 "type": "array",
-                "description": "Search links for this exact product at all three stores",
+                "description": "Search link for this exact product at Amazon.de",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "store": {"type": "string", "enum": ["computeruniverse", "caseking", "amazon"]},
+                        "store": {
+                            "type": "string",
+                            "enum": ["amazon"],
+                        },
                         "url": {"type": "string", "format": "uri"},
                     },
                     "required": ["store", "url"],
                 },
             },
         },
-        "required": ["name", "brand", "estimated_price_eur", "reason", "specs", "store_links"],
+        "required": [
+            "name",
+            "brand",
+            "estimated_price_eur",
+            "reason",
+            "specs",
+            "store_links",
+        ],
     },
 }
 
 BUILD_TOOL = {
     "name": "recommend_build",
-    "description": "Return a structured PC build recommendation with components and affiliate links",
+    "description": (
+        "Return a structured PC build recommendation "
+        "with components and affiliate links"
+    ),
     "input_schema": {
         "type": "object",
         "properties": {
             "summary": {
                 "type": "string",
-                "description": "2-3 sentence explanation of the build choices and why they fit the user's needs",
+                "description": (
+                    "2-3 sentence explanation of the build "
+                    "choices and why they fit the user's needs"
+                ),
             },
             "components": {
                 "type": "array",
@@ -80,8 +116,17 @@ BUILD_TOOL = {
                         "category": {
                             "type": "string",
                             "enum": [
-                                "cpu", "gpu", "motherboard", "ram", "storage",
-                                "psu", "case", "cooling", "monitor", "keyboard", "mouse",
+                                "cpu",
+                                "gpu",
+                                "motherboard",
+                                "ram",
+                                "storage",
+                                "psu",
+                                "case",
+                                "cooling",
+                                "monitor",
+                                "keyboard",
+                                "mouse",
                             ],
                         },
                         "name": {"type": "string"},
@@ -94,15 +139,26 @@ BUILD_TOOL = {
                         "affiliate_url": {"type": "string", "format": "uri"},
                         "affiliate_source": {
                             "type": "string",
-                            "enum": ["computeruniverse", "caseking", "amazon"],
+                            "enum": ["amazon"],
                         },
                     },
-                    "required": ["category", "name", "brand", "price_eur", "specs", "affiliate_url", "affiliate_source"],
+                    "required": [
+                        "category",
+                        "name",
+                        "brand",
+                        "price_eur",
+                        "specs",
+                        "affiliate_url",
+                        "affiliate_source",
+                    ],
                 },
             },
             "upgrade_suggestion": {
                 "type": "object",
-                "description": "Optional single-component upgrade if it meaningfully improves the build for under €75 extra",
+                "description": (
+                    "Optional single-component upgrade if it "
+                    "meaningfully improves the build for under €75 extra"
+                ),
                 "properties": {
                     "component_category": {
                         "type": "string",
@@ -113,19 +169,32 @@ BUILD_TOOL = {
                     "extra_cost_eur": {"type": "number", "minimum": 0.01},
                     "reason": {
                         "type": "string",
-                        "description": "One sentence explaining why the upgrade is worth it",
+                        "description": (
+                            "One sentence explaining why the upgrade is worth it"
+                        ),
                     },
                     "affiliate_url": {"type": "string", "format": "uri"},
                     "affiliate_source": {
                         "type": "string",
-                        "enum": ["computeruniverse", "caseking", "amazon"],
+                        "enum": ["amazon"],
                     },
                 },
-                "required": ["component_category", "current_name", "upgrade_name", "extra_cost_eur", "reason", "affiliate_url", "affiliate_source"],
+                "required": [
+                    "component_category",
+                    "current_name",
+                    "upgrade_name",
+                    "extra_cost_eur",
+                    "reason",
+                    "affiliate_url",
+                    "affiliate_source",
+                ],
             },
             "downgrade_suggestion": {
                 "type": "object",
-                "description": "Optional single-component downgrade that saves money while still adequately meeting the use case",
+                "description": (
+                    "Optional single-component downgrade that saves "
+                    "money while still adequately meeting the use case"
+                ),
                 "properties": {
                     "component_category": {
                         "type": "string",
@@ -136,20 +205,78 @@ BUILD_TOOL = {
                     "savings_eur": {"type": "number", "minimum": 0.01},
                     "reason": {
                         "type": "string",
-                        "description": "One sentence explaining the trade-off — what is saved and what is slightly compromised",
+                        "description": (
+                            "One sentence explaining the trade-off "
+                            "— what is saved and what is slightly "
+                            "compromised"
+                        ),
                     },
                     "affiliate_url": {"type": "string", "format": "uri"},
                     "affiliate_source": {
                         "type": "string",
-                        "enum": ["computeruniverse", "caseking", "amazon"],
+                        "enum": ["amazon"],
                     },
                 },
-                "required": ["component_category", "current_name", "downgrade_name", "savings_eur", "reason", "affiliate_url", "affiliate_source"],
+                "required": [
+                    "component_category",
+                    "current_name",
+                    "downgrade_name",
+                    "savings_eur",
+                    "reason",
+                    "affiliate_url",
+                    "affiliate_source",
+                ],
             },
         },
         "required": ["summary", "components"],
     },
 }
+
+
+# ---------------------------------------------------------------------------
+# Candidate formatting — converts CatalogService output to structured text
+# that Claude can read and select from.
+# ---------------------------------------------------------------------------
+
+# Per-category spec keys to show in the candidate table
+_CATEGORY_SPEC_KEYS: dict[str, list[str]] = {
+    "cpu": ["socket", "cores", "threads", "tdp", "boost_ghz"],
+    "gpu": ["vram_gb", "tdp", "length_mm"],
+    "motherboard": ["socket", "chipset", "ddr_type", "form_factor"],
+    "ram": ["ddr_type", "capacity_gb", "speed_mhz", "modules"],
+    "storage": ["type", "capacity_gb", "read_mbps"],
+    "psu": ["wattage", "efficiency"],
+    "case": ["form_factor"],
+    "cooling": ["type", "radiator_mm"],
+    "monitor": ["resolution", "size_inches", "panel", "refresh_hz"],
+    "keyboard": ["type", "switch", "layout"],
+    "mouse": ["sensor", "weight_g", "wireless"],
+}
+
+
+def _format_candidates(candidates: dict[str, list[CandidateComponent]]) -> str:
+    """Format candidate components as structured text for Claude's user message."""
+    parts = ["## Available Components (from catalog)\n"]
+
+    for category, items in candidates.items():
+        spec_keys = _CATEGORY_SPEC_KEYS.get(category, [])
+        parts.append(f"### {category.upper()} ({len(items)} options)")
+
+        for i, item in enumerate(items, 1):
+            specs_str = ", ".join(
+                f"{k}={item.specs[k]}" for k in spec_keys if k in item.specs
+            )
+            store_strs = [
+                f"{s.store} €{s.price_eur:.0f} url: {s.url}" for s in item.stores
+            ]
+            parts.append(
+                f"  {i}. {item.brand} {item.model} "
+                f"| {specs_str} | " + " | ".join(store_strs)
+            )
+
+        parts.append("")  # blank line between categories
+
+    return "\n".join(parts)
 
 
 class ClaudeService:
@@ -167,8 +294,14 @@ class ClaudeService:
         request: BuildRequest,
         build_id: str,
         client_ip: str = "unknown",
+        candidates: dict[str, list[CandidateComponent]] | None = None,
     ) -> BuildResult:
         """Call Claude and return a guardrail-checked BuildResult.
+
+        Args:
+            candidates: Pre-filtered components from CatalogService.get_candidates().
+                        If provided, Claude picks from these. If None, falls back to
+                        the original behavior (Claude uses training data).
 
         Raises:
             ValueError: if Claude returns no tool_use block or a schema error.
@@ -194,6 +327,10 @@ class ClaudeService:
             f"- Additional notes: <user_request>{safe_notes}</user_request>"
         )
 
+        # Append candidate catalog if available
+        if candidates:
+            user_message += "\n\n" + _format_candidates(candidates)
+
         system_prompt = f"{_ROLE_LOCK}\n\n{build_system_prompt()}"
 
         response = await self.client.messages.create(
@@ -218,16 +355,22 @@ class ClaudeService:
 
         components = [ComponentRecommendation(**c) for c in data["components"]]
         summary = data["summary"]
-        upgrade_suggestion = (
-            UpgradeSuggestion(**data["upgrade_suggestion"])
-            if data.get("upgrade_suggestion")
-            else None
-        )
-        downgrade_suggestion = (
-            DowngradeSuggestion(**data["downgrade_suggestion"])
-            if data.get("downgrade_suggestion")
-            else None
-        )
+        try:
+            upgrade_suggestion = (
+                UpgradeSuggestion(**data["upgrade_suggestion"])
+                if data.get("upgrade_suggestion")
+                else None
+            )
+        except (ValueError, ValidationError):
+            upgrade_suggestion = None
+        try:
+            downgrade_suggestion = (
+                DowngradeSuggestion(**data["downgrade_suggestion"])
+                if data.get("downgrade_suggestion")
+                else None
+            )
+        except (ValueError, ValidationError):
+            downgrade_suggestion = None
 
         build = BuildResult(
             id=build_id,
@@ -269,12 +412,15 @@ class ClaudeService:
 
         return checked
 
-    async def search_component(self, request: ComponentSearchRequest) -> ComponentSearchResult:
+    async def search_component(
+        self, request: ComponentSearchRequest
+    ) -> ComponentSearchResult:
         safe_description = sanitize_user_input(request.description)
 
         user_message = (
             f"Category: {request.category.value}\n"
-            f"You must recommend a {request.category.value}. Do not recommend any other component type.\n\n"
+            f"You must recommend a {request.category.value}. "
+            f"Do not recommend any other component type.\n\n"
             f"User description:\n<user_request>{safe_description}</user_request>"
         )
 
@@ -283,7 +429,13 @@ class ClaudeService:
         response = await self.client.messages.create(
             model=self.model,
             max_tokens=1500,
-            system=[{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}],
+            system=[
+                {
+                    "type": "text",
+                    "text": system_prompt,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
             tools=[SEARCH_TOOL],
             tool_choice={"type": "tool", "name": "recommend_component"},
             messages=[{"role": "user", "content": user_message}],
