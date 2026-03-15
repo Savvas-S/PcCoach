@@ -14,8 +14,6 @@ content: |
      - RAM DDR type must match motherboard DDR type
      - Case must fit the motherboard form factor
      - PSU wattage must cover CPU TDP + GPU TDP + 80W baseline with 30% headroom
-     - GPU length must fit the case (check max_gpu_length_mm)
-     - Cooler height must fit the case (check max_cooler_height_mm)
   5. Pick the best value per priority tier for the user's goal
 
   ### Rules

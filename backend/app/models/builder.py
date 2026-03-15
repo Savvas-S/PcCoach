@@ -92,7 +92,7 @@ _ALLOWED_AFFILIATE_HOSTS: frozenset[str] = frozenset(
 
 
 def _validate_affiliate_url(v: HttpUrl | None) -> HttpUrl | None:
-    """Ensure affiliate_url points to one of the three allowed stores."""
+    """Ensure affiliate_url points to an allowed store host."""
     if v is None:
         return v
     host = urlparse(str(v)).hostname or ""

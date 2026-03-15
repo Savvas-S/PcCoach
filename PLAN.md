@@ -28,18 +28,18 @@ Replace the current single-shot Claude call with a **catalog-driven architecture
 
 | Category     | Count | Source |
 |-------------|-------|--------|
-| CPU         | 20    | Scraped (Amazon.de) |
+| CPU         | 50    | Scraped (Amazon.de) — AMD AM4/AM5 + Intel LGA1700/LGA1851 |
 | GPU         | 44    | Scraped (Amazon.de) |
-| Motherboard | 41    | Scraped (Amazon.de) — AM5 + AM4 only, no LGA1851 |
+| Motherboard | 77    | Scraped (Amazon.de) — AM4/AM5/LGA1700/LGA1851 |
 | RAM         | 29    | Scraped (Amazon.de) — desktop DIMM only |
 | Storage     | 11    | Scraped (Amazon.de) |
 | PSU         | 18    | Scraped (Amazon.de) |
-| Case        | 19    | Scraped (Amazon.de) — no mini-ITX |
-| Cooling     | 19    | Scraped (Amazon.de) |
+| Case        | 18    | Scraped (Amazon.de) — no mini-ITX cases |
+| Cooling     | 18    | Scraped (Amazon.de) |
 | Monitor     | 5     | Manual (hardcoded in seed.py) |
 | Keyboard    | 3     | Manual (hardcoded in seed.py) |
 | Mouse       | 4     | Manual (hardcoded in seed.py) |
-| **Total**   | **213** | |
+| **Total**   | **277** | |
 
 ### Seed Architecture
 
@@ -56,10 +56,10 @@ backend/app/db/
 
 ### Known Gaps
 
-- **No LGA1851 motherboards** — Intel Core Ultra CPUs have no matching motherboards in catalog
-- **No mini-ITX cases** — scraper didn't return any; mini-ITX builds will have no case options
-- **Peripherals not scraped** — monitors, keyboards, mice are still hardcoded with old data
+- **No mini-ITX cases** — scraper didn't return any; mini-ITX builds will have no case options (2 mini-ITX motherboards exist)
+- **Peripherals not scraped** — monitors, keyboards, mice are still hardcoded with unverified ASINs
 - **Price staleness** — prices are snapshot from scrape date; no automated refresh yet
+- **Missing case/cooler compatibility specs** — `max_gpu_length_mm`, `max_cooler_height_mm` not in scraped data
 
 ---
 

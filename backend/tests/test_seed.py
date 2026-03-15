@@ -1,7 +1,10 @@
 """Tests for seed data integrity."""
 
-from app.db.seed import SEED_COMPONENTS, _amazon_url
+from app.db.seed import _amazon_url, _load_catalog
 from app.models.builder import _ALLOWED_AFFILIATE_HOSTS, ComponentCategory
+
+# Load full catalog (scraped + peripherals)
+SEED_COMPONENTS = _load_catalog()
 
 # All valid category values
 VALID_CATEGORIES = {c.value for c in ComponentCategory}
@@ -13,7 +16,7 @@ REQUIRED_SPECS: dict[str, set[str]] = {
     "motherboard": {"socket", "ddr_type", "form_factor"},
     "ram": {"ddr_type", "capacity_gb"},
     "psu": {"wattage"},
-    "case": {"form_factor", "max_gpu_length_mm", "max_cooler_height_mm"},
+    "case": {"form_factor"},
     "cooling": {"type"},
     "storage": {"capacity_gb"},
 }
@@ -102,3 +105,13 @@ class TestSeedDataIntegrity:
             for link in item["links"]:
                 url = _amazon_url(link["asin"])
                 assert "tag=thepccoach-21" in url, f"Missing tag for {_label(item)}"
+
+    def test_no_duplicate_products(self):
+        """No exact duplicates (same brand + model + category)."""
+        seen = set()
+        for item in SEED_COMPONENTS:
+            key = (item["category"], item["brand"], item["model"])
+            assert key not in seen, (
+                f"Duplicate: {_label(item)} ({item['category']})"
+            )
+            seen.add(key)

@@ -15,7 +15,7 @@
         {
           "store": "amazon",
           "asin": "B09VCJN7HZ",
-          "price_eur": 68.22
+          "price_eur": 68.2
         }
       ]
     },
@@ -34,26 +34,64 @@
         {
           "store": "amazon",
           "asin": "B09VCJ171S",
-          "price_eur": 68.22
+          "price_eur": 68.2
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-12400F",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "2.5"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09NPJRDGD",
+          "price_eur": 131.0
         }
       ]
     },
     {
       "category": "cpu",
       "brand": "AMD",
-      "model": "Ryzen 7 9800X3D",
+      "model": "Ryzen 5 7500F",
       "specs": {
         "socket": "AM5",
-        "cores": "8",
-        "threads": "16",
-        "tdp": "120",
-        "boost_ghz": "5.2"
+        "cores": "6",
+        "threads": "12",
+        "boost_ghz": "5.0",
+        "tdp": "65"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0DKFMSMYK",
-          "price_eur": 118.57
+          "asin": "B0D1CK42PV",
+          "price_eur": 131.9
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 8500G",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "5"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CQ4JV8D5",
+          "price_eur": 133.34
         }
       ]
     },
@@ -79,13 +117,51 @@
     {
       "category": "cpu",
       "brand": "AMD",
+      "model": "Ryzen 5 5600X",
+      "specs": {
+        "socket": "AM4",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "4.6",
+        "cores": "6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B08166SLDF",
+          "price_eur": 140.6
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-12600KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "6",
+        "threads": "16",
+        "tdp": "125",
+        "boost_ghz": "3.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09GYKK56H",
+          "price_eur": 146.39
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
       "model": "Ryzen 7 5700X",
       "specs": {
         "socket": "AM4",
         "cores": "8",
         "threads": "16",
         "tdp": "65",
-        "boost_ghz": "4.6"
+        "boost_ghz": "3.4"
       },
       "links": [
         {
@@ -97,20 +173,20 @@
     },
     {
       "category": "cpu",
-      "brand": "AMD",
-      "model": "Ryzen 5 7600X",
+      "brand": "Intel",
+      "model": "Core i5-14400F",
       "specs": {
-        "socket": "AM5",
-        "cores": "6",
-        "threads": "12",
-        "tdp": "105",
-        "boost_ghz": "5.3"
+        "socket": "LGA1700",
+        "cores": "10",
+        "threads": "20",
+        "tdp": "148",
+        "boost_ghz": "4.7"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0BBJDS62N",
-          "price_eur": 163.1
+          "asin": "B0CQ1Y7KHV",
+          "price_eur": 158.59
         }
       ]
     },
@@ -121,7 +197,7 @@
       "specs": {
         "socket": "AM5",
         "cores": "6",
-        "threads": "12",
+        "threads": "6",
         "tdp": "65",
         "boost_ghz": "5.4"
       },
@@ -129,6 +205,25 @@
         {
           "store": "amazon",
           "asin": "B0D6NN6TM7",
+          "price_eur": 163.1
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 7600X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "6",
+        "tdp": "105",
+        "boost_ghz": "5.3"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BBJDS62N",
           "price_eur": 163.1
         }
       ]
@@ -155,6 +250,63 @@
     {
       "category": "cpu",
       "brand": "AMD",
+      "model": "Ryzen 5 8600G",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "5.0"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CQ4GYTTX",
+          "price_eur": 164.9
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 7600X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "4.1"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F9XH8DBP",
+          "price_eur": 167.08
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 9600",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "3.8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FHDXP318",
+          "price_eur": 167.08
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
       "model": "Ryzen 7 5800X",
       "specs": {
         "socket": "AM4",
@@ -167,6 +319,44 @@
         {
           "store": "amazon",
           "asin": "B0815XFSGK",
+          "price_eur": 173.73
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 5700G",
+      "specs": {
+        "socket": "AM4",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "65",
+        "boost_ghz": "4.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B091J3NYVF",
+          "price_eur": 173.73
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 5800",
+      "specs": {
+        "socket": "AM4",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "105",
+        "boost_ghz": "4.8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D6NNDQ92",
           "price_eur": 173.73
         }
       ]
@@ -192,6 +382,120 @@
     },
     {
       "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 7500X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "192",
+        "tdp": "65",
+        "boost_ghz": "4.5"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FT8X951Z",
+          "price_eur": 206.59
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 8700F",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "65",
+        "boost_ghz": "5.0"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D2JCMP34",
+          "price_eur": 213.6
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 7700X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "105",
+        "boost_ghz": "5.4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BBHHT8LY",
+          "price_eur": 220.49
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-12700KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "6",
+        "threads": "20",
+        "tdp": "125",
+        "boost_ghz": "3.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09GYJJ1PT",
+          "price_eur": 231.01
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i9-12900KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "16",
+        "threads": "16",
+        "tdp": "125",
+        "boost_ghz": "5.2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09GYHRNBL",
+          "price_eur": 231.01
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-14400",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "10",
+        "threads": "20",
+        "tdp": "65",
+        "boost_ghz": "4.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CQ1M1YXM",
+          "price_eur": 234.74
+        }
+      ]
+    },
+    {
+      "category": "cpu",
       "brand": "Intel",
       "model": "Core Ultra 7 265KF",
       "specs": {
@@ -206,6 +510,25 @@
           "store": "amazon",
           "asin": "B0DFK2WHF8",
           "price_eur": 239.0
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-14700K",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "20",
+        "threads": "28",
+        "tdp": "125",
+        "boost_ghz": "5.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CHBFWJDN",
+          "price_eur": 255.16
         }
       ]
     },
@@ -230,13 +553,89 @@
     },
     {
       "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-14600KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "10",
+        "threads": "32",
+        "tdp": "125",
+        "boost_ghz": "5.3"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CHBH63YX",
+          "price_eur": 259.0
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-12700F",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "12",
+        "threads": "20",
+        "tdp": "65",
+        "boost_ghz": "4.9"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09MDHZ2YQ",
+          "price_eur": 269.05
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 8700G",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "65",
+        "boost_ghz": "5.1"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FK5SQZ44",
+          "price_eur": 281.93
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-13500",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "14",
+        "threads": "56",
+        "tdp": "65",
+        "boost_ghz": "4.8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BN5YLBRG",
+          "price_eur": 285.39
+        }
+      ]
+    },
+    {
+      "category": "cpu",
       "brand": "AMD",
       "model": "Ryzen 7 9700X",
       "specs": {
         "socket": "AM5",
         "cores": "8",
         "threads": "16",
-        "tdp": "65",
+        "tdp": "105",
         "boost_ghz": "5.5"
       },
       "links": [
@@ -244,6 +643,82 @@
           "store": "amazon",
           "asin": "B0D6NMDNNX",
           "price_eur": 290.4
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-14700F",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "20",
+        "threads": "28",
+        "tdp": "65",
+        "boost_ghz": "5.4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CQ65ST43",
+          "price_eur": 292.97
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 7900X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "12",
+        "threads": "24",
+        "tdp": "170",
+        "boost_ghz": "5.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BBJ59WJ4",
+          "price_eur": 305.89
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 9800X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "140",
+        "boost_ghz": "5.2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DKFMSMYK",
+          "price_eur": 314.42
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-13600KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "14",
+        "threads": "28",
+        "tdp": "125",
+        "boost_ghz": "5.1"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BG64N549",
+          "price_eur": 331.0
         }
       ]
     },
@@ -268,6 +743,25 @@
     },
     {
       "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-14700KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "20",
+        "threads": "28",
+        "tdp": "125",
+        "boost_ghz": "5.4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CGJC178L",
+          "price_eur": 351.0
+        }
+      ]
+    },
+    {
+      "category": "cpu",
       "brand": "AMD",
       "model": "Ryzen 9 9900X",
       "specs": {
@@ -287,14 +781,52 @@
     },
     {
       "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i9-14900KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "24",
+        "threads": "48",
+        "tdp": "125",
+        "boost_ghz": "6.0"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CHBJXG7G",
+          "price_eur": 424.39
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i9-14900K",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "24",
+        "threads": "48",
+        "tdp": "125",
+        "boost_ghz": "6.0"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CHBJGFBC",
+          "price_eur": 449.9
+        }
+      ]
+    },
+    {
+      "category": "cpu",
       "brand": "AMD",
       "model": "Ryzen 7 9850X3D",
       "specs": {
         "socket": "AM5",
         "cores": "8",
         "threads": "16",
-        "tdp": "120",
-        "boost_ghz": "5.2"
+        "tdp": "140",
+        "boost_ghz": "4.7"
       },
       "links": [
         {
@@ -307,32 +839,13 @@
     {
       "category": "cpu",
       "brand": "AMD",
-      "model": "Ryzen 9 9950X3D",
-      "specs": {
-        "socket": "AM5",
-        "cores": "16",
-        "threads": "32",
-        "tdp": "170",
-        "boost_ghz": "5.7"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0DVZSG8D5",
-          "price_eur": 454.0
-        }
-      ]
-    },
-    {
-      "category": "cpu",
-      "brand": "AMD",
       "model": "Ryzen 9 5900X",
       "specs": {
         "socket": "AM4",
-        "cores": "12",
         "threads": "24",
         "tdp": "105",
-        "boost_ghz": "4.8"
+        "boost_ghz": "4.8",
+        "cores": "12"
       },
       "links": [
         {
@@ -377,6 +890,63 @@
           "store": "amazon",
           "asin": "B0D6NNRBGP",
           "price_eur": 512.7
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 9900X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "12",
+        "threads": "24",
+        "tdp": "120",
+        "boost_ghz": "5.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DWGWN8GY",
+          "price_eur": 556.99
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 9950X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "16",
+        "threads": "32",
+        "tdp": "170",
+        "boost_ghz": "5.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DVZSG8D5",
+          "price_eur": 651.72
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 7950X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "16",
+        "threads": "32",
+        "tdp": "120",
+        "boost_ghz": "5.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BTRH9MNS",
+          "price_eur": 827.31
         }
       ]
     },
@@ -1174,33 +1744,31 @@
     },
     {
       "category": "motherboard",
-      "brand": "Gigabyte",
-      "model": "A620M H",
+      "brand": "ASUS",
+      "model": "Prime A520M-K Mainboard Sockel AM4",
       "specs": {
-        "socket": "AM5",
-        "chipset": "A620",
-        "ddr_type": "DDR5",
+        "socket": "AM4",
+        "chipset": "AMD A520",
         "form_factor": "micro_atx",
-        "max_ram_gb": "192"
+        "ddr_type": "DDR4"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0C9R3VLW4",
-          "price_eur": 68.52
+          "asin": "B08DQB2GDN",
+          "price_eur": 52.9
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "Prime B550M-A WiFi II",
+      "model": "Prime B550M-A WiFi II Gaming Mainboard Sockel Ryzen AM4",
       "specs": {
         "socket": "AM4",
-        "chipset": "B550",
+        "chipset": "AMD B550",
         "ddr_type": "DDR4",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "128"
+        "form_factor": "micro_atx"
       },
       "links": [
         {
@@ -1213,32 +1781,48 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "PRO A620M-DASH-CSM",
+      "model": "ROG Strix B550-F Gaming WI-FI II Mainboard Sockel AMD AM4",
       "specs": {
-        "socket": "AM5",
-        "chipset": "A620",
-        "ddr_type": "DDR5",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "192"
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B07ML1TP1F",
-          "price_eur": 94.35
+          "asin": "B09LVQCMK4",
+          "price_eur": 83.93
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "B550 Gaming X V2 Mainboard – AMD Ryzen 5000 CPUs, 10+3",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B08K16S4K1",
+          "price_eur": 97.3
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "Prime B650M-R",
+      "model": "Prime B650M-R Gaming Mainboard Sockel AMD AM5",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "192"
+        "form_factor": "micro_atx"
       },
       "links": [
         {
@@ -1251,13 +1835,12 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "Prime B550-Plus",
+      "model": "Prime B550-Plus Gaming Mainboard Sockel AM4",
       "specs": {
         "socket": "AM4",
-        "chipset": "B550",
+        "chipset": "AMD B550",
         "ddr_type": "DDR4",
-        "form_factor": "ATX",
-        "max_ram_gb": "128"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1270,13 +1853,12 @@
     {
       "category": "motherboard",
       "brand": "Gigabyte",
-      "model": "B550M Gaming X WiFi6",
+      "model": "B550M Gaming X WIFI6 Mainboard – AMD Ryzen 5000",
       "specs": {
         "socket": "AM4",
-        "chipset": "B550",
+        "chipset": "AMD B550",
         "ddr_type": "DDR4",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "128"
+        "form_factor": "micro_atx"
       },
       "links": [
         {
@@ -1289,13 +1871,30 @@
     {
       "category": "motherboard",
       "brand": "MSI",
+      "model": "X570-A PRO",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07TDST84Q",
+          "price_eur": 100.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
       "model": "B550-A PRO",
       "specs": {
         "socket": "AM4",
-        "chipset": "B550",
+        "chipset": "AMD B550",
         "ddr_type": "DDR4",
-        "form_factor": "ATX",
-        "max_ram_gb": "128"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1308,13 +1907,12 @@
     {
       "category": "motherboard",
       "brand": "Gigabyte",
-      "model": "B550 Eagle WiFi6",
+      "model": "B550 Eagle WIFI6 Mainboard – AMD Ryzen 5000 G-Serie CPUs,",
       "specs": {
         "socket": "AM4",
-        "chipset": "B550",
+        "chipset": "AMD B550",
         "ddr_type": "DDR4",
-        "form_factor": "ATX",
-        "max_ram_gb": "128"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1327,51 +1925,48 @@
     {
       "category": "motherboard",
       "brand": "MSI",
-      "model": "PRO A620M-E",
+      "model": "MPG X570 Gaming Plus",
       "specs": {
-        "socket": "AM5",
-        "chipset": "A620",
-        "ddr_type": "DDR5",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "192"
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "form_factor": "ATX",
+        "ddr_type": "DDR4"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0BZW9RG3P",
-          "price_eur": 103.46
+          "asin": "B07T5QDRFX",
+          "price_eur": 109.9
         }
       ]
     },
     {
       "category": "motherboard",
-      "brand": "ASUS",
-      "model": "Prime B650M-K",
+      "brand": "Gigabyte",
+      "model": "X570 AORUS ELITE ATX Mainboards - Grafikprozessoren",
       "specs": {
-        "socket": "AM5",
-        "chipset": "B650",
-        "ddr_type": "DDR5",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "192"
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0C6HWFZ56",
-          "price_eur": 107.82
+          "asin": "B07TSKR7ZX",
+          "price_eur": 109.9
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "MSI",
-      "model": "MPG B550 Gaming Plus",
+      "model": "MPG B550 Gaming Plus (ATX",
       "specs": {
         "socket": "AM4",
-        "chipset": "B550",
+        "chipset": "AMD B550",
         "ddr_type": "DDR4",
-        "form_factor": "ATX",
-        "max_ram_gb": "128"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1383,19 +1978,36 @@
     },
     {
       "category": "motherboard",
-      "brand": "Gigabyte",
-      "model": "B760M Gaming Plus WiFi DDR4",
+      "brand": "ASUS",
+      "model": "Prime B760-PLUS Intel B760 LGA1700 ATX Motherboard PCIe",
       "specs": {
         "socket": "LGA1700",
-        "chipset": "B760",
-        "ddr_type": "DDR4",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "128"
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0DN6PD242",
+          "asin": "B0C3ZP533K",
+          "price_eur": 110.99
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "B760 Gaming Plus WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BZD3BMZL",
           "price_eur": 116.9
         }
       ]
@@ -1403,13 +2015,30 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "Prime B650M-A II-CSM",
+      "model": "TUF Gaming B550M-Plus Gaming Mainboard Sockel AM4",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B089HDJS79",
+          "price_eur": 119.75
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B650M-A II-CSM Mainboard Sockel AMD AM5",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "192"
+        "form_factor": "micro_atx"
       },
       "links": [
         {
@@ -1422,32 +2051,12 @@
     {
       "category": "motherboard",
       "brand": "Gigabyte",
-      "model": "B650 Eagle AX",
+      "model": "B650 Eagle Mainboard - AMD Ryzen 9000er-Serie, 12+2+2",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0CSKH1NJF",
-          "price_eur": 122.99
-        }
-      ]
-    },
-    {
-      "category": "motherboard",
-      "brand": "Gigabyte",
-      "model": "B650 Eagle",
-      "specs": {
-        "socket": "AM5",
-        "chipset": "B650",
-        "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1460,37 +2069,35 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "ROG Strix B550-A Gaming",
+      "model": "Prime B650M-A WiFi II Gaming Mainboard Sockel AMD AM5",
       "specs": {
-        "socket": "AM4",
-        "chipset": "B550",
-        "ddr_type": "DDR4",
-        "form_factor": "ATX",
-        "max_ram_gb": "128"
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B08KBSRYGF",
-          "price_eur": 128.0
+          "asin": "B0BSVDKRKN",
+          "price_eur": 125.99
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "ROG Strix B550-F Gaming",
+      "model": "TUF Gaming X570-Plus Mainboard Sockel AM4",
       "specs": {
         "socket": "AM4",
-        "chipset": "B550",
+        "chipset": "AMD X570",
         "ddr_type": "DDR4",
-        "form_factor": "ATX",
-        "max_ram_gb": "128"
+        "form_factor": "ATX"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B089HFR9CX",
+          "asin": "B07TNSYXXV",
           "price_eur": 129.79
         }
       ]
@@ -1498,13 +2105,12 @@
     {
       "category": "motherboard",
       "brand": "Gigabyte",
-      "model": "B650 Eagle AX V2",
+      "model": "B650 Eagle AX AM5 LGA 1718 AMD B650 ATX, DDR5 Triple M.2,",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1517,13 +2123,12 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "TUF Gaming B760M-PLUS II",
+      "model": "TUF Gaming B760M-PLUS II Mainboard Sockel Intel LGA 1700",
       "specs": {
         "socket": "LGA1700",
-        "chipset": "B760",
+        "chipset": "Intel B760",
         "ddr_type": "DDR5",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "192"
+        "form_factor": "micro_atx"
       },
       "links": [
         {
@@ -1536,13 +2141,102 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "Pro B650M-CT-CSM",
+      "model": "Prime B860M-K Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMPSGF6",
+          "price_eur": 137.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG B760 Tomahawk WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BMM7NZDX",
+          "price_eur": 137.91
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B760-PLUS WiFi Mainboard Sockel Intel LGA 1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BVKYWPFT",
+          "price_eur": 139.6
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B760-A Gaming WiFi Mainboard Sockel Intel LGA 1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BRY2WXBK",
+          "price_eur": 139.6
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "B650 Gaming X AX V2 Mainboard - AMD Ryzen 9000er-Serie,",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CSKH56WN",
+          "price_eur": 141.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Pro B650M-CT-CSM Business Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
       },
       "links": [
         {
@@ -1555,13 +2249,12 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "Prime B650-PLUS",
+      "model": "Prime B650-PLUS Gaming Mainboard Sockel AMD AM5",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1573,14 +2266,31 @@
     },
     {
       "category": "motherboard",
-      "brand": "ASUS",
-      "model": "Prime B650-PLUS WiFi",
+      "brand": "MSI",
+      "model": "PRO B650-P WiFi Mainboard, ATX",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BHBT5BD3",
+          "price_eur": 144.16
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B650-PLUS WiFi Gaming Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1592,33 +2302,13 @@
     },
     {
       "category": "motherboard",
-      "brand": "MSI",
-      "model": "PRO B850M-P WiFi",
-      "specs": {
-        "socket": "AM5",
-        "chipset": "B850",
-        "ddr_type": "DDR5",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "192"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0FCSS75SH",
-          "price_eur": 147.45
-        }
-      ]
-    },
-    {
-      "category": "motherboard",
       "brand": "ASUS",
-      "model": "TUF Gaming B650-E WiFi",
+      "model": "TUF Gaming B650-E WiFi Mainboard Sockel AMD AM5",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1630,52 +2320,49 @@
     },
     {
       "category": "motherboard",
-      "brand": "ASUS",
-      "model": "Prime B650-PLUS CSM",
-      "specs": {
-        "socket": "AM5",
-        "chipset": "B650",
-        "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0BHHVX5LR",
-          "price_eur": 149.42
-        }
-      ]
-    },
-    {
-      "category": "motherboard",
       "brand": "ASRock",
-      "model": "B850 Pro-A WiFi",
+      "model": "B650 Steel Legend WiFi",
       "specs": {
         "socket": "AM5",
-        "chipset": "B850",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0DS6LNYGN",
-          "price_eur": 153.45
+          "asin": "B0CXPXBF2M",
+          "price_eur": 149.98
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "TUF Gaming B650-PLUS WiFi",
+      "model": "Prime B860-PLUS WiFi Gaming Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMQHPZM",
+          "price_eur": 153.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B650-PLUS WiFi Mainboard Sockel AMD AM5",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1687,90 +2374,85 @@
     },
     {
       "category": "motherboard",
-      "brand": "Gigabyte",
-      "model": "B650M K",
+      "brand": "ASUS",
+      "model": "TUF Gaming B650-PLUS WiFi Socket AM5 Ryzen 7000 ATX Gaming",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "micro_atx",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0C1ZW4RM7",
-          "price_eur": 158.06
+          "asin": "B0BHN7GGBQ",
+          "price_eur": 154.98
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "B650E MAX Gaming WiFi",
+      "model": "ROG Strix B760-I Gaming WiFi Mainboard Sockel Intel LGA 1700",
       "specs": {
-        "socket": "AM5",
-        "chipset": "B650E",
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "mini_itx"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0DVZSNF8G",
-          "price_eur": 158.5
+          "asin": "B0BNQFXLJR",
+          "price_eur": 155.99
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "TUF Gaming B650E-E WiFi",
+      "model": "PRO B860M-C-CSM Business Mainboard Sockel Intel LGA 1851",
       "specs": {
-        "socket": "AM5",
-        "chipset": "B650E",
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "micro_atx"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0F1Z1WLBM",
-          "price_eur": 159.28
+          "asin": "B0BY7S9MG9",
+          "price_eur": 159.8
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "B650E MAX Gaming WiFi W",
+      "model": "ROG Strix X570-F Gaming Mainboard Sockel AM4",
       "specs": {
-        "socket": "AM5",
-        "chipset": "B650E",
-        "ddr_type": "DDR5",
+        "socket": "AM4",
+        "chipset": "AMD X570",
         "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "ddr_type": "DDR4"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0F1Z2S1NY",
-          "price_eur": 159.52
+          "asin": "B07TLM9YHL",
+          "price_eur": 161.51
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "MSI",
-      "model": "MAG B550 Tomahawk MAX WiFi",
+      "model": "MAG B550 Tomahawk MAX WiFi Mainboard ATX, AM4 - AMD Ryzen",
       "specs": {
         "socket": "AM4",
-        "chipset": "B550",
+        "chipset": "AMD B550",
         "ddr_type": "DDR4",
-        "form_factor": "ATX",
-        "max_ram_gb": "128"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1782,33 +2464,85 @@
     },
     {
       "category": "motherboard",
-      "brand": "Gigabyte",
-      "model": "B850 Eagle WiFi6E",
+      "brand": "ASUS",
+      "model": "ROG Strix Z790-F Gaming WiFi Mainboard Sockel Intel LGA1700",
       "specs": {
-        "socket": "AM5",
-        "chipset": "B850",
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0DQLJWRDX",
-          "price_eur": 167.73
+          "asin": "B0BH94RXPC",
+          "price_eur": 164.59
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "Z790 Eagle AX Motherboard",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CTMYKLL2",
+          "price_eur": 164.59
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG B650 Tomahawk WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BDS873GF",
+          "price_eur": 164.82
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MB5909 Motherboard B650 Gaming Plus WiFi",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CJ2F5PVF",
+          "price_eur": 169.49
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "ROG Strix B650-A Gaming WiFi",
+      "model": "ROG Strix B650-A Gaming WiFi Mainboard Sockel AMD AM5",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1821,32 +2555,30 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "Prime Z790-P",
+      "model": "TUF Gaming B860M-PLUS Mainboard Sockel Intel LGA 1851",
       "specs": {
-        "socket": "LGA1700",
-        "chipset": "Z790",
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "micro_atx"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0BH95V2XZ",
-          "price_eur": 171.59
+          "asin": "B0DPMQNGMG",
+          "price_eur": 171.1
         }
       ]
     },
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "Prime Z790-P WiFi",
+      "model": "Prime Z790-P WiFi Gaming Mainboard Sockel Intel LGA1700",
       "specs": {
         "socket": "LGA1700",
-        "chipset": "Z790",
+        "chipset": "Intel Z790",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1858,14 +2590,49 @@
     },
     {
       "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B860-PLUS-CSM Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMQ2QK3",
+          "price_eur": 173.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "X870 Gaming WIFI6 AM5 LGA 1718, ATX, DDR5, 3X M.2, PCIe",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD X870",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DHWLN5XT",
+          "price_eur": 182.6
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
       "brand": "MSI",
-      "model": "MAG Z790 Tomahawk WiFi",
+      "model": "MAG Z790 Tomahawk WiFi Mainboard, ATX",
       "specs": {
         "socket": "LGA1700",
-        "chipset": "Z790",
+        "chipset": "Intel Z790",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1877,14 +2644,49 @@
     },
     {
       "category": "motherboard",
+      "brand": "MSI",
+      "model": "Z790 Gaming Plus WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CFY88TFH",
+          "price_eur": 184.99
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
       "brand": "ASUS",
-      "model": "ROG Strix B650E-F Gaming WiFi",
+      "model": "Prime Z890-P Gaming Mainboard Sockel Intel LGA1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DJDFX4M1",
+          "price_eur": 189.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B650E-F Gaming WiFi Mainboard Sockel AMD AM5",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650E",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1897,13 +2699,30 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "TUF Gaming B650E-PLUS WiFi",
+      "model": "ROG Strix X570-E Gaming ATX Motherboard, AMD Socket AM4,",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "form_factor": "ATX",
+        "ddr_type": "DDR4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07TQVK1HJ",
+          "price_eur": 191.45
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B650E-PLUS WiFi Mainboard Sockel AMD AM5",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650E",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1916,13 +2735,12 @@
     {
       "category": "motherboard",
       "brand": "ASUS",
-      "model": "TUF Gaming Z790-Plus WiFi DDR4",
+      "model": "TUF Gaming Z790-Plus WiFi Mainboard Sockel Intel LGA1700",
       "specs": {
         "socket": "LGA1700",
-        "chipset": "Z790",
-        "ddr_type": "DDR4",
-        "form_factor": "ATX",
-        "max_ram_gb": "128"
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
       },
       "links": [
         {
@@ -1935,19 +2753,378 @@
     {
       "category": "motherboard",
       "brand": "MSI",
-      "model": "MAG B650 Tomahawk WiFi",
+      "model": "MAG B650 Tomahawk WiFi Gaming Motherboard",
       "specs": {
         "socket": "AM5",
-        "chipset": "B650",
+        "chipset": "AMD B650",
         "ddr_type": "DDR5",
-        "form_factor": "ATX",
-        "max_ram_gb": "192"
+        "form_factor": "ATX"
       },
       "links": [
         {
           "store": "amazon",
           "asin": "B0BHCCNSRH",
-          "price_eur": 208.8
+          "price_eur": 208.57
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B760-F Gaming WiFi Mainboard Sockel Intel LGA 1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BNQ99F3F",
+          "price_eur": 213.34
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG B860 Tomahawk WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BV2CQMHJ",
+          "price_eur": 215.41
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "PRO Q870M-C-CSM Business Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Q870",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F3JPLZ53",
+          "price_eur": 216.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B860-A Gaming WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMRTWC5",
+          "price_eur": 222.94
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG B850 Tomahawk MAX WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B850",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPKVF29H",
+          "price_eur": 227.3
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B860-I Gaming WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "mini_itx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMRBJVC",
+          "price_eur": 229.25
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B850-BTF WiFi W Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B850",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F3JMPF86",
+          "price_eur": 237.57
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "Z890 Gaming Plus WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BSLK78WJ",
+          "price_eur": 239.95
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming Z890-PRO WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DJDG5GGN",
+          "price_eur": 249.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B860-F Gaming WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMR5NRR",
+          "price_eur": 254.98
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG X870 Tomahawk WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD X870",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DCVVXK8D",
+          "price_eur": 279.54
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix Z890-A Gaming WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DJDF92JW",
+          "price_eur": 309.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix X870E-H Gaming WIFI7 Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD X670E",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09CD4WSR6",
+          "price_eur": 325.99
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix Z890-H Gaming WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DT7QYG6W",
+          "price_eur": 344.88
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime Z790-A WiFi Gaming Mainboard Sockel Intel LGA1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BH954689",
+          "price_eur": 349.98
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "NZXT",
+      "model": "N9 Z890 - Intel Z890 LGA 1851 ATX Gaming-Mainboard für Core",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DN6W4MDT",
+          "price_eur": 417.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MPG X570 Gaming Edge WiFi",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "form_factor": "ATX",
+        "ddr_type": "DDR4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07T8HJVY8",
+          "price_eur": 459.27
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MEG X570 Unify",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07YWF1G9S",
+          "price_eur": 459.27
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "Gaming Edge AM4 AMD X570 ATX DDR4 Motherboard",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07T2FWCYG",
+          "price_eur": 459.27
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG X570S Torpedo MAX Gaming Mainboard ATX",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09BYXWFXH",
+          "price_eur": 481.64
         }
       ]
     },
@@ -2980,21 +4157,6 @@
     },
     {
       "category": "case",
-      "brand": "NZXT",
-      "model": "H3 Flow Micro-ATX",
-      "specs": {
-        "form_factor": "micro_atx"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0DQPNLC65",
-          "price_eur": 54.9
-        }
-      ]
-    },
-    {
-      "category": "case",
       "brand": "MSI",
       "model": "MAG Forge 320R Airflow Mid-Tower",
       "specs": {
@@ -3290,21 +4452,6 @@
           "store": "amazon",
           "asin": "B09VG6NBSJ",
           "price_eur": 30.78
-        }
-      ]
-    },
-    {
-      "category": "cooling",
-      "brand": "Arctic",
-      "model": "Freezer 36 Single-Tower",
-      "specs": {
-        "type": "air"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B09VH14935",
-          "price_eur": 32.32
         }
       ]
     },

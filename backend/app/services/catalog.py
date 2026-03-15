@@ -62,7 +62,7 @@ _PERIPHERAL_CATEGORIES = [
 
 # Socket values used in the seed data
 _AMD_SOCKETS = ["AM5", "AM4"]
-_INTEL_SOCKETS = ["LGA1851"]
+_INTEL_SOCKETS = ["LGA1851", "LGA1700"]
 
 
 class CatalogService:
