@@ -228,8 +228,9 @@ class OutputGuardrail:
         """Run output checks on a search response.
 
         Applies leak detection, off-topic detection, and PII stripping to the
-        free-text fields.  Store link URLs are validated by the StoreLink
-        Pydantic model, so URL allowlist enforcement is already handled there.
+        free-text fields.  Affiliate URLs are validated by the Pydantic model's
+        ``check_affiliate_url`` validator, so URL allowlist enforcement is already
+        handled there.
         """
         combined = f"{result.name} {result.brand} {result.reason}"
 

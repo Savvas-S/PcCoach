@@ -57,7 +57,6 @@ def _make_search_result(
         estimated_price_eur=250.0,
         reason=reason,
         specs={"cores": "6"},
-        store_links=[],
     )
 
 

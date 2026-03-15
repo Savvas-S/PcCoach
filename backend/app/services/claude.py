@@ -13,7 +13,6 @@ from app.models.builder import (
     ComponentSearchRequest,
     ComponentSearchResult,
     DowngradeSuggestion,
-    StoreLink,
     UpgradeSuggestion,
 )
 from app.prompts.manager import build_system_prompt, search_system_prompt
@@ -39,20 +38,23 @@ SEARCH_TOOL = {
     "name": "recommend_component",
     "description": (
         "Return the best single component matching the user's "
-        "description with a search link to Amazon.de"
+        "description from the provided catalog candidates"
     ),
     "input_schema": {
         "type": "object",
         "properties": {
             "name": {
                 "type": "string",
-                "description": "Specific product name, e.g. 'AMD Ryzen 5 7600X'",
+                "description": (
+                    "Exact product name from the candidates list, "
+                    "e.g. 'AMD Ryzen 5 7600X'"
+                ),
             },
             "brand": {"type": "string"},
-            "estimated_price_eur": {
+            "price_eur": {
                 "type": "number",
                 "minimum": 0.01,
-                "description": "Best estimate of current EUR price",
+                "description": "Price from the candidates list (EUR)",
             },
             "reason": {
                 "type": "string",
@@ -65,29 +67,24 @@ SEARCH_TOOL = {
                 "type": "object",
                 "additionalProperties": {"type": "string"},
             },
-            "store_links": {
-                "type": "array",
-                "description": "Search link for this exact product at Amazon.de",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "store": {
-                            "type": "string",
-                            "enum": ["amazon"],
-                        },
-                        "url": {"type": "string", "format": "uri"},
-                    },
-                    "required": ["store", "url"],
-                },
+            "affiliate_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Affiliate URL from the candidates list",
+            },
+            "affiliate_source": {
+                "type": "string",
+                "enum": ["amazon"],
             },
         },
         "required": [
             "name",
             "brand",
-            "estimated_price_eur",
+            "price_eur",
             "reason",
             "specs",
-            "store_links",
+            "affiliate_url",
+            "affiliate_source",
         ],
     },
 }
@@ -413,15 +410,21 @@ class ClaudeService:
         return checked
 
     async def search_component(
-        self, request: ComponentSearchRequest
+        self,
+        request: ComponentSearchRequest,
+        candidates: list[CandidateComponent],
     ) -> ComponentSearchResult:
         safe_description = sanitize_user_input(request.description)
 
+        candidate_text = _format_candidates(
+            {request.category.value: candidates}
+        )
         user_message = (
             f"Category: {request.category.value}\n"
             f"You must recommend a {request.category.value}. "
             f"Do not recommend any other component type.\n\n"
             f"User description:\n<user_request>{safe_description}</user_request>"
+            f"\n\n{candidate_text}"
         )
 
         system_prompt = f"{_ROLE_LOCK}\n\n{search_system_prompt()}"
@@ -450,10 +453,11 @@ class ClaudeService:
             name=data["name"],
             brand=data["brand"],
             category=request.category,
-            estimated_price_eur=data["estimated_price_eur"],
+            estimated_price_eur=data["price_eur"],
             reason=data["reason"],
             specs=data.get("specs", {}),
-            store_links=[StoreLink(**s) for s in data.get("store_links", [])],
+            affiliate_url=data.get("affiliate_url"),
+            affiliate_source=data.get("affiliate_source"),
         )
 
 

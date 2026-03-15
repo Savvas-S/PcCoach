@@ -23,9 +23,10 @@ help:
 	@echo ""
 	@echo "  make init             Copy .env.example to .env (skips if .env already exists)"
 	@echo "  make sync-config      Copy shared/budget_goals.json to all service directories"
-	@echo "  make deploy           Pull latest, run migrations, restart production containers"
+	@echo "  make deploy           Pull latest, migrate, seed, restart production containers"
 	@echo "  make migrate          Run pending Alembic migrations (dev)"
 	@echo "  make seed             Seed component catalog (dev)"
+	@echo "  make seed-prod        Seed component catalog (production)"
 	@echo "  make test             Run backend tests"
 	@echo "  make lint             Run backend linters"
 	@echo "  make lock             Generate/update uv.lock and package-lock.json"
@@ -89,6 +90,9 @@ migrate:
 seed:
 	docker compose -f docker-compose.dev.yml exec backend uv run python -m app.db.seed
 
+seed-prod:
+	docker compose exec backend uv run python -m app.db.seed
+
 # --- Quality ---
 
 test:
@@ -124,6 +128,7 @@ deploy:
 	docker compose build
 	docker compose run --rm backend uv run alembic upgrade head
 	docker compose up -d
+	docker compose exec backend uv run python -m app.db.seed
 
 # --- Dependencies ---
 

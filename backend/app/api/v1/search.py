@@ -1,15 +1,18 @@
 import logging
 
 import anthropic
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import ValidationError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.database import get_db
 from app.limiter import limiter
 from app.models.builder import ComponentSearchRequest, ComponentSearchResult
 from app.security import events as guardrail_events
 from app.security.guardrails import hash_search_request, input_guardrail
 from app.security.output_guard import GuardrailBlocked, output_guardrail
+from app.services.catalog import get_catalog_service
 from app.services.claude import get_claude_service
 
 log = logging.getLogger(__name__)
@@ -19,7 +22,9 @@ router = APIRouter(prefix="/search", tags=["search"])
 @router.post("", response_model=ComponentSearchResult, status_code=200)
 @limiter.shared_limit(lambda: settings.rate_limit_ai, scope="ai_calls")
 async def search_component(
-    request: Request, payload: ComponentSearchRequest
+    request: Request,
+    payload: ComponentSearchRequest,
+    db: AsyncSession = Depends(get_db),
 ) -> ComponentSearchResult:
     # ------------------------------------------------------------------
     # Input guardrails — blocklist + duplicate detection
@@ -43,11 +48,24 @@ async def search_component(
         raise HTTPException(status_code=status, detail=guard_result.reason)
 
     # ------------------------------------------------------------------
-    # Claude call
+    # Catalog query + Claude call
     # ------------------------------------------------------------------
     try:
+        catalog = get_catalog_service()
+        candidates = await catalog.get_search_candidates(
+            db, payload.category.value
+        )
+        if not candidates:
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    f"No {payload.category.value} components available "
+                    f"in our catalog right now. Please try another category."
+                ),
+            )
+
         claude = get_claude_service()
-        result = await claude.search_component(payload)
+        result = await claude.search_component(payload, candidates=candidates)
     except anthropic.APITimeoutError as e:
         log.warning("Claude API timed out: category=%s error=%s", payload.category, e)
         raise HTTPException(

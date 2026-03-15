@@ -287,3 +287,47 @@ class TestCatalogServiceCandidates:
         result = await catalog.get_candidates(db, _request(cpu_brand=CPUBrand.amd))
 
         assert len(result["cpu"]) == 1
+
+
+class TestCatalogSearchCandidates:
+    async def test_returns_candidates_for_category(self, db):
+        await _seed_component(db, "cpu", "AMD", "Ryzen 5 7600", {"socket": "AM5"}, 199)
+        await _seed_component(db, "gpu", "NVIDIA", "RTX 4060", {"vram_gb": "8"}, 299)
+
+        catalog = CatalogService()
+        result = await catalog.get_search_candidates(db, "cpu")
+
+        assert len(result) == 1
+        assert result[0].model == "Ryzen 5 7600"
+
+    async def test_excludes_out_of_stock(self, db):
+        await _seed_component(
+            db, "gpu", "NVIDIA", "RTX 4060", {"vram_gb": "8"}, 299, in_stock=True
+        )
+        await _seed_component(
+            db, "gpu", "NVIDIA", "RTX 4070", {"vram_gb": "12"}, 549, in_stock=False
+        )
+
+        catalog = CatalogService()
+        result = await catalog.get_search_candidates(db, "gpu")
+
+        assert len(result) == 1
+        assert result[0].model == "RTX 4060"
+
+    async def test_empty_for_unknown_category(self, db):
+        await _seed_component(db, "cpu", "AMD", "Ryzen 5 7600", {"socket": "AM5"}, 199)
+
+        catalog = CatalogService()
+        result = await catalog.get_search_candidates(db, "nonexistent")
+
+        assert result == []
+
+    async def test_sorted_by_cheapest_price(self, db):
+        await _seed_component(db, "cpu", "AMD", "Ryzen 9 7950X", {"socket": "AM5"}, 549)
+        await _seed_component(db, "cpu", "AMD", "Ryzen 5 7600", {"socket": "AM5"}, 199)
+
+        catalog = CatalogService()
+        result = await catalog.get_search_candidates(db, "cpu")
+
+        assert len(result) == 2
+        assert result[0].cheapest_price < result[1].cheapest_price
