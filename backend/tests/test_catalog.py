@@ -177,7 +177,7 @@ class TestCatalogServiceCandidates:
             "cooling",
             "Arctic",
             "LF II 360",
-            {"type": "liquid", "radiator_size_mm": "360"},
+            {"type": "liquid", "radiator_mm": "360"},
             89,
         )
 
