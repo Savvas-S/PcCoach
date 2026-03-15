@@ -30,6 +30,4 @@ _RAW_PATTERNS: list[str] = [
     r"\bWhatsApp\s+\+?\d{7,}\b",
 ]
 
-BLOCKLIST: list[re.Pattern[str]] = [
-    re.compile(p, re.IGNORECASE) for p in _RAW_PATTERNS
-]
+BLOCKLIST: list[re.Pattern[str]] = [re.compile(p, re.IGNORECASE) for p in _RAW_PATTERNS]

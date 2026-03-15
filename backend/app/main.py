@@ -2,16 +2,19 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api.v1.router import router as v1_router
 from app.config import settings
+from app.database import get_db, init_db
 from app.limiter import limiter
 
 log = logging.getLogger(__name__)
@@ -83,7 +86,8 @@ async def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONR
     return JSONResponse({"detail": detail}, status_code=429, headers=headers)
 
 
-# Known env var name typos — extra="ignore" silently drops these; warn at startup instead.
+# Known env var name typos — extra="ignore" silently drops these;
+# warn at startup instead.
 _ENV_VAR_TYPOS: dict[str, str] = {
     "CORS_ORIGIN": "CORS_ORIGINS",
     "ANTHROPIC_KEY": "ANTHROPIC_API_KEY",
@@ -99,13 +103,20 @@ async def lifespan(app: FastAPI):
     for typo, correct in _ENV_VAR_TYPOS.items():
         if typo in os.environ:
             log.warning(
-                "Env var '%s' looks like a typo for '%s' — it is being ignored by config",
-                typo, correct,
+                "Env var '%s' looks like a typo for '%s' "
+                "— it is being ignored by config",
+                typo,
+                correct,
             )
 
     if settings.environment == "production":
-        if not settings.anthropic_api_key or not settings.anthropic_api_key.get_secret_value():
+        if (
+            not settings.anthropic_api_key
+            or not settings.anthropic_api_key.get_secret_value()
+        ):
             raise RuntimeError("ANTHROPIC_API_KEY must be set in production")
+        if not settings.database_url or not settings.database_url.get_secret_value():
+            raise RuntimeError("DATABASE_URL must be set in production")
         if any("localhost" in o for o in settings.cors_origins):
             raise RuntimeError(
                 "CORS_ORIGINS contains 'localhost' in production — "
@@ -117,12 +128,14 @@ async def lifespan(app: FastAPI):
                 "CORS_ORIGINS must not contain '*' in production. "
                 "Set explicit allowed origins."
             )
+    init_db()
     log.info(
-        "Starting PcCoach: environment=%s cors_origins=%s docs=%s api_key=%s",
+        "Starting PcCoach: environment=%s cors_origins=%s docs=%s api_key=%s db=%s",
         settings.environment,
         settings.cors_origins,
         "disabled" if settings.environment == "production" else "enabled",
         "set" if settings.anthropic_api_key else "unset",
+        "set" if settings.database_url else "unset",
     )
     yield
 
@@ -159,5 +172,6 @@ app.include_router(v1_router, prefix="/api/v1")
 
 
 @app.get("/health")
-async def health():
+async def health(db: AsyncSession = Depends(get_db)):
+    await db.execute(text("SELECT 1"))
     return {"status": "ok"}

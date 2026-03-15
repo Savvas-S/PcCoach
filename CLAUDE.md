@@ -4,7 +4,7 @@
 
 PcCoach is an AI-powered PC build recommendation tool for the Cyprus market (Limassol).
 Users describe their needs and budget; Claude recommends a full component list with affiliate links to buy each part.
-Revenue model: affiliate commissions (Amazon.de, ComputerUniverse, Caseking) — no inventory, no ordering, no services.
+Revenue model: affiliate commissions (Amazon.de for MVP, more stores planned) — no inventory, no ordering, no services.
 
 ## Stack
 
@@ -26,11 +26,21 @@ PcCoach/
 │   │   ├── api/v1/
 │   │   │   ├── router.py         # Registers all routers
 │   │   │   └── builder.py        # Build recommendation endpoints
+│   │   ├── db/
+│   │   │   ├── models.py         # SQLAlchemy ORM: Build, Component, AffiliateLink
+│   │   │   ├── all_products.json # Scraped product catalog (~200 products, 8 categories)
+│   │   │   └── seed.py           # Loads all_products.json + peripheral data → seeds DB
 │   │   ├── models/
-│   │   │   └── builder.py        # BuildRequest, ComponentRecommendation, BuildResult
-│   │   ├── services/claude.py    # Claude integration (wired up later)
+│   │   │   └── builder.py        # Pydantic models: BuildRequest, BuildResult, etc.
+│   │   ├── services/
+│   │   │   ├── catalog.py        # CatalogService — query candidates from DB
+│   │   │   └── claude.py         # Claude integration + candidate formatting
+│   │   ├── database.py           # Async engine, session factory, Base
 │   │   ├── config.py             # Settings (pydantic-settings)
 │   │   └── main.py               # FastAPI app + CORS
+│   ├── alembic/                  # DB migrations
+│   │   └── versions/             # One file per migration
+│   └── alembic.ini
 │   ├── pyproject.toml
 │   └── uv.lock
 ├── frontend/
@@ -45,11 +55,15 @@ PcCoach/
 
 ```
 User fills form → POST /api/v1/build (BuildRequest)
-               → Claude generates ComponentRecommendation list
+               → CatalogService queries DB for candidate components
+               → Candidates injected into Claude's user message
+               → Claude picks from real products with real prices/URLs
                → BuildResult returned with affiliate links per component
-               → User clicks affiliate link → buys on store
+               → User clicks affiliate link → buys on Amazon.de
                → You earn commission
 ```
+
+Note: `/api/v1/search` does NOT use the catalog yet — Claude uses training data for single-component searches.
 
 ## API Endpoints
 
@@ -64,6 +78,8 @@ User fills form → POST /api/v1/build (BuildRequest)
 ```bash
 make dev          # Start dev environment (hot reload)
 make dev-build    # Rebuild dev images
+make migrate      # Run pending Alembic migrations (dev)
+make seed         # Seed the component catalog (idempotent)
 make lock         # Regenerate uv.lock and package-lock.json
 make test         # Run pytest in backend container
 make lint         # Run ruff check + format check
@@ -83,14 +99,20 @@ make logs         # Tail all container logs
 
 Backend (`.env` in `backend/`):
 ```
-ANTHROPIC_API_KEY=...           # Optional until AI is wired up
+ANTHROPIC_API_KEY=...
 CORS_ORIGINS=["http://localhost:3000"]
 ENVIRONMENT=development
-DATABASE_URL=postgresql+asyncpg://pccoach:pccoach@db:5432/pccoach
-POSTGRES_USER=pccoach
-POSTGRES_PASSWORD=pccoach
-POSTGRES_DB=pccoach
+DATABASE_URL=postgresql+asyncpg://pccoach:<password>@db:5432/pccoach
 ```
+
+Production shell environment (set on the droplet, not in `.env`):
+```
+POSTGRES_PASSWORD=<strong-password>   # used by docker-compose.yml for the db service
+```
+
+The password in `DATABASE_URL` must match `POSTGRES_PASSWORD`. In dev,
+`docker-compose.dev.yml` hardcodes `POSTGRES_PASSWORD=pccoach`, so
+`DATABASE_URL` should use `pccoach` as the password locally.
 
 Frontend (`.env` in `frontend/`):
 ```
@@ -108,8 +130,9 @@ Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`)
 ## Notes for Claude Code
 
 - No services (cleaning/repair), no cart, no checkout — this is an affiliate tool
-- `anthropic_api_key` is optional until AI features are wired up
-- In-memory stores are placeholders — DB layer coming next
+- Amazon-only MVP — all affiliate links point to Amazon.de with tag `thepccoach-21`
+- Catalog data lives in `backend/app/db/all_products.json` (~200 scraped products) + peripherals hardcoded in `seed.py`
+- `CatalogService` pre-filters candidates by brand, socket, form factor, cooling
 - Do not add abstraction layers unless clearly needed
 - Always use `uv run` inside containers, never bare `python` or `pip`
 - Do not commit `.env` files
@@ -166,13 +189,12 @@ structured JSON at WARNING level to the `security.events` logger.
 
 ### Affiliate URL Allowlist
 
-Only URLs from these hosts are permitted (backend + frontend):
+Only URLs from these hosts are permitted (backend + frontend).
+Currently Amazon-only for MVP — widen when new stores are added.
 
 | Store | Allowed hosts |
 |-------|--------------|
 | Amazon.de | `amazon.de`, `www.amazon.de` |
-| ComputerUniverse | `computeruniverse.net`, `www.computeruniverse.net` |
-| Caseking | `caseking.de`, `www.caseking.de` |
 
 Backend: `backend/app/models/builder.py:_ALLOWED_AFFILIATE_HOSTS`
 Backend output guard: `backend/app/security/output_guard.py:_AFFILIATE_ALLOWED_HOSTS`
@@ -232,6 +254,6 @@ Format: `"N/period"` where period is `second`, `minute`, `hour`, or `day`.
 
 ## Code Review
 
-The PR review skill lives at `.claude/skills/pccoach-pr-reviewer/SKILL.md`.
-Claude Code loads it automatically when assigned as a GitHub reviewer or asked to review a PR.
+The review skill lives at `.claude/skills/pccoach-review/SKILL.md`.
+Trigger it by saying **"do a comprehensive review"** (or "review the code", "review my changes").
 Do not freeform review without loading the skill first.
