@@ -3,6 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 
 import anthropic
+from pydantic import ValidationError
 
 from app.config import settings
 from app.models.builder import (
@@ -354,16 +355,22 @@ class ClaudeService:
 
         components = [ComponentRecommendation(**c) for c in data["components"]]
         summary = data["summary"]
-        upgrade_suggestion = (
-            UpgradeSuggestion(**data["upgrade_suggestion"])
-            if data.get("upgrade_suggestion")
-            else None
-        )
-        downgrade_suggestion = (
-            DowngradeSuggestion(**data["downgrade_suggestion"])
-            if data.get("downgrade_suggestion")
-            else None
-        )
+        try:
+            upgrade_suggestion = (
+                UpgradeSuggestion(**data["upgrade_suggestion"])
+                if data.get("upgrade_suggestion")
+                else None
+            )
+        except (ValueError, ValidationError):
+            upgrade_suggestion = None
+        try:
+            downgrade_suggestion = (
+                DowngradeSuggestion(**data["downgrade_suggestion"])
+                if data.get("downgrade_suggestion")
+                else None
+            )
+        except (ValueError, ValidationError):
+            downgrade_suggestion = None
 
         build = BuildResult(
             id=build_id,
