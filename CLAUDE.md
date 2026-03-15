@@ -28,7 +28,8 @@ PcCoach/
 │   │   │   └── builder.py        # Build recommendation endpoints
 │   │   ├── db/
 │   │   │   ├── models.py         # SQLAlchemy ORM: Build, Component, AffiliateLink
-│   │   │   └── seed.py           # Seed catalog with real Amazon.de products
+│   │   │   ├── all_products.json # Scraped product catalog (~200 products, 8 categories)
+│   │   │   └── seed.py           # Loads all_products.json + peripheral data → seeds DB
 │   │   ├── models/
 │   │   │   └── builder.py        # Pydantic models: BuildRequest, BuildResult, etc.
 │   │   ├── services/
@@ -130,7 +131,7 @@ Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`)
 
 - No services (cleaning/repair), no cart, no checkout — this is an affiliate tool
 - Amazon-only MVP — all affiliate links point to Amazon.de with tag `thepccoach-21`
-- Catalog seed data lives in `backend/app/db/seed.py` (~84 real products)
+- Catalog data lives in `backend/app/db/all_products.json` (~200 scraped products) + peripherals hardcoded in `seed.py`
 - `CatalogService` pre-filters candidates by brand, socket, form factor, cooling
 - Do not add abstraction layers unless clearly needed
 - Always use `uv run` inside containers, never bare `python` or `pip`

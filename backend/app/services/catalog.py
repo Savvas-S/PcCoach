@@ -61,8 +61,8 @@ _PERIPHERAL_CATEGORIES = [
 ]
 
 # Socket values used in the seed data
-_AMD_SOCKET = "AM5"
-_INTEL_SOCKET = "LGA1700"
+_AMD_SOCKETS = ["AM5", "AM4"]
+_INTEL_SOCKETS = ["LGA1851"]
 
 
 class CatalogService:
@@ -95,9 +95,9 @@ class CatalogService:
     def _required_sockets(self, request: BuildRequest) -> list[str] | None:
         """Determine which CPU sockets to include based on brand preference."""
         if request.cpu_brand == CPUBrand.amd:
-            return [_AMD_SOCKET]
+            return _AMD_SOCKETS
         if request.cpu_brand == CPUBrand.intel:
-            return [_INTEL_SOCKET]
+            return _INTEL_SOCKETS
         return None  # no preference → all sockets
 
     async def _query_category(
