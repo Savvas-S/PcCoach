@@ -222,19 +222,8 @@ class ComponentSearchRequest(BaseModel):
         return v.strip() if isinstance(v, str) else v
 
 
-class StoreLink(BaseModel):
-    store: Literal["amazon"]
-    url: HttpUrl
-
-    @field_validator("url", mode="after")
-    @classmethod
-    def check_store_url(cls, v: HttpUrl) -> HttpUrl:
-        _validate_affiliate_url(v)  # raises ValueError if host is not an allowed store
-        return v
-
-
 class ComponentSearchResult(BaseModel):
-    """AI recommendation for a single component with search links to all stores."""
+    """AI recommendation for a single component with affiliate link."""
 
     name: str
     brand: str
@@ -242,7 +231,13 @@ class ComponentSearchResult(BaseModel):
     estimated_price_eur: float = Field(..., gt=0)
     reason: str
     specs: dict[str, str] = Field(default_factory=dict)
-    store_links: list[StoreLink] = []
+    affiliate_url: HttpUrl | None = None
+    affiliate_source: Literal["amazon"] | None = None
+
+    @field_validator("affiliate_url", mode="after")
+    @classmethod
+    def check_affiliate_url(cls, v: HttpUrl | None) -> HttpUrl | None:
+        return _validate_affiliate_url(v)
 
 
 class BuildResult(BaseModel):

@@ -63,7 +63,7 @@ User fills form → POST /api/v1/build (BuildRequest)
                → You earn commission
 ```
 
-Note: `/api/v1/search` does NOT use the catalog yet — Claude uses training data for single-component searches.
+Both `/api/v1/build` and `/api/v1/search` use the catalog — Claude picks from real products with real affiliate URLs.
 
 ## API Endpoints
 

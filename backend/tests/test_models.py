@@ -9,7 +9,7 @@ from app.models.builder import (
     BuildStatus,
     ComponentCategory,
     ComponentRecommendation,
-    StoreLink,
+    ComponentSearchResult,
     UserGoal,
 )
 
@@ -184,27 +184,35 @@ class TestAffiliateUrlValidation:
             )
 
 
-class TestStoreLinkValidation:
-    def test_valid_store_link(self):
-        link = StoreLink(
-            store="amazon", url="https://www.amazon.de/s?k=RTX+4070&tag=thepccoach-21"
+class TestSearchResultAffiliateUrlValidation:
+    def _base(self, **overrides):
+        defaults = {
+            "name": "AMD Ryzen 5 7600",
+            "brand": "AMD",
+            "category": ComponentCategory.cpu,
+            "estimated_price_eur": 199.0,
+            "reason": "Great mid-range CPU.",
+            "specs": {"cores": "6"},
+        }
+        defaults.update(overrides)
+        return defaults
+
+    def test_valid_affiliate_url(self):
+        result = ComponentSearchResult(
+            **self._base(),
+            affiliate_url="https://www.amazon.de/dp/TESTASIN?tag=thepccoach-21",
+            affiliate_source="amazon",
         )
-        assert link.url is not None
+        assert result.affiliate_url is not None
 
-    def test_computeruniverse_link_rejected(self):
-        with pytest.raises(ValidationError):
-            StoreLink(
-                store="amazon",
-                url="https://www.computeruniverse.net/en/search?query=RTX+4070",
-            )
-
-    def test_caseking_link_rejected(self):
-        with pytest.raises(ValidationError):
-            StoreLink(
-                store="amazon",
-                url="https://www.caseking.de/en/search?q=RTX+4070",
-            )
+    def test_none_affiliate_url_allowed(self):
+        result = ComponentSearchResult(**self._base())
+        assert result.affiliate_url is None
 
     def test_disallowed_domain_raises(self):
         with pytest.raises(ValidationError, match="not an allowed store"):
-            StoreLink(store="amazon", url="https://www.ebay.de/s?k=RTX+4070")
+            ComponentSearchResult(
+                **self._base(),
+                affiliate_url="https://www.ebay.de/itm/12345",
+                affiliate_source="amazon",
+            )

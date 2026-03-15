@@ -197,6 +197,25 @@ class CatalogService:
         candidates.sort(key=lambda c: c.cheapest_price)
         return candidates
 
+    async def get_search_candidates(
+        self,
+        db: AsyncSession,
+        category: str,
+    ) -> list[CandidateComponent]:
+        """Return all in-stock candidates for a single category (search endpoint)."""
+        stmt = (
+            select(Component)
+            .options(selectinload(Component.affiliate_links))
+            .where(
+                and_(
+                    Component.category == category,
+                    Component.in_stock.is_(True),
+                )
+            )
+        )
+        rows = (await db.execute(stmt)).scalars().all()
+        return self._to_candidates(rows)
+
 
 @lru_cache(maxsize=1)
 def get_catalog_service() -> CatalogService:

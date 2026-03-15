@@ -194,26 +194,27 @@ export default function FindPage() {
 
             <p className="text-obsidian-text text-sm leading-relaxed mb-6">{result.reason}</p>
 
-            <div>
-              <p className="text-xs text-obsidian-muted mb-3 uppercase tracking-widest">Search on stores</p>
-              <div className="flex flex-wrap gap-2">
-                {result.store_links.map((link) => {
-                  const safeUrl = safeAffiliateUrl(link.url);
-                  if (!safeUrl) return null;
-                  return (
-                    <a
-                      key={link.store}
-                      href={safeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`${SOURCE_COLORS[link.store] ?? "bg-obsidian-raised hover:bg-obsidian-bright"} text-white text-xs font-body font-semibold px-4 py-2 uppercase tracking-wide transition-colors`}
-                    >
-                      {SOURCE_LABELS[link.store] ?? link.store} →
-                    </a>
-                  );
-                })}
+            {result.affiliate_url && result.affiliate_source && (
+              <div>
+                <p className="text-xs text-obsidian-muted mb-3 uppercase tracking-widest">Buy on</p>
+                <div className="flex flex-wrap gap-2">
+                  {(() => {
+                    const safeUrl = safeAffiliateUrl(result.affiliate_url);
+                    if (!safeUrl) return null;
+                    return (
+                      <a
+                        href={safeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${SOURCE_COLORS[result.affiliate_source] ?? "bg-obsidian-raised hover:bg-obsidian-bright"} text-white text-xs font-body font-semibold px-4 py-2 uppercase tracking-wide transition-colors`}
+                      >
+                        {SOURCE_LABELS[result.affiliate_source] ?? result.affiliate_source} →
+                      </a>
+                    );
+                  })()}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
