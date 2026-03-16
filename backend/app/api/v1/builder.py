@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import secrets
 
@@ -106,6 +107,21 @@ async def create_build(
         )
         raise HTTPException(
             status_code=502, detail="Could not reach the AI service. Please try again."
+        )
+    except anthropic.AuthenticationError as e:
+        log.error(
+            "Claude API auth error (key invalid or balance exhausted): goal=%s budget=%s error=%s",
+            payload.goal,
+            payload.budget_range,
+            e,
+        )
+        await asyncio.sleep(3)
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Due to high demand, our AI service is temporarily unavailable. "
+                "We apologise for the inconvenience — please try again later."
+            ),
         )
     except anthropic.RateLimitError as e:
         log.warning(

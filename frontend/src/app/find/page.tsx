@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { searchComponent, SOURCE_LABELS } from "@/lib/api";
 import { safeAffiliateUrl } from "@/lib/url";
-import { Toast } from "@/components/Toast";
+import { ErrorModal } from "@/components/ErrorModal";
 import type { AffiliateSource, ComponentCategory, ComponentSearchResult } from "@/lib/api";
 
 const CATEGORIES: { value: ComponentCategory; label: string; icon: string }[] = [
@@ -219,7 +219,7 @@ export default function FindPage() {
         )}
       </div>
 
-      {error && <Toast message={error} onDismiss={() => setError(null)} />}
+      {error && <ErrorModal message={error} onDismiss={() => setError(null)} />}
     </main>
   );
 }

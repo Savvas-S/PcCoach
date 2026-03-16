@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     # Rate limits — slowapi format: "N/period" (second/minute/hour/day)
     # AI endpoints (POST /build and POST /search share a single pool)
-    rate_limit_ai: str = "2/hour"
+    rate_limit_ai: str = "2/day"
     # Read endpoint (GET /build/{id})
     rate_limit_read: str = "60/minute"
 
