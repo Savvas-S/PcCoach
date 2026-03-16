@@ -9,11 +9,11 @@ content: |
 
   **Step 1 -- Scout:**
   Call scout_catalog with ALL categories you need for the build.
-  This returns up to 15 products per category -- usually enough to decide.
+  This returns up to 50 products per category -- usually enough to decide.
 
   **Step 2 -- Submit immediately:**
   Go DIRECTLY to submit_build after scouting. Do NOT call query_catalog.
-  The scout already shows 15 products per category -- pick from those results.
+  The scout already shows up to 50 products per category -- pick from those results.
   You can see all brands, sockets, and specs in the scout. Filter mentally, not via tools.
   query_catalog is ONLY for the rare case where zero compatible options appeared in scout
   (e.g. an entire category had 0 products, or no motherboard matched the chosen socket).

@@ -50,21 +50,22 @@ class BuildValidationError(ValueError):
         super().__init__(f"Build validation failed: {msg}")
 
 
-# Core categories required in every build (unless excluded)
-_CORE_CATEGORIES = frozenset(
+# Core categories required in every build (unless excluded).
+# Canonical source of truth — catalog.py derives its lists from these.
+CORE_CATEGORIES = frozenset(
     {"cpu", "gpu", "motherboard", "ram", "storage", "psu", "case", "cooling"}
 )
 
-_PERIPHERAL_CATEGORIES = frozenset({"monitor", "keyboard", "mouse"})
+PERIPHERAL_CATEGORIES = frozenset({"monitor", "keyboard", "mouse"})
 
-# Form factor size hierarchy: larger rank fits smaller boards
+# Form factor size hierarchy: larger rank fits smaller boards.
+# Keys are lowercase — inputs are normalised via .lower() before lookup.
 _FF_RANK: dict[str, int] = {
-    "ATX": 3,
     "atx": 3,
     "micro_atx": 2,
-    "Micro-ATX": 2,
+    "micro-atx": 2,
     "mini_itx": 1,
-    "Mini-ITX": 1,
+    "mini-itx": 1,
 }
 
 
@@ -190,8 +191,8 @@ class BuildValidator:
         case_ff = case.specs.get("form_factor")
         if not mobo_ff or not case_ff:
             return []
-        mobo_rank = _FF_RANK.get(mobo_ff)
-        case_rank = _FF_RANK.get(case_ff)
+        mobo_rank = _FF_RANK.get(mobo_ff.lower())
+        case_rank = _FF_RANK.get(case_ff.lower())
         if mobo_rank is None or case_rank is None:
             return []
         if mobo_rank > case_rank:
@@ -336,9 +337,9 @@ def required_categories(
 ) -> set[str]:
     """Compute which categories must be present in a build submission."""
     excluded = set(existing_parts)
-    cats = {c for c in _CORE_CATEGORIES if c not in excluded}
+    cats = {c for c in CORE_CATEGORIES if c not in excluded}
     if include_peripherals:
-        cats.update(c for c in _PERIPHERAL_CATEGORIES if c not in excluded)
+        cats.update(c for c in PERIPHERAL_CATEGORIES if c not in excluded)
     return cats
 
 

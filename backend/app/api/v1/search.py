@@ -1,6 +1,7 @@
 import logging
 
 import anthropic
+from cachetools import TTLCache
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +16,9 @@ from app.services.claude import get_claude_service
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/search", tags=["search"])
+
+# In-memory cache for search results (TTL 30 min, max 128 entries)
+_search_cache: TTLCache[str, dict] = TTLCache(maxsize=128, ttl=1800)
 
 
 @router.post("", response_model=ComponentSearchResult, status_code=200)
@@ -44,6 +48,14 @@ async def search_component(
         )
         status = 429 if "Duplicate" in guard_result.reason else 400
         raise HTTPException(status_code=status, detail=guard_result.reason)
+
+    # ------------------------------------------------------------------
+    # Cache check — return cached result for identical search requests
+    # ------------------------------------------------------------------
+    cached = _search_cache.get(body_hash)
+    if cached:
+        log.info("Search cache hit: hash=%s", body_hash[:8])
+        return ComponentSearchResult.model_validate(cached)
 
     # ------------------------------------------------------------------
     # Claude agentic tool loop
@@ -102,4 +114,5 @@ async def search_component(
     log.info(
         "Component found: category=%s name=%s", payload.category.value, result.name
     )
+    _search_cache[body_hash] = result.model_dump(mode="json")
     return result
