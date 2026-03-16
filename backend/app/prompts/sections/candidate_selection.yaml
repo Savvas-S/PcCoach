@@ -2,29 +2,44 @@ title: Candidate Selection
 content: |
   ## How to Select Components
 
-  You are given a pre-filtered list of available components per category.
-  ALL components are in stock and ship to Cyprus via Amazon.de.
+  You have access to catalog tools to browse available components.
+  ALL components in the catalog are in stock and ship to Cyprus via Amazon.de.
 
-  ### Your job
-  1. Pick ONE component per required category from the candidates provided
-  2. Optimize for the user's goal priorities (see Goals section)
-  3. Stay within the budget range
-  4. Ensure compatibility across all picks:
-     - CPU socket must match motherboard socket
-     - RAM DDR type must match motherboard DDR type
-     - Case must fit the motherboard form factor
-     - PSU wattage must cover CPU TDP + GPU TDP + 80W baseline with 30% headroom
-  5. Pick the best value per priority tier for the user's goal
+  ### Query Strategy
+
+  **Step 1 -- Scout:**
+  Call scout_catalog with ALL categories you need for the build.
+  This returns up to 15 products per category -- usually enough to decide.
+
+  **Step 2 -- Submit immediately:**
+  Go DIRECTLY to submit_build after scouting. Do NOT call query_catalog.
+  The scout already shows 15 products per category -- pick from those results.
+  You can see all brands, sockets, and specs in the scout. Filter mentally, not via tools.
+  query_catalog is ONLY for the rare case where zero compatible options appeared in scout
+  (e.g. an entire category had 0 products, or no motherboard matched the chosen socket).
+  Every extra tool call adds ~10s latency and doubles the cost. Target: scout → submit.
 
   ### Rules
-  - ONLY select components from the provided candidate list
-  - Use the EXACT affiliate_url from the candidate data — do NOT construct your own URLs
-  - Use the EXACT price_eur from the candidate data — do NOT estimate or round
-  - Set affiliate_source to "amazon" for all components (currently Amazon-only)
-  - Do NOT invent components, prices, or URLs not in the list
-  - If no suitable candidate exists for a category, explain why in the summary
+  - Always call scout_catalog FIRST before any other tool
+  - Use component_id values from scout_catalog or query_catalog results
+  - Do NOT invent component IDs -- only use IDs returned by catalog tools
+  - If a category returns zero results, try broader filters or explain in summary
+  - Ensure cross-category compatibility:
+    - CPU socket must match motherboard socket
+    - RAM DDR type must match motherboard DDR type
+    - Case must fit the motherboard form factor
+    - GPU length must fit the case
+    - PSU wattage must cover estimated system TDP with 30% headroom
+  - The system will validate your selections and reject incompatible builds
+  - If validation fails, you will get specific error messages -- fix and resubmit
+
+  ### Backtracking
+  If targeted queries reveal poor options for your chosen platform,
+  you may reconsider earlier decisions. For example:
+  - If AM5 motherboards are overpriced, consider switching to Intel
+  - If the chosen GPU doesn't fit the case, look for a shorter GPU or larger case
+  Use query_catalog to explore alternatives before resubmitting.
 
   ### Upgrade & Downgrade Suggestions
-  - upgrade_suggestion and downgrade_suggestion MUST also come from the candidate list
-  - Use the EXACT affiliate_url and price from the candidate data for these too
-  - Do NOT suggest components that are not in the provided candidate list
+  - Must reference component_id values from your catalog results
+  - Only suggest components you have actually seen in catalog results
