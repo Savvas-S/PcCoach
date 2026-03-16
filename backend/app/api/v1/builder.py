@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import secrets
 
@@ -114,11 +115,12 @@ async def create_build(
             payload.budget_range,
             e,
         )
+        await asyncio.sleep(3)
         raise HTTPException(
             status_code=503,
             detail=(
-                "Our AI service is temporarily unavailable. "
-                "We're working on it — please try again later."
+                "Due to high demand, our AI service is temporarily unavailable. "
+                "We apologise for the inconvenience — please try again later."
             ),
         )
     except anthropic.RateLimitError as e:
