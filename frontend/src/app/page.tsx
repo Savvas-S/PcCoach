@@ -49,12 +49,44 @@ export default function Home() {
   return (
     <main className="min-h-screen text-obsidian-text">
 
-      {/* Early access notice */}
-      <div className="border-b border-obsidian-border py-2 px-4 text-center bg-obsidian-surface">
-        <p className="text-xs text-obsidian-muted uppercase tracking-widest">
-          Early access — some features are still being built
-        </p>
-      </div>
+      {/* Beta notice */}
+      <section className="border-b border-obsidian-border py-8 px-4 bg-obsidian-bg">
+        <div className="max-w-xl mx-auto">
+          <div className="relative border border-amber-600/40 rounded-lg bg-amber-950/20 px-8 py-8 text-center overflow-hidden">
+            {/* Top gold glow */}
+            <div
+              className="absolute inset-x-0 top-0 h-24 pointer-events-none"
+              style={{ backgroundImage: "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(201,168,76,0.12) 0%, transparent 70%)" }}
+            />
+
+            {/* Badge */}
+            <div className="relative inline-flex items-center gap-2 border border-amber-500/40 bg-amber-900/30 rounded-full px-4 py-1.5 mb-6">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-50 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
+              </span>
+              <span className="text-xs text-amber-300 font-mono uppercase tracking-widest">Beta</span>
+            </div>
+
+            {/* Heading */}
+            <h2 className="relative font-display font-light text-3xl text-obsidian-text mb-5">
+              We&rsquo;re still building
+            </h2>
+
+            {/* Body */}
+            <p className="relative text-obsidian-text/70 text-sm leading-relaxed mb-3 max-w-md mx-auto">
+              PcCoach is in active development. Our catalog doesn&rsquo;t yet cover every
+              product on the market, and listed prices may differ from what you see
+              in-store. We&rsquo;re expanding every day.
+            </p>
+            <p className="relative text-obsidian-text/70 text-sm leading-relaxed max-w-md mx-auto">
+              Thank you for your patience and understanding —
+              feel free to <span className="text-obsidian font-semibold">give PcCoach a try</span> and
+              see what it can do.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Hero */}
       <section
