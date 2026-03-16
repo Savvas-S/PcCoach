@@ -26,6 +26,7 @@ from app.models.builder import (
     ComponentRecommendation,
     UserGoal,
 )
+from app.services.build_validator import BuildValidationError, ValidationError
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -137,18 +138,16 @@ _VALID_PAYLOAD = {
 
 
 class TestCreateBuildCacheMiss:
-    @patch("app.api.v1.builder.get_catalog_service")
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
     def test_new_build_saved_and_returned(
-        self, mock_guardrail, mock_get_service, mock_get_catalog, client
+        self, mock_guardrail, mock_get_service, client
     ):
         build = _make_build_result()
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build = AsyncMock(return_value=build)
         mock_get_service.return_value = mock_service
-        mock_get_catalog.return_value.get_candidates = AsyncMock(return_value={})
 
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
 
@@ -159,14 +158,12 @@ class TestCreateBuildCacheMiss:
         mock_service.generate_build.assert_awaited_once()
 
     @patch("app.api.v1.builder.secrets.token_urlsafe", return_value="persist01")
-    @patch("app.api.v1.builder.get_catalog_service")
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
     def test_build_persisted_retrievable_by_id(
         self,
         mock_guardrail,
         mock_get_service,
-        mock_get_catalog,
         mock_token,
         client,
     ):
@@ -175,7 +172,6 @@ class TestCreateBuildCacheMiss:
         mock_service = MagicMock()
         mock_service.generate_build = AsyncMock(return_value=build)
         mock_get_service.return_value = mock_service
-        mock_get_catalog.return_value.get_candidates = AsyncMock(return_value={})
 
         post_resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
         assert post_resp.status_code == 201
@@ -191,18 +187,16 @@ class TestCreateBuildCacheMiss:
 
 
 class TestCreateBuildCacheHit:
-    @patch("app.api.v1.builder.get_catalog_service")
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
     def test_identical_request_returns_cached_result(
-        self, mock_guardrail, mock_get_service, mock_get_catalog, client
+        self, mock_guardrail, mock_get_service, client
     ):
         build = _make_build_result()
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build = AsyncMock(return_value=build)
         mock_get_service.return_value = mock_service
-        mock_get_catalog.return_value.get_candidates = AsyncMock(return_value={})
 
         # First request — calls Claude
         resp1 = client.post("/api/v1/build", json=_VALID_PAYLOAD)
@@ -222,14 +216,12 @@ class TestCreateBuildCacheHit:
 
 class TestGetBuild:
     @patch("app.api.v1.builder.secrets.token_urlsafe", return_value="gettest1")
-    @patch("app.api.v1.builder.get_catalog_service")
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
     def test_existing_build_returned(
         self,
         mock_guardrail,
         mock_get_service,
-        mock_get_catalog,
         mock_token,
         client,
     ):
@@ -238,7 +230,6 @@ class TestGetBuild:
         mock_service = MagicMock()
         mock_service.generate_build = AsyncMock(return_value=build)
         mock_get_service.return_value = mock_service
-        mock_get_catalog.return_value.get_candidates = AsyncMock(return_value={})
 
         post_resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
         assert post_resp.status_code == 201
@@ -276,3 +267,41 @@ class TestGuardrailBlocking:
         )
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
         assert resp.status_code == 429
+
+
+# ---------------------------------------------------------------------------
+# Error handling
+# ---------------------------------------------------------------------------
+
+
+class TestErrorHandling:
+    @patch("app.api.v1.builder.get_claude_service")
+    @patch("app.api.v1.builder.input_guardrail")
+    def test_validation_failure_returns_400(
+        self, mock_guardrail, mock_get_service, client
+    ):
+        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_service = MagicMock()
+        mock_service.generate_build = AsyncMock(
+            side_effect=BuildValidationError(
+                [ValidationError("motherboard", "socket_mismatch", "AM5 != LGA1700")]
+            )
+        )
+        mock_get_service.return_value = mock_service
+
+        resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
+        assert resp.status_code == 400
+        assert "compatibility" in resp.json()["detail"].lower()
+
+    @patch("app.api.v1.builder.get_claude_service")
+    @patch("app.api.v1.builder.input_guardrail")
+    def test_timeout_returns_504(self, mock_guardrail, mock_get_service, client):
+        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_service = MagicMock()
+        mock_service.generate_build = AsyncMock(
+            side_effect=TimeoutError("Tool loop exceeded timeout")
+        )
+        mock_get_service.return_value = mock_service
+
+        resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
+        assert resp.status_code == 504

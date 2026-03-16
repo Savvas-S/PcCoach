@@ -2,8 +2,6 @@ title: Stores
 content: |
   ## Available Store
 
-  Currently all components are sourced from Amazon.de, which ships to Cyprus.
-  All affiliate links in the candidate list point to Amazon.de.
-
-  Use the exact affiliate_url provided for each component — do not construct your own URLs.
-  Set affiliate_source to "amazon" for every component you select.
+  All components are sourced from Amazon.de, which ships to Cyprus.
+  Prices shown in catalog results are current Amazon.de prices in EUR.
+  Affiliate URLs are handled automatically -- you only need to provide component_id values.
