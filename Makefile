@@ -1,4 +1,4 @@
-.PHONY: help build up down down-clean dev dev-build dev-deploy dev-down logs logs-backend logs-frontend \
+.PHONY: help build up down down-clean dev dev-build dev-deploy dev-down logs logs-backend logs-frontend logs-size \
         shell-backend shell-frontend test lint lock deploy init sync-config migrate seed
 
 help:
@@ -17,6 +17,7 @@ help:
 	@echo "  make logs             Tail logs from all containers"
 	@echo "  make logs-backend     Tail backend logs only"
 	@echo "  make logs-frontend    Tail frontend logs only"
+	@echo "  make logs-size        Show Docker log file sizes per container"
 	@echo ""
 	@echo "  make shell-backend    Open shell in backend container"
 	@echo "  make shell-frontend   Open shell in frontend container"
@@ -73,6 +74,9 @@ logs-backend:
 
 logs-frontend:
 	docker compose logs -f frontend
+
+logs-size:
+	@du -sh $$(docker inspect --format='{{.LogPath}}' pccoach-backend-1 pccoach-frontend-1 pccoach-db-1 pccoach-telegram-bot-1 2>/dev/null)
 
 # --- Shells ---
 

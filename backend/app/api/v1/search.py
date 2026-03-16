@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import anthropic
@@ -77,6 +78,20 @@ async def search_component(
         log.warning("Claude API unreachable: category=%s error=%s", payload.category, e)
         raise HTTPException(
             status_code=502, detail="Could not reach the AI service. Please try again."
+        )
+    except anthropic.AuthenticationError as e:
+        log.error(
+            "Claude API auth error (key invalid or balance exhausted): category=%s error=%s",
+            payload.category,
+            e,
+        )
+        await asyncio.sleep(3)
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Due to high demand, our AI service is temporarily unavailable. "
+                "We apologise for the inconvenience — please try again later."
+            ),
         )
     except anthropic.RateLimitError as e:
         log.warning(
