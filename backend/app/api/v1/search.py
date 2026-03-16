@@ -1,6 +1,7 @@
 import logging
 
 import anthropic
+from cachetools import TTLCache
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,12 +12,13 @@ from app.limiter import limiter
 from app.models.builder import ComponentSearchRequest, ComponentSearchResult
 from app.security import events as guardrail_events
 from app.security.guardrails import hash_search_request, input_guardrail
-from app.security.output_guard import GuardrailBlocked, output_guardrail
-from app.services.catalog import get_catalog_service
 from app.services.claude import get_claude_service
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/search", tags=["search"])
+
+# In-memory cache for search results (TTL 30 min, max 128 entries)
+_search_cache: TTLCache[str, dict] = TTLCache(maxsize=128, ttl=1800)
 
 
 @router.post("", response_model=ComponentSearchResult, status_code=200)
@@ -48,24 +50,24 @@ async def search_component(
         raise HTTPException(status_code=status, detail=guard_result.reason)
 
     # ------------------------------------------------------------------
-    # Catalog query + Claude call
+    # Cache check — return cached result for identical search requests
+    # ------------------------------------------------------------------
+    cached = _search_cache.get(body_hash)
+    if cached:
+        log.info("Search cache hit: hash=%s", body_hash[:8])
+        return ComponentSearchResult.model_validate(cached)
+
+    # ------------------------------------------------------------------
+    # Claude agentic tool loop
     # ------------------------------------------------------------------
     try:
-        catalog = get_catalog_service()
-        candidates = await catalog.get_search_candidates(
-            db, payload.category.value
-        )
-        if not candidates:
-            raise HTTPException(
-                status_code=404,
-                detail=(
-                    f"No {payload.category.value} components available "
-                    f"in our catalog right now. Please try another category."
-                ),
-            )
-
         claude = get_claude_service()
-        result = await claude.search_component(payload, candidates=candidates)
+        result = await claude.search_component(payload, db=db, client_ip=client_ip)
+    except TimeoutError as e:
+        log.warning("Tool loop timeout: category=%s error=%s", payload.category, e)
+        raise HTTPException(
+            status_code=504, detail="The AI took too long to respond. Please try again."
+        )
     except anthropic.APITimeoutError as e:
         log.warning("Claude API timed out: category=%s error=%s", payload.category, e)
         raise HTTPException(
@@ -109,31 +111,8 @@ async def search_component(
         )
         raise HTTPException(status_code=500, detail="Internal server error")
 
-    # ------------------------------------------------------------------
-    # Output guardrails — leak detection, off-topic, PII strip
-    # ------------------------------------------------------------------
-    checked = output_guardrail.check_search(result)
-    if isinstance(checked, GuardrailBlocked):
-        guardrail_events.emit(
-            ip=client_ip,
-            guardrail_name="OutputGuardrail.search",
-            action_taken="blocked",
-            reason=checked.reason,
-        )
-        if checked.reason == "off_topic_response":
-            raise HTTPException(
-                status_code=400,
-                detail=(
-                    "The AI was unable to find a matching "
-                    "component. Please rephrase your description."
-                ),
-            )
-        raise HTTPException(
-            status_code=500,
-            detail="Could not generate a valid recommendation. Please try again.",
-        )
-
     log.info(
-        "Component found: category=%s name=%s", payload.category.value, checked.name
+        "Component found: category=%s name=%s", payload.category.value, result.name
     )
-    return checked
+    _search_cache[body_hash] = result.model_dump(mode="json")
+    return result

@@ -47,7 +47,7 @@
         "cores": "6",
         "threads": "12",
         "tdp": "65",
-        "boost_ghz": "2.5"
+        "boost_ghz": "4.4"
       },
       "links": [
         {
@@ -139,10 +139,10 @@
       "model": "Core i5-12600KF",
       "specs": {
         "socket": "LGA1700",
-        "cores": "6",
+        "cores": "10",
         "threads": "16",
         "tdp": "125",
-        "boost_ghz": "3.7"
+        "boost_ghz": "4.9"
       },
       "links": [
         {
@@ -161,7 +161,7 @@
         "cores": "8",
         "threads": "16",
         "tdp": "65",
-        "boost_ghz": "3.4"
+        "boost_ghz": "4.6"
       },
       "links": [
         {
@@ -178,7 +178,7 @@
       "specs": {
         "socket": "LGA1700",
         "cores": "10",
-        "threads": "20",
+        "threads": "16",
         "tdp": "148",
         "boost_ghz": "4.7"
       },
@@ -197,7 +197,7 @@
       "specs": {
         "socket": "AM5",
         "cores": "6",
-        "threads": "6",
+        "threads": "12",
         "tdp": "65",
         "boost_ghz": "5.4"
       },
@@ -216,7 +216,7 @@
       "specs": {
         "socket": "AM5",
         "cores": "6",
-        "threads": "6",
+        "threads": "12",
         "tdp": "105",
         "boost_ghz": "5.3"
       },
@@ -275,7 +275,7 @@
         "cores": "6",
         "threads": "12",
         "tdp": "65",
-        "boost_ghz": "4.1"
+        "boost_ghz": "4.7"
       },
       "links": [
         {
@@ -294,7 +294,7 @@
         "cores": "6",
         "threads": "12",
         "tdp": "65",
-        "boost_ghz": "3.8"
+        "boost_ghz": "5.2"
       },
       "links": [
         {
@@ -368,7 +368,7 @@
       "specs": {
         "socket": "LGA1851",
         "cores": "14",
-        "threads": "14",
+        "threads": "20",
         "tdp": "125",
         "boost_ghz": "5.2"
       },
@@ -387,7 +387,7 @@
       "specs": {
         "socket": "AM5",
         "cores": "6",
-        "threads": "192",
+        "threads": "12",
         "tdp": "65",
         "boost_ghz": "4.5"
       },
@@ -443,10 +443,10 @@
       "model": "Core i7-12700KF",
       "specs": {
         "socket": "LGA1700",
-        "cores": "6",
+        "cores": "12",
         "threads": "20",
         "tdp": "125",
-        "boost_ghz": "3.6"
+        "boost_ghz": "5.0"
       },
       "links": [
         {
@@ -463,7 +463,7 @@
       "specs": {
         "socket": "LGA1700",
         "cores": "16",
-        "threads": "16",
+        "threads": "24",
         "tdp": "125",
         "boost_ghz": "5.2"
       },
@@ -482,7 +482,7 @@
       "specs": {
         "socket": "LGA1700",
         "cores": "10",
-        "threads": "20",
+        "threads": "16",
         "tdp": "65",
         "boost_ghz": "4.7"
       },
@@ -501,7 +501,7 @@
       "specs": {
         "socket": "LGA1851",
         "cores": "20",
-        "threads": "20",
+        "threads": "28",
         "tdp": "125",
         "boost_ghz": "5.5"
       },
@@ -539,7 +539,7 @@
       "specs": {
         "socket": "LGA1851",
         "cores": "20",
-        "threads": "20",
+        "threads": "28",
         "tdp": "125",
         "boost_ghz": "5.5"
       },
@@ -557,8 +557,8 @@
       "model": "Core i5-14600KF",
       "specs": {
         "socket": "LGA1700",
-        "cores": "10",
-        "threads": "32",
+        "cores": "14",
+        "threads": "20",
         "tdp": "125",
         "boost_ghz": "5.3"
       },
@@ -615,7 +615,7 @@
       "specs": {
         "socket": "LGA1700",
         "cores": "14",
-        "threads": "56",
+        "threads": "20",
         "tdp": "65",
         "boost_ghz": "4.8"
       },
@@ -710,7 +710,7 @@
       "specs": {
         "socket": "LGA1700",
         "cores": "14",
-        "threads": "28",
+        "threads": "20",
         "tdp": "125",
         "boost_ghz": "5.1"
       },
@@ -786,7 +786,7 @@
       "specs": {
         "socket": "LGA1700",
         "cores": "24",
-        "threads": "48",
+        "threads": "32",
         "tdp": "125",
         "boost_ghz": "6.0"
       },
@@ -805,7 +805,7 @@
       "specs": {
         "socket": "LGA1700",
         "cores": "24",
-        "threads": "48",
+        "threads": "32",
         "tdp": "125",
         "boost_ghz": "6.0"
       },
@@ -826,7 +826,7 @@
         "cores": "8",
         "threads": "16",
         "tdp": "140",
-        "boost_ghz": "4.7"
+        "boost_ghz": "5.2"
       },
       "links": [
         {
@@ -851,7 +851,7 @@
         {
           "store": "amazon",
           "asin": "B08164VTWH",
-          "price_eur": 473.0
+          "price_eur": 488.0
         }
       ]
     },
@@ -862,7 +862,7 @@
       "specs": {
         "socket": "LGA1851",
         "cores": "24",
-        "threads": "24",
+        "threads": "32",
         "tdp": "125",
         "boost_ghz": "5.7"
       },
@@ -946,7 +946,7 @@
         {
           "store": "amazon",
           "asin": "B0BTRH9MNS",
-          "price_eur": 827.31
+          "price_eur": 688.31
         }
       ]
     },

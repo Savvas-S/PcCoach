@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     environment: Literal["development", "production"] = "development"
 
+    # Agentic tool-use loop
+    max_tool_turns: int = 20  # max tool calls per request
+    agentic_loop_timeout: float = 120.0  # wall-clock timeout (seconds)
+
     # Rate limits — slowapi format: "N/period" (second/minute/hour/day)
     # AI endpoints (POST /build and POST /search share a single pool)
     rate_limit_ai: str = "2/hour"

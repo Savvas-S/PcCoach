@@ -25,7 +25,8 @@ PcCoach/
 │   ├── app/
 │   │   ├── api/v1/
 │   │   │   ├── router.py         # Registers all routers
-│   │   │   └── builder.py        # Build recommendation endpoints
+│   │   │   ├── builder.py        # Build recommendation endpoints
+│   │   │   └── search.py         # Component search endpoint
 │   │   ├── db/
 │   │   │   ├── models.py         # SQLAlchemy ORM: Build, Component, AffiliateLink
 │   │   │   ├── all_products.json # Scraped product catalog (~200 products, 8 categories)
@@ -33,8 +34,15 @@ PcCoach/
 │   │   ├── models/
 │   │   │   └── builder.py        # Pydantic models: BuildRequest, BuildResult, etc.
 │   │   ├── services/
-│   │   │   ├── catalog.py        # CatalogService — query candidates from DB
-│   │   │   └── claude.py         # Claude integration + candidate formatting
+│   │   │   ├── build_validator.py # Server-side compatibility validation
+│   │   │   ├── catalog.py        # CatalogService — scout/query/resolve from DB
+│   │   │   └── claude.py         # Agentic tool loop + Claude integration
+│   │   ├── security/
+│   │   │   ├── guardrails.py     # Input guardrails (scope, toxicity, budget, dedup)
+│   │   │   ├── output_guard.py   # Output guardrails (leak, off-topic, URL, PII)
+│   │   │   ├── prompt_guard.py   # sanitize_user_input()
+│   │   │   └── events.py         # Structured guardrail event logging
+│   │   ├── prompts/              # YAML prompt sections + manager
 │   │   ├── database.py           # Async engine, session factory, Base
 │   │   ├── config.py             # Settings (pydantic-settings)
 │   │   └── main.py               # FastAPI app + CORS
@@ -55,15 +63,30 @@ PcCoach/
 
 ```
 User fills form → POST /api/v1/build (BuildRequest)
-               → CatalogService queries DB for candidate components
-               → Candidates injected into Claude's user message
-               → Claude picks from real products with real prices/URLs
+               → InputGuardrail checks (scope, toxicity, budget, dedup)
+               → ClaudeService starts agentic tool-use loop:
+                   Phase 1 — Scout: Claude calls scout_catalog (all categories)
+                   Phase 2 — Select: Claude calls query_catalog (targeted filters)
+                   Phase 3 — Submit: Claude calls submit_build (component_ids)
+               → BuildValidator checks compatibility (socket, DDR, form factor, PSU, GPU)
+               → If invalid: repair within same loop (1 attempt)
+               → CatalogService resolves component_ids → affiliate URLs
+               → OutputGuardrail checks (leak, off-topic, URL allowlist, PII, price)
                → BuildResult returned with affiliate links per component
                → User clicks affiliate link → buys on Amazon.de
                → You earn commission
 ```
 
-Both `/api/v1/build` and `/api/v1/search` use the catalog — Claude picks from real products with real affiliate URLs.
+Both `/api/v1/build` and `/api/v1/search` use the agentic tool loop — Claude queries the catalog via tools and only sees `component_id` values. Affiliate URLs are resolved server-side after selection.
+
+### Agentic Tool Loop
+
+Claude does **not** receive the full catalog in the prompt. Instead, it queries incrementally:
+- `scout_catalog` — overview of up to 10 products per category (slim format, ~80 chars/product)
+- `query_catalog` — targeted refinement with filters (socket, DDR, form factor, brand)
+- `submit_build` / `recommend_component` — terminal tools that trigger server-side validation
+
+The `BuildValidator` (server-side) enforces hard compatibility rules. If validation fails, errors are sent back as `is_error` tool results and Claude repairs within the same conversation. Max 1 repair attempt; after that, `BuildValidationError` → HTTP 400.
 
 ## API Endpoints
 
@@ -72,6 +95,7 @@ Both `/api/v1/build` and `/api/v1/search` use the catalog — Claude picks from 
 | POST | `/api/v1/build` | Submit build requirements |
 | GET | `/api/v1/build` | List all builds |
 | GET | `/api/v1/build/{id}` | Get a build by ID |
+| POST | `/api/v1/search` | Search for a single component |
 
 ## Common Commands
 
@@ -103,6 +127,8 @@ ANTHROPIC_API_KEY=...
 CORS_ORIGINS=["http://localhost:3000"]
 ENVIRONMENT=development
 DATABASE_URL=postgresql+asyncpg://pccoach:<password>@db:5432/pccoach
+MAX_TOOL_TURNS=20               # Max agentic loop iterations
+AGENTIC_LOOP_TIMEOUT=120.0      # Agentic loop wall-clock timeout (seconds)
 ```
 
 Production shell environment (set on the droplet, not in `.env`):
@@ -132,7 +158,7 @@ Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`)
 - No services (cleaning/repair), no cart, no checkout — this is an affiliate tool
 - Amazon-only MVP — all affiliate links point to Amazon.de with tag `thepccoach-21`
 - Catalog data lives in `backend/app/db/all_products.json` (~200 scraped products) + peripherals hardcoded in `seed.py`
-- `CatalogService` pre-filters candidates by brand, socket, form factor, cooling
+- `CatalogService` provides `scout_all()`, `query_for_tool()`, and `resolve_components()` for the agentic loop
 - Do not add abstraction layers unless clearly needed
 - Always use `uv run` inside containers, never bare `python` or `pip`
 - Do not commit `.env` files

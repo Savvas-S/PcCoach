@@ -15,7 +15,7 @@ from app.limiter import limiter
 from app.models.builder import BuildRequest, BuildResult
 from app.security import events as guardrail_events
 from app.security.guardrails import hash_build_request, input_guardrail
-from app.services.catalog import get_catalog_service
+from app.services.build_validator import BuildValidationError
 from app.services.claude import get_claude_service
 
 log = logging.getLogger(__name__)
@@ -54,17 +54,38 @@ async def create_build(
         log.info("Build cache hit: hash=%s id=%s", body_hash[:8], cached.id)
         return BuildResult.model_validate(cached.result)
 
-    # Cache miss — call Claude
+    # Cache miss — call Claude via agentic tool loop
     build_id = secrets.token_urlsafe(8)
 
     try:
-        # Query catalog for candidate components
-        catalog = get_catalog_service()
-        candidates = await catalog.get_candidates(db, payload)
-
         claude = get_claude_service()
         build = await claude.generate_build(
-            payload, build_id=build_id, client_ip=client_ip, candidates=candidates
+            payload, build_id=build_id, client_ip=client_ip, db=db
+        )
+    except BuildValidationError as e:
+        log.warning(
+            "Build validation failed after repair: goal=%s budget=%s errors=%s",
+            payload.goal,
+            payload.budget_range,
+            e,
+        )
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "The recommended build has compatibility issues that could not "
+                "be resolved. Please try different requirements."
+            ),
+        )
+    except TimeoutError as e:
+        log.warning(
+            "Tool loop timeout: goal=%s budget=%s error=%s",
+            payload.goal,
+            payload.budget_range,
+            e,
+        )
+        raise HTTPException(
+            status_code=504,
+            detail="The AI took too long to respond. Please try again.",
         )
     except anthropic.APITimeoutError as e:
         log.warning(
