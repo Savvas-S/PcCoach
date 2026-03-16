@@ -52,3 +52,4 @@ Thumbs.db
 
 # Docker
 *.override.yml
+.claude/settings.local.json

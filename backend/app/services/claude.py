@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import logging
 from functools import lru_cache
 
 import anthropic
+
+log = logging.getLogger(__name__)
 from pydantic import ValidationError
 
 from app.config import settings
@@ -330,6 +333,18 @@ class ClaudeService:
 
         system_prompt = f"{_ROLE_LOCK}\n\n{build_system_prompt()}"
 
+        log.info(
+            "Claude build prompt — system: %d chars, user: %d chars, total: %d chars\n"
+            "=== SYSTEM PROMPT ===\n%s\n"
+            "=== USER MESSAGE ===\n%s\n"
+            "=== END ===",
+            len(system_prompt),
+            len(user_message),
+            len(system_prompt) + len(user_message),
+            system_prompt,
+            user_message,
+        )
+
         response = await self.client.messages.create(
             model=self.model,
             max_tokens=4096,
@@ -428,6 +443,18 @@ class ClaudeService:
         )
 
         system_prompt = f"{_ROLE_LOCK}\n\n{search_system_prompt()}"
+
+        log.info(
+            "Claude search prompt — system: %d chars, user: %d chars, total: %d chars\n"
+            "=== SYSTEM PROMPT ===\n%s\n"
+            "=== USER MESSAGE ===\n%s\n"
+            "=== END ===",
+            len(system_prompt),
+            len(user_message),
+            len(system_prompt) + len(user_message),
+            system_prompt,
+            user_message,
+        )
 
         response = await self.client.messages.create(
             model=self.model,
