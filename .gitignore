@@ -53,6 +53,3 @@ Thumbs.db
 # Docker
 *.override.yml
 .claude/settings.local.json
-
-# Data backups
-**/all_products copy.json
