@@ -24,8 +24,15 @@ def _text_block(text):
     return SimpleNamespace(type="text", text=text)
 
 
+def _usage():
+    return SimpleNamespace(
+        input_tokens=100, output_tokens=50,
+        cache_creation_input_tokens=0, cache_read_input_tokens=0,
+    )
+
+
 def _response(content, stop_reason="tool_use"):
-    return SimpleNamespace(content=content, stop_reason=stop_reason)
+    return SimpleNamespace(content=content, stop_reason=stop_reason, usage=_usage())
 
 
 def _scout_result(cat, n=3):
@@ -168,6 +175,9 @@ class TestHappyPaths:
         """Search flow: scout + recommend_component."""
         service._catalog.scout_all = AsyncMock(
             return_value={"cpu": _scout_result("cpu", 5)}
+        )
+        service._catalog.resolve_components = AsyncMock(
+            return_value={1: _resolved(1, "cpu")}
         )
 
         service.client.messages = MagicMock()

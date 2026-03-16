@@ -57,8 +57,8 @@ _ALL_CATEGORIES = [c.value for c in ComponentCategory]
 SCOUT_CATALOG_TOOL = {
     "name": "scout_catalog",
     "description": (
-        "Get an overview of ALL available components. Returns every in-stock product "
-        "per category sorted by price. Call this FIRST, then go straight to "
+        "Get an overview of ALL available components. Returns up to 50 in-stock "
+        "products per category sorted by price. Call this FIRST, then go straight to "
         "submit_build — you will have the full catalog."
     ),
     "input_schema": {
@@ -459,6 +459,15 @@ class ClaudeService:
                 messages=messages,
             )
 
+            # Re-check timeout after the API call (which can take up to
+            # _TIMEOUT seconds) to avoid processing a response that
+            # arrived past the deadline.
+            elapsed = time.monotonic() - start_time
+            if elapsed > settings.agentic_loop_timeout:
+                raise TimeoutError(
+                    f"Tool loop exceeded timeout ({settings.agentic_loop_timeout}s)"
+                )
+
             # Track token usage
             usage = response.usage
             turn_input = getattr(usage, "input_tokens", 0)
@@ -494,7 +503,10 @@ class ClaudeService:
             # Build assistant message with full content
             messages.append({"role": "assistant", "content": response.content})
 
-            # Process each tool call and collect results
+            # Process each tool call and collect results.
+            # All tool calls are processed before checking for terminal
+            # success so that every tool_use block gets a corresponding
+            # tool_result — required by the Anthropic API contract.
             tool_results = []
             terminal_result = None
 
@@ -520,7 +532,7 @@ class ClaudeService:
 
                 elif tool_name == "query_catalog":
                     result_text = await self._handle_query_catalog(
-                        db, tool_input, categories_queried, query_history
+                        db, tool_input, categories_queried, query_history,
                     )
                     tool_results.append({
                         "type": "tool_result",
@@ -529,7 +541,6 @@ class ClaudeService:
                     })
 
                 elif tool_name == terminal_tool_name:
-                    # Handle terminal tool
                     terminal_result = await self._handle_terminal_tool(
                         db=db,
                         tool_use=tool_use,
@@ -542,36 +553,7 @@ class ClaudeService:
                         request=request,
                     )
 
-                    if terminal_result["status"] == "success":
-                        # Log final usage summary
-                        elapsed = time.monotonic() - start_time
-                        # Per-model pricing ($/MTok)
-                        _PRICING = {
-                            "claude-sonnet-4-6": (3.0, 15.0, 3.75, 0.30),
-                            "claude-haiku-4-5-20251001": (0.80, 4.0, 1.0, 0.08),
-                        }
-                        inp, out, cw, cr = _PRICING.get(
-                            self.model, (3.0, 15.0, 3.75, 0.30)
-                        )
-                        cost_usd = (
-                            total_input_tokens * inp
-                            + total_output_tokens * out
-                            + total_cache_creation_tokens * cw
-                            + total_cache_read_tokens * cr
-                        ) / 1_000_000
-                        log.info(
-                            "Tool loop complete — model: %s, turns: %d, "
-                            "elapsed: %.1fs, "
-                            "input_tokens: %d, output_tokens: %d, "
-                            "cache_create: %d, cache_read: %d, "
-                            "estimated_cost: $%.4f",
-                            self.model, turn, elapsed,
-                            total_input_tokens, total_output_tokens,
-                            total_cache_creation_tokens, total_cache_read_tokens,
-                            cost_usd,
-                        )
-                        return terminal_result["data"]
-                    elif terminal_result["status"] == "repair":
+                    if terminal_result["status"] == "repair":
                         repair_attempts += 1
                         tool_results.append({
                             "type": "tool_result",
@@ -586,6 +568,13 @@ class ClaudeService:
                             "content": terminal_result["error_text"],
                             "is_error": True,
                         })
+                    else:
+                        # success — placeholder result (won't be sent)
+                        tool_results.append({
+                            "type": "tool_result",
+                            "tool_use_id": tool_use.id,
+                            "content": "Build accepted.",
+                        })
                 else:
                     tool_results.append({
                         "type": "tool_result",
@@ -594,6 +583,37 @@ class ClaudeService:
                         f"scout_catalog, query_catalog, {terminal_tool_name}",
                         "is_error": True,
                     })
+
+            # If terminal tool succeeded, return after all calls are processed
+            if terminal_result and terminal_result["status"] == "success":
+                elapsed = time.monotonic() - start_time
+                # Approximate per-model pricing ($/MTok) — may drift as
+                # Anthropic adjusts prices; used for logging only.
+                _PRICING = {
+                    "claude-sonnet-4-6": (3.0, 15.0, 3.75, 0.30),
+                    "claude-haiku-4-5-20251001": (0.80, 4.0, 1.0, 0.08),
+                }
+                inp, out, cw, cr = _PRICING.get(
+                    self.model, (3.0, 15.0, 3.75, 0.30)
+                )
+                cost_usd = (
+                    total_input_tokens * inp
+                    + total_output_tokens * out
+                    + total_cache_creation_tokens * cw
+                    + total_cache_read_tokens * cr
+                ) / 1_000_000
+                log.info(
+                    "Tool loop complete — model: %s, turns: %d, "
+                    "elapsed: %.1fs, "
+                    "input_tokens: %d, output_tokens: %d, "
+                    "cache_create: %d, cache_read: %d, "
+                    "estimated_cost: $%.4f",
+                    self.model, turn, elapsed,
+                    total_input_tokens, total_output_tokens,
+                    total_cache_creation_tokens, total_cache_read_tokens,
+                    cost_usd,
+                )
+                return terminal_result["data"]
 
             # Add tool results as user message
             messages.append({"role": "user", "content": tool_results})
@@ -635,9 +655,9 @@ class ClaudeService:
         query_key = json.dumps(tool_input, sort_keys=True)
         if query_key in query_history:
             return (
-                f"WARNING: You already ran this exact query. "
-                f"Results would be identical. Try different filters "
-                f"or proceed with submit_build."
+                "WARNING: You already ran this exact query. "
+                "Results would be identical. Try different filters "
+                "or proceed with submit_build."
             )
         query_history.append(query_key)
         categories_queried.add(category)
@@ -705,6 +725,18 @@ class ClaudeService:
                     ),
                 }
 
+            # Verify the component_id actually exists in the catalog
+            try:
+                await self._catalog.resolve_components(db, [component_id])
+            except ValueError:
+                return {
+                    "status": "premature",
+                    "error_text": (
+                        f"component_id {component_id} not found in catalog. "
+                        "Only use IDs returned by scout_catalog or query_catalog."
+                    ),
+                }
+
             return {"status": "success", "data": tool_input}
 
     async def _handle_submit_build(
@@ -746,7 +778,12 @@ class ClaudeService:
         except ValueError as e:
             return {
                 "status": "premature",
-                "error_text": f"Component resolution failed: {e}",
+                "error_text": (
+                    f"Component resolution failed: {e}. "
+                    "Only use component_id values returned by scout_catalog "
+                    "or query_catalog. Re-scout the affected categories and "
+                    "resubmit with valid IDs."
+                ),
             }
 
         # Build category->resolved map for validation.
