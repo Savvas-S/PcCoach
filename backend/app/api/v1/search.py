@@ -78,6 +78,19 @@ async def search_component(
         raise HTTPException(
             status_code=502, detail="Could not reach the AI service. Please try again."
         )
+    except anthropic.AuthenticationError as e:
+        log.error(
+            "Claude API auth error (key invalid or balance exhausted): category=%s error=%s",
+            payload.category,
+            e,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Our AI service is temporarily unavailable. "
+                "We're working on it — please try again later."
+            ),
+        )
     except anthropic.RateLimitError as e:
         log.warning(
             "Claude API rate limit hit: category=%s error=%s", payload.category, e

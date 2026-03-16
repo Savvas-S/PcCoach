@@ -107,6 +107,20 @@ async def create_build(
         raise HTTPException(
             status_code=502, detail="Could not reach the AI service. Please try again."
         )
+    except anthropic.AuthenticationError as e:
+        log.error(
+            "Claude API auth error (key invalid or balance exhausted): goal=%s budget=%s error=%s",
+            payload.goal,
+            payload.budget_range,
+            e,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Our AI service is temporarily unavailable. "
+                "We're working on it — please try again later."
+            ),
+        )
     except anthropic.RateLimitError as e:
         log.warning(
             "Claude API rate limit hit: goal=%s budget=%s error=%s",
