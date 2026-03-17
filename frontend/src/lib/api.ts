@@ -97,11 +97,6 @@ export interface ComponentSearchRequest {
   description: string;
 }
 
-export interface StoreLink {
-  store: AffiliateSource;
-  url: string;
-}
-
 export interface ComponentSearchResult {
   name: string;
   brand: string;
@@ -109,7 +104,8 @@ export interface ComponentSearchResult {
   estimated_price_eur: number;
   reason: string;
   specs: Record<string, string>;
-  store_links: StoreLink[];
+  affiliate_url: string | null;
+  affiliate_source: AffiliateSource | null;
 }
 
 async function parseError(res: Response, fallback: string): Promise<string> {

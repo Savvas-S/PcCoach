@@ -1,0 +1,554 @@
+{
+  "products": [
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 7500F",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "boost_ghz": "5.0",
+        "tdp": "65"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D1CK42PV",
+          "price_eur": 130
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 7700X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "105",
+        "boost_ghz": "5.4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BBHHT8LY",
+          "price_eur": 220
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 9800X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "140",
+        "boost_ghz": "5.2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DKFMSMYK",
+          "price_eur": 305
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 9950X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "16",
+        "threads": "32",
+        "tdp": "170",
+        "boost_ghz": "5.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D6NNRBGP",
+          "price_eur": 510
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Dual GeForce RTX 4060 EVO OC Edition 8GB",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "115",
+        "length_mm": "227",
+        "interface": "PCIe 4.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B086ZTB81P",
+          "price_eur": 260
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Prime GeForce RTX 5070 12GB OC Edition",
+      "specs": {
+        "vram_gb": "12",
+        "tdp": "250",
+        "length_mm": "260",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DYPFY7JG",
+          "price_eur": 325
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "Sapphire Pulse Radeon RX 9070 XT Gaming 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "250",
+        "length_mm": "300",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DRPRZMK2",
+          "price_eur": 700
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5080 Gaming OC 16G",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "360",
+        "length_mm": "310",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DSQ1RCZV",
+          "price_eur": 1350
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B650M-R Gaming Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CS71GLWC",
+          "price_eur": 100
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B650-PLUS WiFi Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BHJKR3BV",
+          "price_eur": 155
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG X870 Tomahawk WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD X870",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DCVVXK8D",
+          "price_eur": 280
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix X870E-H Gaming WIFI7 Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD X670E",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09CD4WSR6",
+          "price_eur": 325
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Kingston",
+      "model": "FURY Beast DDR5 16GB 6000MHz CL36",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "16",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BRTJFFBW",
+          "price_eur": 255
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance DDR5 32GB (2x16GB) 6000MHz CL36",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BZHW15KF",
+          "price_eur": 395
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Kingston",
+      "model": "FURY Beast DDR5 32GB (2x16GB) 6000MHz CL30",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CYHC58P6",
+          "price_eur": 425
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Kingston",
+      "model": "FURY Beast DDR5 64GB (2x32GB) 6000MHz CL30",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "64",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CYHC9FQB",
+          "price_eur": 880
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Crucial",
+      "model": "P310 500GB M.2 NVMe PCIe 4.0",
+      "specs": {
+        "type": "NVMe",
+        "capacity_gb": "500",
+        "form_factor": "M.2 2280",
+        "interface": "PCIe 4.0 x4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DC8K6KQD",
+          "price_eur": 100
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Samsung",
+      "model": "990 EVO Plus 1TB M.2 NVMe",
+      "specs": {
+        "type": "NVMe",
+        "capacity_gb": "1000",
+        "form_factor": "M.2 2280",
+        "interface": "PCIe 5.0 x2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DGH2FH7T",
+          "price_eur": 150
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Samsung",
+      "model": "990 PRO 1TB M.2 NVMe",
+      "specs": {
+        "type": "NVMe",
+        "capacity_gb": "1000",
+        "form_factor": "M.2 2280",
+        "interface": "PCIe 4.0 x4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0B9C3ZVHR",
+          "price_eur": 180
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Samsung",
+      "model": "990 PRO 2TB M.2 NVMe",
+      "specs": {
+        "type": "NVMe",
+        "capacity_gb": "2000",
+        "form_factor": "M.2 2280",
+        "interface": "PCIe 4.0 x4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0B9C4DKKG",
+          "price_eur": 285
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "be quiet!",
+      "model": "Pure Power 12 650W ATX 3.1",
+      "specs": {
+        "wattage": "650",
+        "efficiency": "80 Plus Gold",
+        "modularity": "semi-modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DLH776YJ",
+          "price_eur": 75
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "be quiet!",
+      "model": "Pure Power 12 850W ATX 3.1",
+      "specs": {
+        "wattage": "850",
+        "efficiency": "80 Plus Gold",
+        "modularity": "semi-modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DLH73G3W",
+          "price_eur": 85
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "Corsair",
+      "model": "RM850 850W",
+      "specs": {
+        "wattage": "850",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B097F55SB9",
+          "price_eur": 100
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "MSI",
+      "model": "MPG A1000GS PCIE5 1000W ATX 3.1",
+      "specs": {
+        "wattage": "1000",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DT2WJ226",
+          "price_eur": 125
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "Corsair",
+      "model": "3000D Airflow Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C2JL6PNC",
+          "price_eur": 68
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "NZXT",
+      "model": "H5 Flow Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D2MK6NML",
+          "price_eur": 75
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "Corsair",
+      "model": "Frame 5000D RS Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F3XNXCMV",
+          "price_eur": 100
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "NZXT",
+      "model": "H9 Flow Dual-Chamber Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DQPPKNSS",
+          "price_eur": 130
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Arctic",
+      "model": "Freezer 36 Single-Tower",
+      "specs": {
+        "type": "air"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09VG6NBSJ",
+          "price_eur": 31
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Thermalright",
+      "model": "Peerless Assassin 140 Dual-Tower",
+      "specs": {
+        "type": "air"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DB8GF656",
+          "price_eur": 45
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Arctic",
+      "model": "Liquid Freezer III Pro 360mm AIO",
+      "specs": {
+        "type": "liquid",
+        "radiator_mm": "360"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DLWGG85P",
+          "price_eur": 85
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Corsair",
+      "model": "iCUE LINK Titan 360 RX LCD 360mm AIO",
+      "specs": {
+        "type": "liquid",
+        "radiator_mm": "360"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DF7CZ9D8",
+          "price_eur": 200
+        }
+      ]
+    }
+  ]
+}

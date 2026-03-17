@@ -5,8 +5,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getBuild, SOURCE_LABELS } from "@/lib/api";
 import { safeAffiliateUrl } from "@/lib/url";
+import { priceRange, totalPriceRange } from "@/lib/price";
 import type {
-  AffiliateSource,
   BuildResult,
   ComponentCategory,
   ComponentRecommendation,
@@ -73,9 +73,8 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
         </div>
 
         <div className="text-right shrink-0 flex flex-col items-end gap-3">
-          {/* TODO: remove ~ when real product URLs land */}
-          <div className="font-mono text-xl font-medium text-obsidian">
-            ~&euro;{component.price_eur.toFixed(0)}
+          <div className="font-mono text-sm text-obsidian-muted">
+            Est: {priceRange(component.price_eur)}
           </div>
           {(() => {
             const safeUrl = safeAffiliateUrl(component.affiliate_url);
@@ -84,11 +83,12 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
                 href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
+                className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
               >
+                Check Current Price on{" "}
                 {component.affiliate_source
-                  ? `${SOURCE_LABELS[component.affiliate_source]} \u2192`
-                  : "Check price \u2192"}
+                  ? SOURCE_LABELS[component.affiliate_source]
+                  : "Amazon"} &rarr;
               </a>
             ) : (
               <span className="text-xs text-obsidian-muted-light">No link yet</span>
@@ -118,8 +118,8 @@ function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
           <p className="text-obsidian-text text-sm mt-2">{suggestion.reason}</p>
         </div>
         <div className="text-right shrink-0 flex flex-col items-end gap-3">
-          <div className="font-mono text-lg font-medium text-amber-400">
-            ~+&euro;{suggestion.extra_cost_eur.toFixed(0)}
+          <div className="font-mono text-sm font-medium text-amber-400">
+            Est. +{priceRange(suggestion.extra_cost_eur)}
           </div>
           {(() => {
             const safeUrl = safeAffiliateUrl(suggestion.affiliate_url);
@@ -130,9 +130,10 @@ function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
                 rel="noopener noreferrer"
                 className="inline-block bg-amber-700 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
               >
+                Check Price on{" "}
                 {suggestion.affiliate_source
-                  ? `${SOURCE_LABELS[suggestion.affiliate_source]} \u2192`
-                  : "Check price \u2192"}
+                  ? SOURCE_LABELS[suggestion.affiliate_source]
+                  : "Amazon"} &rarr;
               </a>
             ) : null;
           })()}
@@ -160,8 +161,8 @@ function DowngradeCard({ suggestion }: { suggestion: DowngradeSuggestion }) {
           <p className="text-obsidian-text text-sm mt-2">{suggestion.reason}</p>
         </div>
         <div className="text-right shrink-0 flex flex-col items-end gap-3">
-          <div className="font-mono text-lg font-medium text-green-400">
-            Save ~&euro;{suggestion.savings_eur.toFixed(0)}
+          <div className="font-mono text-sm font-medium text-green-400">
+            Est. save {priceRange(suggestion.savings_eur)}
           </div>
           {(() => {
             const safeUrl = safeAffiliateUrl(suggestion.affiliate_url);
@@ -172,9 +173,10 @@ function DowngradeCard({ suggestion }: { suggestion: DowngradeSuggestion }) {
                 rel="noopener noreferrer"
                 className="inline-block bg-green-700 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
               >
+                Check Price on{" "}
                 {suggestion.affiliate_source
-                  ? `${SOURCE_LABELS[suggestion.affiliate_source]} \u2192`
-                  : "Check price \u2192"}
+                  ? SOURCE_LABELS[suggestion.affiliate_source]
+                  : "Amazon"} &rarr;
               </a>
             ) : null;
           })()}
@@ -309,9 +311,8 @@ export default function BuildResultPage() {
           <h1 className="font-display font-light text-5xl text-obsidian-text">Your PC Build</h1>
           {build.total_price_eur != null && (
             <div className="flex items-baseline gap-3 mt-3 flex-wrap">
-              {/* TODO: when real product URLs land, remove ~ and toFixed(0) → toFixed(2) */}
               <span className="font-mono text-3xl font-medium text-obsidian">
-                ~&euro;{build.total_price_eur.toFixed(0)}
+                {totalPriceRange(build.total_price_eur)}
               </span>
               <span className="text-obsidian-muted text-sm">
                 estimated total &middot;{" "}
@@ -347,8 +348,8 @@ export default function BuildResultPage() {
               {peripheralComponents.length > 0 ? "Core components" : "What\u2019s included"}
             </SectionHeading>
             <div className="space-y-px bg-obsidian-border">
-              {coreComponents.map((c) => (
-                <ComponentCard key={c.category} component={c} />
+              {coreComponents.map((c, i) => (
+                <ComponentCard key={`${c.category}-${i}`} component={c} />
               ))}
             </div>
           </div>
@@ -359,15 +360,15 @@ export default function BuildResultPage() {
           <div className="mb-6">
             <SectionHeading>Peripherals</SectionHeading>
             <div className="space-y-px bg-obsidian-border">
-              {peripheralComponents.map((c) => (
-                <ComponentCard key={c.category} component={c} />
+              {peripheralComponents.map((c, i) => (
+                <ComponentCard key={`${c.category}-${i}`} component={c} />
               ))}
             </div>
           </div>
         )}
 
         <p className="text-obsidian-muted-light text-xs mb-10 font-mono">
-          Prices are AI estimates. Verify current prices on the store before ordering.
+          Estimated price ranges are approximate. Click through to verify the current price before ordering.
         </p>
 
         {/* Alternatives */}
@@ -389,8 +390,8 @@ export default function BuildResultPage() {
         <div className="border border-obsidian-border bg-obsidian-surface p-5 mb-8">
           <p className="font-body font-semibold text-obsidian-text mb-1">Ready to order?</p>
           <p className="text-obsidian-muted text-sm leading-relaxed">
-            Click each component above to search for it on the store. Prices shown
-            here are AI estimates — always confirm the current price before purchasing.
+            Click each component above to check the current price on the store.
+            Our estimates are approximate — always confirm before purchasing.
           </p>
         </div>
 

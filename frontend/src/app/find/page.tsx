@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { searchComponent, SOURCE_LABELS } from "@/lib/api";
 import { safeAffiliateUrl } from "@/lib/url";
-import { Toast } from "@/components/Toast";
-import type { AffiliateSource, ComponentCategory, ComponentSearchResult } from "@/lib/api";
+import { priceRange } from "@/lib/price";
+import { ErrorModal } from "@/components/ErrorModal";
+import type { ComponentCategory, ComponentSearchResult } from "@/lib/api";
 
 const CATEGORIES: { value: ComponentCategory; label: string; icon: string }[] = [
   { value: "cpu", label: "CPU", icon: "🔲" },
@@ -48,12 +49,6 @@ function formatSpecKey(key: string): string {
   if (SPEC_KEY_OVERRIDES[lower]) return SPEC_KEY_OVERRIDES[lower];
   return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
-
-const SOURCE_COLORS: Record<AffiliateSource, string> = {
-  amazon: "bg-orange-700 hover:bg-orange-600",
-  computeruniverse: "bg-blue-800 hover:bg-blue-700",
-  caseking: "bg-red-800 hover:bg-red-700",
-};
 
 const selectedCls = "border-obsidian bg-obsidian/10 text-obsidian";
 const unselectedCls =
@@ -172,10 +167,9 @@ export default function FindPage() {
                 <p className="text-obsidian-muted text-sm mt-0.5">{result.brand}</p>
               </div>
               <div className="text-right shrink-0">
-                <div className="font-mono text-2xl font-medium text-obsidian">
-                  ~€{result.estimated_price_eur.toFixed(0)}
+                <div className="font-mono text-sm text-obsidian-muted">
+                  Est: {priceRange(result.estimated_price_eur)}
                 </div>
-                <div className="text-xs text-obsidian-muted mt-1">estimated</div>
               </div>
             </div>
 
@@ -194,31 +188,34 @@ export default function FindPage() {
 
             <p className="text-obsidian-text text-sm leading-relaxed mb-6">{result.reason}</p>
 
-            <div>
-              <p className="text-xs text-obsidian-muted mb-3 uppercase tracking-widest">Search on stores</p>
-              <div className="flex flex-wrap gap-2">
-                {result.store_links.map((link) => {
-                  const safeUrl = safeAffiliateUrl(link.url);
-                  if (!safeUrl) return null;
-                  return (
-                    <a
-                      key={link.store}
-                      href={safeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`${SOURCE_COLORS[link.store] ?? "bg-obsidian-raised hover:bg-obsidian-bright"} text-white text-xs font-body font-semibold px-4 py-2 uppercase tracking-wide transition-colors`}
-                    >
-                      {SOURCE_LABELS[link.store] ?? link.store} →
-                    </a>
-                  );
-                })}
+            {result.affiliate_url && result.affiliate_source && (
+              <div>
+                <div className="flex flex-wrap gap-2">
+                  {(() => {
+                    const safeUrl = safeAffiliateUrl(result.affiliate_url);
+                    if (!safeUrl) return null;
+                    return (
+                      <a
+                        href={safeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
+                      >
+                        Check Current Price on{" "}
+                        {result.affiliate_source
+                          ? SOURCE_LABELS[result.affiliate_source]
+                          : "Amazon"} &rarr;
+                      </a>
+                    );
+                  })()}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
 
-      {error && <Toast message={error} onDismiss={() => setError(null)} />}
+      {error && <ErrorModal message={error} onDismiss={() => setError(null)} />}
     </main>
   );
 }

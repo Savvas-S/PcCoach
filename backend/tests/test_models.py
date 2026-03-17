@@ -2,44 +2,61 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.builder import (
+    _VALID_GOALS_FOR_BUDGET,
     BudgetRange,
     BuildRequest,
     BuildResult,
     BuildStatus,
     ComponentCategory,
     ComponentRecommendation,
-    StoreLink,
+    ComponentSearchResult,
     UserGoal,
-    _VALID_GOALS_FOR_BUDGET,
 )
 
 
 class TestBuildRequestGoalBudgetValidation:
     def test_valid_goal_for_budget(self):
-        req = BuildRequest(goal=UserGoal.low_end_gaming, budget_range=BudgetRange.range_0_1000)
+        req = BuildRequest(
+            goal=UserGoal.low_end_gaming, budget_range=BudgetRange.range_0_1000
+        )
         assert req.goal == UserGoal.low_end_gaming
 
     def test_invalid_goal_for_budget_raises(self):
         with pytest.raises(ValidationError, match="not available for budget"):
-            BuildRequest(goal=UserGoal.high_end_gaming, budget_range=BudgetRange.range_0_1000)
+            BuildRequest(
+                goal=UserGoal.high_end_gaming, budget_range=BudgetRange.range_0_1000
+            )
 
     def test_all_over_3000_goals_are_valid(self):
-        for goal in [UserGoal.high_end_gaming, UserGoal.heavy_work, UserGoal.designer, UserGoal.architecture]:
+        for goal in [
+            UserGoal.high_end_gaming,
+            UserGoal.heavy_work,
+            UserGoal.designer,
+            UserGoal.architecture,
+        ]:
             req = BuildRequest(goal=goal, budget_range=BudgetRange.over_3000)
             assert req.goal == goal
 
     def test_light_work_valid_across_lower_budgets(self):
-        for budget in [BudgetRange.range_0_1000, BudgetRange.range_1000_1500, BudgetRange.range_1500_2000]:
+        for budget in [
+            BudgetRange.range_0_1000,
+            BudgetRange.range_1000_1500,
+            BudgetRange.range_1500_2000,
+        ]:
             req = BuildRequest(goal=UserGoal.light_work, budget_range=budget)
             assert req.goal == UserGoal.light_work
 
     def test_light_work_invalid_for_high_budget(self):
         with pytest.raises(ValidationError, match="not available for budget"):
-            BuildRequest(goal=UserGoal.light_work, budget_range=BudgetRange.range_2000_3000)
+            BuildRequest(
+                goal=UserGoal.light_work, budget_range=BudgetRange.range_2000_3000
+            )
 
 
 class TestBuildResultTotalPrice:
-    def _make_component(self, category: ComponentCategory, price: float) -> ComponentRecommendation:
+    def _make_component(
+        self, category: ComponentCategory, price: float
+    ) -> ComponentRecommendation:
         return ComponentRecommendation(
             category=category,
             name="Test Component",
@@ -78,11 +95,15 @@ class TestDeduplicateExistingParts:
         )
 
     def test_duplicates_removed_preserving_order(self):
-        req = self._base([ComponentCategory.cpu, ComponentCategory.gpu, ComponentCategory.cpu])
+        req = self._base(
+            [ComponentCategory.cpu, ComponentCategory.gpu, ComponentCategory.cpu]
+        )
         assert req.existing_parts == [ComponentCategory.cpu, ComponentCategory.gpu]
 
     def test_all_duplicates(self):
-        req = self._base([ComponentCategory.ram, ComponentCategory.ram, ComponentCategory.ram])
+        req = self._base(
+            [ComponentCategory.ram, ComponentCategory.ram, ComponentCategory.ram]
+        )
         assert req.existing_parts == [ComponentCategory.ram]
 
     def test_no_duplicates_unchanged(self):
@@ -98,12 +119,15 @@ class TestBudgetGoalsJson:
     def test_every_budget_range_is_present(self):
         for budget in BudgetRange:
             assert budget in _VALID_GOALS_FOR_BUDGET, (
-                f"BudgetRange.{budget.name} ({budget.value}) is missing from budget_goals.json"
+                f"BudgetRange.{budget.name} ({budget.value}) "
+                f"is missing from budget_goals.json"
             )
 
     def test_every_budget_has_at_least_one_goal(self):
         for budget, goals in _VALID_GOALS_FOR_BUDGET.items():
-            assert len(goals) > 0, f"Budget {budget.value} has no goals in budget_goals.json"
+            assert len(goals) > 0, (
+                f"Budget {budget.value} has no goals in budget_goals.json"
+            )
 
     def test_all_goal_values_are_valid_enums(self):
         for budget, goals in _VALID_GOALS_FOR_BUDGET.items():
@@ -131,21 +155,21 @@ class TestAffiliateUrlValidation:
         )
         assert comp.affiliate_url is not None
 
-    def test_valid_computeruniverse_url(self):
-        comp = ComponentRecommendation(
-            **self._base_component(),
-            affiliate_url="https://www.computeruniverse.net/en/p/123",
-            affiliate_source="computeruniverse",
-        )
-        assert comp.affiliate_url is not None
+    def test_computeruniverse_url_rejected(self):
+        with pytest.raises(ValidationError):
+            ComponentRecommendation(
+                **self._base_component(),
+                affiliate_url="https://www.computeruniverse.net/en/p/123",
+                affiliate_source="amazon",
+            )
 
-    def test_valid_caseking_url(self):
-        comp = ComponentRecommendation(
-            **self._base_component(),
-            affiliate_url="https://www.caseking.de/en/product/123",
-            affiliate_source="caseking",
-        )
-        assert comp.affiliate_url is not None
+    def test_caseking_url_rejected(self):
+        with pytest.raises(ValidationError):
+            ComponentRecommendation(
+                **self._base_component(),
+                affiliate_url="https://www.caseking.de/en/product/123",
+                affiliate_source="amazon",
+            )
 
     def test_none_affiliate_url_allowed(self):
         comp = ComponentRecommendation(**self._base_component(), affiliate_url=None)
@@ -160,19 +184,35 @@ class TestAffiliateUrlValidation:
             )
 
 
-class TestStoreLinkValidation:
-    def test_valid_store_link(self):
-        link = StoreLink(store="amazon", url="https://www.amazon.de/s?k=RTX+4070&tag=thepccoach-21")
-        assert link.url is not None
+class TestSearchResultAffiliateUrlValidation:
+    def _base(self, **overrides):
+        defaults = {
+            "name": "AMD Ryzen 5 7600",
+            "brand": "AMD",
+            "category": ComponentCategory.cpu,
+            "estimated_price_eur": 199.0,
+            "reason": "Great mid-range CPU.",
+            "specs": {"cores": "6"},
+        }
+        defaults.update(overrides)
+        return defaults
 
-    def test_valid_computeruniverse_link(self):
-        link = StoreLink(store="computeruniverse", url="https://www.computeruniverse.net/en/search?query=RTX+4070")
-        assert link.url is not None
+    def test_valid_affiliate_url(self):
+        result = ComponentSearchResult(
+            **self._base(),
+            affiliate_url="https://www.amazon.de/dp/TESTASIN?tag=thepccoach-21",
+            affiliate_source="amazon",
+        )
+        assert result.affiliate_url is not None
 
-    def test_valid_caseking_link(self):
-        link = StoreLink(store="caseking", url="https://www.caseking.de/en/search?q=RTX+4070")
-        assert link.url is not None
+    def test_none_affiliate_url_allowed(self):
+        result = ComponentSearchResult(**self._base())
+        assert result.affiliate_url is None
 
     def test_disallowed_domain_raises(self):
         with pytest.raises(ValidationError, match="not an allowed store"):
-            StoreLink(store="amazon", url="https://www.ebay.de/s?k=RTX+4070")
+            ComponentSearchResult(
+                **self._base(),
+                affiliate_url="https://www.ebay.de/itm/12345",
+                affiliate_source="amazon",
+            )
