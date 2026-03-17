@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "The \u20AC1000 1440p Sweet Spot Build (March 2026) | The PC Coach",
+  title: "The \u20AC1000\u20131200 1080p 144Hz Sweet Spot Build (March 2026) | The PC Coach",
   description:
-    "The best price-to-performance ratio for a mid-range 1440p gaming PC in March 2026.",
+    "The best price-to-performance ratio for a 1080p 144Hz gaming PC in March 2026.",
 };
 
 export default function SweetSpotBuildGuide() {
@@ -18,7 +18,7 @@ export default function SweetSpotBuildGuide() {
         </Link>
 
         <h1 className="font-display font-light text-5xl text-obsidian-text mt-8 mb-4">
-          The &euro;1000 1440p &ldquo;Sweet Spot&rdquo; Build
+          The &euro;1000&ndash;1200 1080p 144Hz &ldquo;Sweet Spot&rdquo; Build
         </h1>
 
         <p className="text-obsidian-muted text-sm mb-10 font-mono uppercase tracking-widest">
@@ -27,21 +27,22 @@ export default function SweetSpotBuildGuide() {
 
         <div className="space-y-6 text-obsidian-text text-sm leading-relaxed">
           <p>
-            The &euro;1,000 price point has always been the sweet spot for PC gaming.
-            It&rsquo;s where you get 90% of the performance of a high-end build at
-            roughly half the cost. In March 2026, the value proposition is better than
-            ever.
+            The &euro;1,000&ndash;1,200 range has always been the sweet spot for PC
+            gaming. It&rsquo;s where you get solid performance without overspending,
+            and in March 2026 it&rsquo;s the ideal budget for a smooth 1080p 144Hz
+            experience.
           </p>
           <p>
-            With current-generation mid-range GPUs delivering consistent 1440p
-            performance at high settings, and DDR5 RAM prices finally settling into
-            affordable territory, a well-balanced &euro;1,000 build can handle
-            everything from competitive shooters at 165 fps to AAA titles at 60+ fps.
+            At this price point, current-generation mid-range GPUs deliver consistent
+            1080p performance at high to ultra settings, easily pushing past 144 fps
+            in competitive titles and holding 60+ fps in demanding AAA games. Pair
+            that with DDR5 RAM prices finally settling into affordable territory, and
+            you have a build that feels fast in every scenario.
           </p>
           <p>
             In this guide we walk through the ideal component allocation &mdash; where
             to spend, where to save, and what upgrades are worth considering if you
-            can stretch the budget by &euro;100&ndash;200.
+            want to push into the upper end of the &euro;1,200 budget.
           </p>
 
           <div className="border-t border-obsidian-border pt-8 mt-8">
