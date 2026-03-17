@@ -105,13 +105,14 @@ def _init_tracing() -> None:
         log.info("Arize tracing: disabled (ARIZE_API_KEY or ARIZE_SPACE_ID not set)")
         return
     try:
-        from arize.otel import register
+        from arize.otel import Endpoint, register
         from openinference.instrumentation.anthropic import AnthropicInstrumentor
 
         tracer_provider = register(
             space_id=settings.arize_space_id,
             api_key=settings.arize_api_key.get_secret_value(),
             project_name="pccoach",
+            endpoint=Endpoint.ARIZE_EUROPE,
         )
         AnthropicInstrumentor().instrument(tracer_provider=tracer_provider)
         log.info("Arize tracing: enabled (project=pccoach)")
