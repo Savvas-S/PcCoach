@@ -37,12 +37,6 @@ export default function CyprusSummerBuildGuide() {
             Air and Phanteks G300A, to 360mm AIO liquid coolers that keep high-TDP
             processors in check when ambient temps soar.
           </p>
-          <p>
-            We also cover fan curves, thermal paste choices, and case placement tips
-            that can drop your CPU temps by 5&ndash;10&deg;C without spending an extra
-            cent.
-          </p>
-
           <div className="border-t border-obsidian-border pt-8 mt-8">
             <p className="text-obsidian-muted text-xs">
               Full article coming soon. In the meantime,{" "}

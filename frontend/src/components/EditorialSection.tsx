@@ -20,9 +20,9 @@ const GUIDES: GuideCard[] = [
     href: "/guides/amazon-de-shipping-guide",
   },
   {
-    title: "The \u20AC1000 1440p \u201CSweet Spot\u201D Build (March 2026)",
+    title: "The \u20AC1000\u20131200 1080p 144Hz \u201CSweet Spot\u201D Build (March 2026)",
     excerpt:
-      "We analyze the current market to bring you the best price-to-performance ratio for a mid-range gaming PC.",
+      "We analyze the current market to bring you the best price-to-performance ratio for a smooth 1080p 144Hz gaming PC.",
     href: "/guides/1000-euro-sweet-spot-build",
   },
 ];
