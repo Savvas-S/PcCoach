@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getBuild } from "@/lib/api";
+import { getBuild, SOURCE_LABELS } from "@/lib/api";
 import { safeAffiliateUrl } from "@/lib/url";
+import { priceRange, totalPriceRange } from "@/lib/price";
 import type {
   BuildResult,
   ComponentCategory,
@@ -34,23 +35,6 @@ const SPEC_KEY_OVERRIDES: Record<string, string> = {
   pcie: "PCIe",
   ddr: "DDR",
 };
-
-/** Convert an exact price to a rounded estimated range string (e.g. "€300 – €350"). */
-function priceRange(price: number): string {
-  // Round down to nearest 50 for the low end, up for the high end
-  const step = price < 100 ? 25 : 50;
-  const low = Math.floor(price / step) * step;
-  const high = low + step;
-  return `\u20AC${low} \u2013 \u20AC${high}`;
-}
-
-/** Convert a total price to a wider estimated range. */
-function totalPriceRange(price: number): string {
-  const step = 100;
-  const low = Math.floor(price / step) * step;
-  const high = low + step;
-  return `\u20AC${low} \u2013 \u20AC${high}`;
-}
 
 function formatSpecKey(key: string): string {
   const lower = key.toLowerCase();
@@ -101,7 +85,10 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
                 rel="noopener noreferrer"
                 className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
               >
-                Check Current Price on Amazon &rarr;
+                Check Current Price on{" "}
+                {component.affiliate_source
+                  ? SOURCE_LABELS[component.affiliate_source]
+                  : "Amazon"} &rarr;
               </a>
             ) : (
               <span className="text-xs text-obsidian-muted-light">No link yet</span>
@@ -143,7 +130,10 @@ function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
                 rel="noopener noreferrer"
                 className="inline-block bg-amber-700 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
               >
-                Check Price on Amazon &rarr;
+                Check Price on{" "}
+                {suggestion.affiliate_source
+                  ? SOURCE_LABELS[suggestion.affiliate_source]
+                  : "Amazon"} &rarr;
               </a>
             ) : null;
           })()}
@@ -183,7 +173,10 @@ function DowngradeCard({ suggestion }: { suggestion: DowngradeSuggestion }) {
                 rel="noopener noreferrer"
                 className="inline-block bg-green-700 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
               >
-                Check Price on Amazon &rarr;
+                Check Price on{" "}
+                {suggestion.affiliate_source
+                  ? SOURCE_LABELS[suggestion.affiliate_source]
+                  : "Amazon"} &rarr;
               </a>
             ) : null;
           })()}
@@ -397,8 +390,8 @@ export default function BuildResultPage() {
         <div className="border border-obsidian-border bg-obsidian-surface p-5 mb-8">
           <p className="font-body font-semibold text-obsidian-text mb-1">Ready to order?</p>
           <p className="text-obsidian-muted text-sm leading-relaxed">
-            Click each component above to buy it on the store. Prices are from our
-            catalog and may change — always confirm the current price before purchasing.
+            Click each component above to check the current price on the store.
+            Our estimates are approximate — always confirm before purchasing.
           </p>
         </div>
 

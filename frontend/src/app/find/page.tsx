@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { searchComponent } from "@/lib/api";
+import { searchComponent, SOURCE_LABELS } from "@/lib/api";
 import { safeAffiliateUrl } from "@/lib/url";
+import { priceRange } from "@/lib/price";
 import { ErrorModal } from "@/components/ErrorModal";
 import type { ComponentCategory, ComponentSearchResult } from "@/lib/api";
 
@@ -47,13 +48,6 @@ function formatSpecKey(key: string): string {
   const lower = key.toLowerCase();
   if (SPEC_KEY_OVERRIDES[lower]) return SPEC_KEY_OVERRIDES[lower];
   return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function priceRange(price: number): string {
-  const step = price < 100 ? 25 : 50;
-  const low = Math.floor(price / step) * step;
-  const high = low + step;
-  return `\u20AC${low} \u2013 \u20AC${high}`;
 }
 
 const selectedCls = "border-obsidian bg-obsidian/10 text-obsidian";
@@ -207,7 +201,10 @@ export default function FindPage() {
                         rel="noopener noreferrer"
                         className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
                       >
-                        Check Current Price on Amazon &rarr;
+                        Check Current Price on{" "}
+                        {result.affiliate_source
+                          ? SOURCE_LABELS[result.affiliate_source]
+                          : "Amazon"} &rarr;
                       </a>
                     );
                   })()}
