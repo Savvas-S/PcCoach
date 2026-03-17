@@ -31,22 +31,60 @@ export default function AmazonDeShippingGuide() {
             buyers in Cyprus and the rest of the EU, Amazon.de is almost always the
             smarter choice. Here&rsquo;s why.
           </p>
+
+          <h2 className="font-body font-semibold text-obsidian-text text-base pt-2">
+            No customs, no surprise VAT
+          </h2>
           <p>
             Since Germany and Cyprus are both EU member states, goods ship under the
             single-market rules &mdash; no customs declarations, no import duties, and
             no surprise 19% VAT on top of what you already paid. The price you see at
             checkout is the price you pay.
           </p>
+
+          <h2 className="font-body font-semibold text-obsidian-text text-base pt-2">
+            One of the most trusted retailers in the world
+          </h2>
           <p>
-            Shipping to Cyprus typically takes 5&ndash;10 business days with standard
-            delivery, and Amazon&rsquo;s return policy applies across all EU countries.
-            Warranties are honored locally through the EU consumer protection
-            directive.
+            Amazon is consistently rated as one of the most trusted online retailers
+            globally. Millions of verified customer reviews help you make informed
+            decisions &mdash; you can see real feedback from people who bought the
+            exact same component before clicking &ldquo;add to cart.&rdquo;
           </p>
           <p>
-            We also compare against other EU retailers like ComputerUniverse and
-            Caseking when their prices beat Amazon &mdash; but for the widest
-            selection and fastest delivery, Amazon.de is our default recommendation.
+            Their A-to-Z Guarantee means you&rsquo;re protected on every purchase. If
+            something arrives damaged or doesn&rsquo;t match the listing, Amazon
+            handles returns and refunds quickly and without hassle.
+          </p>
+
+          <h2 className="font-body font-semibold text-obsidian-text text-base pt-2">
+            Fast, reliable shipping to Cyprus
+          </h2>
+          <p>
+            Shipping to Cyprus typically takes 5&ndash;10 business days with standard
+            delivery. Amazon&rsquo;s logistics network is among the most reliable in
+            Europe &mdash; packages are tracked end-to-end, and delivery estimates are
+            consistently accurate.
+          </p>
+
+          <h2 className="font-body font-semibold text-obsidian-text text-base pt-2">
+            EU-wide warranty and returns
+          </h2>
+          <p>
+            Amazon&rsquo;s return policy applies across all EU countries, and
+            warranties are honored locally through the EU consumer protection
+            directive. If a component fails within warranty, you deal with Amazon
+            directly &mdash; no international shipping back to a random warehouse.
+          </p>
+
+          <h2 className="font-body font-semibold text-obsidian-text text-base pt-2">
+            The widest selection of PC components
+          </h2>
+          <p>
+            From the latest GPUs and CPUs to niche accessories like custom cables and
+            fan splitters, Amazon.de stocks virtually everything you need for a
+            complete build. Their marketplace also means you often find competitive
+            prices from multiple sellers on the same listing.
           </p>
 
           <div className="border-t border-obsidian-border pt-8 mt-8">
@@ -55,7 +93,7 @@ export default function AmazonDeShippingGuide() {
               <Link href="/build" className="text-obsidian hover:brightness-110">
                 build your PC
               </Link>{" "}
-              and we&rsquo;ll link you directly to the best EU store for each part.
+              and we&rsquo;ll link you directly to Amazon.de for each part.
             </p>
           </div>
         </div>
