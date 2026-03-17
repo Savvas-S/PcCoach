@@ -40,6 +40,10 @@ export default function PrivacyPage() {
                   desc: "Your selected budget, use case, component preferences, and any notes you enter when submitting a build request. This data is stored to generate and retrieve your build result.",
                 },
                 {
+                  title: "IP address",
+                  desc: "Your IP address is processed for rate limiting (2 requests per day) and abuse prevention. It is held temporarily in server memory and included in security logs. It is not linked to your build data or shared with third parties.",
+                },
+                {
                   title: "No account data",
                   desc: "We do not require you to create an account. We do not collect your name, email address, or any other personal identifiers unless you voluntarily contact us by email.",
                 },
