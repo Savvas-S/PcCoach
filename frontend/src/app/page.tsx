@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EditorialSection } from "@/components/EditorialSection";
 import type { BudgetRange, UserGoal } from "@/lib/api";
 
 type ExampleBuild = {
@@ -136,6 +137,9 @@ export default function Home() {
           </svg>
         </div>
       </section>
+
+      {/* Latest guides */}
+      <EditorialSection />
 
       {/* How it works */}
       <section className="border-t border-obsidian-border py-24 px-4 bg-obsidian-bg">
