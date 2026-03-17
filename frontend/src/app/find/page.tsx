@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { searchComponent, SOURCE_LABELS } from "@/lib/api";
+import { searchComponent } from "@/lib/api";
 import { safeAffiliateUrl } from "@/lib/url";
 import { ErrorModal } from "@/components/ErrorModal";
-import type { AffiliateSource, ComponentCategory, ComponentSearchResult } from "@/lib/api";
+import type { ComponentCategory, ComponentSearchResult } from "@/lib/api";
 
 const CATEGORIES: { value: ComponentCategory; label: string; icon: string }[] = [
   { value: "cpu", label: "CPU", icon: "🔲" },
@@ -49,11 +49,12 @@ function formatSpecKey(key: string): string {
   return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-const SOURCE_COLORS: Record<AffiliateSource, string> = {
-  amazon: "bg-orange-700 hover:bg-orange-600",
-  computeruniverse: "bg-blue-800 hover:bg-blue-700",
-  caseking: "bg-red-800 hover:bg-red-700",
-};
+function priceRange(price: number): string {
+  const step = price < 100 ? 25 : 50;
+  const low = Math.floor(price / step) * step;
+  const high = low + step;
+  return `\u20AC${low} \u2013 \u20AC${high}`;
+}
 
 const selectedCls = "border-obsidian bg-obsidian/10 text-obsidian";
 const unselectedCls =
@@ -172,10 +173,9 @@ export default function FindPage() {
                 <p className="text-obsidian-muted text-sm mt-0.5">{result.brand}</p>
               </div>
               <div className="text-right shrink-0">
-                <div className="font-mono text-2xl font-medium text-obsidian">
-                  ~€{result.estimated_price_eur.toFixed(0)}
+                <div className="font-mono text-sm text-obsidian-muted">
+                  Est: {priceRange(result.estimated_price_eur)}
                 </div>
-                <div className="text-xs text-obsidian-muted mt-1">estimated</div>
               </div>
             </div>
 
@@ -196,7 +196,6 @@ export default function FindPage() {
 
             {result.affiliate_url && result.affiliate_source && (
               <div>
-                <p className="text-xs text-obsidian-muted mb-3 uppercase tracking-widest">Buy on</p>
                 <div className="flex flex-wrap gap-2">
                   {(() => {
                     const safeUrl = safeAffiliateUrl(result.affiliate_url);
@@ -206,9 +205,9 @@ export default function FindPage() {
                         href={safeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`${SOURCE_COLORS[result.affiliate_source] ?? "bg-obsidian-raised hover:bg-obsidian-bright"} text-white text-xs font-body font-semibold px-4 py-2 uppercase tracking-wide transition-colors`}
+                        className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
                       >
-                        {SOURCE_LABELS[result.affiliate_source] ?? result.affiliate_source} →
+                        Check Current Price on Amazon &rarr;
                       </a>
                     );
                   })()}
