@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  // Claude can take 60-90s for build generation; default proxy timeout (~30s) is too short
+  experimental: {
+    proxyTimeout: 120_000,
+  },
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
     return [

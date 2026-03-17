@@ -1,33 +1,7 @@
 title: Stores
 content: |
-  ## Available Stores (all ship to Cyprus)
-  Construct affiliate_url as a search URL using the product name.
-  - computeruniverse: https://www.computeruniverse.net/en/search?query={product+name}
-  - caseking:         https://www.caseking.de/en/search?q={product+name}
-  - amazon:           https://www.amazon.de/s?k={product+name}&tag=thepccoach-21
+  ## Available Store
 
-  Replace spaces with + in the search URL query string.
-
-  ## Store selection — your job is to save the customer money
-
-  Total cost = component prices + shipping. Shipping from any of these EU stores
-  costs roughly €8–15 per order (one charge per store used).
-
-  For EVERY component, estimate the price at each store and assign it to the cheapest one.
-  Do not default to one store for the whole build. All three stores are equal options.
-
-  Starting hints by category — but always compare all three stores regardless:
-  - CPUs, motherboards, RAM:  computeruniverse is often strong, but amazon frequently matches or beats it
-  - GPUs:                     amazon.de often leads on price, but check all three — deals vary
-  - Cases, cooling, fans:     caseking usually has good prices and wide selection, but verify
-  - Peripherals (monitor, keyboard, mouse): amazon.de is often best value, but not always
-  - PSU, storage:             prices vary — no clear winner, always compare all three
-
-  These are starting points only. Any store can have a better deal on any component at any time.
-
-  After assigning each component to its cheapest store, review the full build:
-  - If a store holds only 1–2 cheap components and the saving over an already-used store
-    is less than ~€10, consolidate those items there (shipping cancels the saving).
-  - If the saving clearly exceeds the extra shipping cost, keep the split.
-
-  The goal is the lowest total bill for the customer. Mixing stores is correct when it saves money.
+  All components are sourced from Amazon.de, which ships to Cyprus.
+  Prices shown in catalog results are current Amazon.de prices in EUR.
+  Affiliate URLs are handled automatically -- you only need to provide component_id values.

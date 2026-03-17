@@ -11,6 +11,7 @@ SECTION_ORDER = [
     "budget_ranges",
     "goals",
     "stores",
+    "candidate_selection",
     "rules",
     "compatibility",
 ]

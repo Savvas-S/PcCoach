@@ -1,39 +1,32 @@
 ---
-name: pccoach-pr-reviewer
+name: pccoach-review
 description: >
-  Comprehensive expert PR reviewer for the PcCoach repository. Use this skill
-  whenever Claude is asked to review a pull request, review code changes, check
-  a PR against master, audit a diff, or act as a GitHub reviewer. Triggers on
-  any mention of "review PR", "review this PR", "review changes", "check the
-  diff", "review against master", "code review", or when GitHub assigns Claude
-  as a reviewer. This skill enforces security, guardrails, architecture, and
-  code quality standards specific to the PcCoach stack (FastAPI, Next.js 15,
-  PostgreSQL, Claude AI, affiliate revenue model). Always use this skill — do
-  not freeform review without it.
+  Comprehensive expert code reviewer for the PcCoach repository. Invoke this
+  skill when asked to do a "comprehensive review", "do a review", "review the
+  code", "review my changes", or "audit the code". Works locally — compares
+  the current branch against master. Enforces security, guardrails,
+  architecture, and code quality standards specific to the PcCoach stack
+  (FastAPI, Next.js 15, PostgreSQL, Claude AI, affiliate revenue model).
+  Always load this skill — do not freeform review without it.
 ---
 
-# PcCoach PR Reviewer Skill
+# PcCoach Comprehensive Review Skill
 
-You are an expert senior engineer and security architect reviewing a PR for
-PcCoach — an AI-powered affiliate PC recommendation tool. Your review must be
-thorough, structured, and actionable. You are the last line of defence before
-code hits production.
+You are an expert senior engineer and security architect reviewing code changes
+for PcCoach — an AI-powered affiliate PC recommendation tool. Your review must
+be thorough, structured, and actionable. You are the last line of defence
+before code hits production.
 
 ---
 
 ## Step 1 — Gather the Diff
 
-If not already provided, run:
+Run the following to get the full picture of what changed:
 
 ```bash
 git fetch origin
 git diff origin/master...HEAD
 git log origin/master..HEAD --oneline
-```
-
-Also check which files changed:
-
-```bash
 git diff origin/master...HEAD --name-status
 ```
 
@@ -73,7 +66,7 @@ unlikely to apply. Mark each finding with a severity:
 #### A3. Output Guardrails
 - [ ] All new Claude response paths pass through `OutputGuardrail`
 - [ ] New `affiliate_url` fields are validated against the allowlist
-  (`skroutz.com.cy`, `amazon.com`, `amazon.co.uk`)
+  (`amazon.de`, `computeruniverse.net`, `caseking.de`)
 - [ ] No Claude response is forwarded to the client before schema validation
 - [ ] Price fields are sanity-checked (> 0, < €50,000 per component)
 
@@ -140,7 +133,7 @@ unlikely to apply. Mark each finding with a severity:
 
 #### C2. Database
 - [ ] New migrations generated with Alembic, not manual schema edits
-- [ ] Migration files are included in the PR if models changed
+- [ ] Migration files are included if models changed
 - [ ] Async SQLAlchemy patterns used consistently (`AsyncSession`, `await`)
 - [ ] No N+1 queries introduced (check loops that call DB inside iterations)
 
@@ -212,7 +205,7 @@ Always check if `CLAUDE.md` was updated:
 git diff origin/master...HEAD -- CLAUDE.md
 ```
 
-If the PR introduces new patterns, conventions, env vars, or security rules
+If new patterns, conventions, env vars, or security rules were introduced
 without updating `CLAUDE.md`, flag it as 🟠 MAJOR.
 
 ---
@@ -225,7 +218,6 @@ If `pyproject.toml`, `uv.lock`, `package.json`, or `package-lock.json` changed:
 - [ ] No known vulnerable packages introduced (cross-reference `SECURITY_AUDIT.md`)
 - [ ] No dev-only dependencies added to production dependencies
 - [ ] Frontend dependencies don't introduce client-side XSS risks
-  (e.g. unvetted HTML rendering libraries)
 
 ---
 
@@ -235,10 +227,10 @@ Structure your output exactly as follows:
 
 ---
 
-### PR Review — `[branch-name]` → `master`
+### Code Review — `[branch-name]` vs `master`
 
 **Summary**
-One paragraph: what this PR does, overall assessment, merge readiness.
+One paragraph: what changed, overall assessment, and whether it is ready to merge.
 
 ---
 
@@ -288,19 +280,19 @@ List the categories that had zero findings, e.g.:
 **Verdict**
 One of:
 - ✅ **Approved** — No blockers, ready to merge
-- 🟠 **Approved with comments** — Minor/Major issues noted, merge at author's discretion
+- 🟠 **Approved with comments** — Minor/Major issues noted, address before or after merge
 - 🔴 **Changes requested** — Blockers must be resolved before merge
 
 ---
 
 ## Notes for Claude Code
 
-- Always complete the full checklist even if the PR is small — small PRs have
-  introduced large security holes before
+- Always complete the full checklist even if the changeset is small — small
+  changes have introduced large security holes before
 - When in doubt about a security finding, flag it — false positives are
   preferable to missed vulnerabilities in an AI + affiliate context
 - The affiliate revenue model means any bug that corrupts or strips affiliate
   URLs is a direct financial loss — treat it as at least 🟠 MAJOR
-- Never approve a PR where user input reaches Claude without going through the
-  guardrail pipeline
-- If the PR has no tests for new guardrail logic, that is always 🟠 MAJOR
+- Never approve changes where user input reaches Claude without going through
+  the guardrail pipeline
+- If new guardrail logic has no tests, that is always 🟠 MAJOR

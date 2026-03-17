@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { submitBuild } from "@/lib/api";
-import { Toast } from "@/components/Toast";
+import { ErrorModal } from "@/components/ErrorModal";
 import type {
   UserGoal,
   BudgetRange,
@@ -146,8 +146,12 @@ function BuildForm() {
       sessionStorage.setItem("build_result", JSON.stringify(result));
       router.push(`/build/${result.id}`);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
-      setError(msg);
+      if (err instanceof Error && err.name === "AbortError") {
+        setError("The request timed out. Please try again.");
+      } else {
+        const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+        setError(msg);
+      }
       setLoading(false);
     } finally {
       clearTimeout(timeout);
@@ -395,7 +399,7 @@ function BuildForm() {
         </form>
       </div>
 
-      {error && <Toast message={error} onDismiss={() => setError(null)} />}
+      {error && <ErrorModal message={error} onDismiss={() => setError(null)} />}
     </main>
   );
 }

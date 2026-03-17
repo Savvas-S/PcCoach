@@ -4,7 +4,7 @@
 
 PcCoach is an AI-powered PC build recommendation tool for the Cyprus market (Limassol).
 Users describe their needs and budget; Claude recommends a full component list with affiliate links to buy each part.
-Revenue model: affiliate commissions (Amazon.de, ComputerUniverse, Caseking) — no inventory, no ordering, no services.
+Revenue model: affiliate commissions (Amazon.de for MVP, more stores planned) — no inventory, no ordering, no services.
 
 ## Stack
 
@@ -25,12 +25,30 @@ PcCoach/
 │   ├── app/
 │   │   ├── api/v1/
 │   │   │   ├── router.py         # Registers all routers
-│   │   │   └── builder.py        # Build recommendation endpoints
+│   │   │   ├── builder.py        # Build recommendation endpoints
+│   │   │   └── search.py         # Component search endpoint
+│   │   ├── db/
+│   │   │   ├── models.py         # SQLAlchemy ORM: Build, Component, AffiliateLink
+│   │   │   ├── all_products.json # Scraped product catalog (~200 products, 8 categories)
+│   │   │   └── seed.py           # Loads all_products.json + peripheral data → seeds DB
 │   │   ├── models/
-│   │   │   └── builder.py        # BuildRequest, ComponentRecommendation, BuildResult
-│   │   ├── services/claude.py    # Claude integration (wired up later)
+│   │   │   └── builder.py        # Pydantic models: BuildRequest, BuildResult, etc.
+│   │   ├── services/
+│   │   │   ├── build_validator.py # Server-side compatibility validation
+│   │   │   ├── catalog.py        # CatalogService — scout/query/resolve from DB
+│   │   │   └── claude.py         # Agentic tool loop + Claude integration
+│   │   ├── security/
+│   │   │   ├── guardrails.py     # Input guardrails (scope, toxicity, budget, dedup)
+│   │   │   ├── output_guard.py   # Output guardrails (leak, off-topic, URL, PII)
+│   │   │   ├── prompt_guard.py   # sanitize_user_input()
+│   │   │   └── events.py         # Structured guardrail event logging
+│   │   ├── prompts/              # YAML prompt sections + manager
+│   │   ├── database.py           # Async engine, session factory, Base
 │   │   ├── config.py             # Settings (pydantic-settings)
 │   │   └── main.py               # FastAPI app + CORS
+│   ├── alembic/                  # DB migrations
+│   │   └── versions/             # One file per migration
+│   └── alembic.ini
 │   ├── pyproject.toml
 │   └── uv.lock
 ├── frontend/
@@ -45,11 +63,30 @@ PcCoach/
 
 ```
 User fills form → POST /api/v1/build (BuildRequest)
-               → Claude generates ComponentRecommendation list
+               → InputGuardrail checks (scope, toxicity, budget, dedup)
+               → ClaudeService starts agentic tool-use loop:
+                   Phase 1 — Scout: Claude calls scout_catalog (all categories)
+                   Phase 2 — Select: Claude calls query_catalog (targeted filters)
+                   Phase 3 — Submit: Claude calls submit_build (component_ids)
+               → BuildValidator checks compatibility (socket, DDR, form factor, PSU, GPU)
+               → If invalid: repair within same loop (1 attempt)
+               → CatalogService resolves component_ids → affiliate URLs
+               → OutputGuardrail checks (leak, off-topic, URL allowlist, PII, price)
                → BuildResult returned with affiliate links per component
-               → User clicks affiliate link → buys on store
+               → User clicks affiliate link → buys on Amazon.de
                → You earn commission
 ```
+
+Both `/api/v1/build` and `/api/v1/search` use the agentic tool loop — Claude queries the catalog via tools and only sees `component_id` values. Affiliate URLs are resolved server-side after selection.
+
+### Agentic Tool Loop
+
+Claude does **not** receive the full catalog in the prompt. Instead, it queries incrementally:
+- `scout_catalog` — overview of up to 10 products per category (slim format, ~80 chars/product)
+- `query_catalog` — targeted refinement with filters (socket, DDR, form factor, brand)
+- `submit_build` / `recommend_component` — terminal tools that trigger server-side validation
+
+The `BuildValidator` (server-side) enforces hard compatibility rules. If validation fails, errors are sent back as `is_error` tool results and Claude repairs within the same conversation. Max 1 repair attempt; after that, `BuildValidationError` → HTTP 400.
 
 ## API Endpoints
 
@@ -58,12 +95,15 @@ User fills form → POST /api/v1/build (BuildRequest)
 | POST | `/api/v1/build` | Submit build requirements |
 | GET | `/api/v1/build` | List all builds |
 | GET | `/api/v1/build/{id}` | Get a build by ID |
+| POST | `/api/v1/search` | Search for a single component |
 
 ## Common Commands
 
 ```bash
 make dev          # Start dev environment (hot reload)
 make dev-build    # Rebuild dev images
+make migrate      # Run pending Alembic migrations (dev)
+make seed         # Seed the component catalog (idempotent)
 make lock         # Regenerate uv.lock and package-lock.json
 make test         # Run pytest in backend container
 make lint         # Run ruff check + format check
@@ -83,14 +123,22 @@ make logs         # Tail all container logs
 
 Backend (`.env` in `backend/`):
 ```
-ANTHROPIC_API_KEY=...           # Optional until AI is wired up
+ANTHROPIC_API_KEY=...
 CORS_ORIGINS=["http://localhost:3000"]
 ENVIRONMENT=development
-DATABASE_URL=postgresql+asyncpg://pccoach:pccoach@db:5432/pccoach
-POSTGRES_USER=pccoach
-POSTGRES_PASSWORD=pccoach
-POSTGRES_DB=pccoach
+DATABASE_URL=postgresql+asyncpg://pccoach:<password>@db:5432/pccoach
+MAX_TOOL_TURNS=20               # Max agentic loop iterations
+AGENTIC_LOOP_TIMEOUT=120.0      # Agentic loop wall-clock timeout (seconds)
 ```
+
+Production shell environment (set on the droplet, not in `.env`):
+```
+POSTGRES_PASSWORD=<strong-password>   # used by docker-compose.yml for the db service
+```
+
+The password in `DATABASE_URL` must match `POSTGRES_PASSWORD`. In dev,
+`docker-compose.dev.yml` hardcodes `POSTGRES_PASSWORD=pccoach`, so
+`DATABASE_URL` should use `pccoach` as the password locally.
 
 Frontend (`.env` in `frontend/`):
 ```
@@ -108,8 +156,9 @@ Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`)
 ## Notes for Claude Code
 
 - No services (cleaning/repair), no cart, no checkout — this is an affiliate tool
-- `anthropic_api_key` is optional until AI features are wired up
-- In-memory stores are placeholders — DB layer coming next
+- Amazon-only MVP — all affiliate links point to Amazon.de with tag `thepccoach-21`
+- Catalog data lives in `backend/app/db/all_products.json` (~200 scraped products) + peripherals hardcoded in `seed.py`
+- `CatalogService` provides `scout_all()`, `query_for_tool()`, and `resolve_components()` for the agentic loop
 - Do not add abstraction layers unless clearly needed
 - Always use `uv run` inside containers, never bare `python` or `pip`
 - Do not commit `.env` files
@@ -166,13 +215,12 @@ structured JSON at WARNING level to the `security.events` logger.
 
 ### Affiliate URL Allowlist
 
-Only URLs from these hosts are permitted (backend + frontend):
+Only URLs from these hosts are permitted (backend + frontend).
+Currently Amazon-only for MVP — widen when new stores are added.
 
 | Store | Allowed hosts |
 |-------|--------------|
 | Amazon.de | `amazon.de`, `www.amazon.de` |
-| ComputerUniverse | `computeruniverse.net`, `www.computeruniverse.net` |
-| Caseking | `caseking.de`, `www.caseking.de` |
 
 Backend: `backend/app/models/builder.py:_ALLOWED_AFFILIATE_HOSTS`
 Backend output guard: `backend/app/security/output_guard.py:_AFFILIATE_ALLOWED_HOSTS`
@@ -214,8 +262,8 @@ cd backend && uv run pytest
 
 | Endpoint | Default | Env var |
 |----------|---------|---------|
-| POST /api/v1/build | 2/hour (shared pool) | `RATE_LIMIT_AI` |
-| POST /api/v1/search | 2/hour (shared pool) | `RATE_LIMIT_AI` |
+| POST /api/v1/build | 2/day (shared pool) | `RATE_LIMIT_AI` |
+| POST /api/v1/search | 2/day (shared pool) | `RATE_LIMIT_AI` |
 | GET /api/v1/build/{id} | 60/minute | `RATE_LIMIT_READ` |
 
 `POST /build` and `POST /search` share a single rate-limit pool (`scope="ai_calls"`), so the combined limit across both endpoints is `RATE_LIMIT_AI`.
@@ -232,6 +280,6 @@ Format: `"N/period"` where period is `second`, `minute`, `hour`, or `day`.
 
 ## Code Review
 
-The PR review skill lives at `.claude/skills/pccoach-pr-reviewer/SKILL.md`.
-Claude Code loads it automatically when assigned as a GitHub reviewer or asked to review a PR.
+The review skill lives at `.claude/skills/pccoach-review/SKILL.md`.
+Trigger it by saying **"do a comprehensive review"** (or "review the code", "review my changes").
 Do not freeform review without loading the skill first.
