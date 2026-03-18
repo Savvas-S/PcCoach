@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Cormorant_Garamond, Outfit, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -38,9 +39,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${cormorant.variable} ${outfit.variable} ${jb.variable}`}>
-      <body className="bg-obsidian-bg text-obsidian-text font-body">
+      <body className="text-obsidian-text font-body">
+        <AmbientBackground />
+        <div className="relative z-10">
         {children}
-        <footer className="border-t border-obsidian-border bg-obsidian-surface text-sm px-4 pt-10 pb-8">
+        <footer className="border-t border-obsidian-border bg-obsidian-surface/90 text-sm px-4 pt-10 pb-8">
           <div className="max-w-3xl mx-auto space-y-6">
             {/* Brand + nav */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -71,6 +74,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        </div>
       </body>
     </html>
   );

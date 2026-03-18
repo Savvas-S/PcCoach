@@ -19,7 +19,7 @@ const FAQ = [
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-obsidian-bg py-12 px-4">
+    <main className="min-h-screen bg-obsidian-bg/50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-12">
           <Link href="/" className="text-obsidian-muted hover:text-obsidian-text text-xs uppercase tracking-widest transition-colors">

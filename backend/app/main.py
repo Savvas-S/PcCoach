@@ -99,8 +99,32 @@ _ENV_VAR_TYPOS: dict[str, str] = {
 }
 
 
+def _init_tracing() -> None:
+    """Instrument the Anthropic SDK with Arize AX tracing (if configured)."""
+    if not settings.arize_api_key or not settings.arize_space_id:
+        log.info("Arize tracing: disabled (ARIZE_API_KEY or ARIZE_SPACE_ID not set)")
+        return
+    try:
+        from arize.otel import Endpoint, register
+        from openinference.instrumentation.anthropic import AnthropicInstrumentor
+
+        tracer_provider = register(
+            space_id=settings.arize_space_id,
+            api_key=settings.arize_api_key.get_secret_value(),
+            project_name="pccoach",
+            endpoint=Endpoint.ARIZE_EUROPE,
+        )
+        AnthropicInstrumentor().instrument(tracer_provider=tracer_provider)
+        log.info("Arize tracing: enabled (project=pccoach)")
+    except Exception:
+        log.exception("Arize tracing: failed to initialize — continuing without tracing")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Initialize LLM tracing (Arize AX)
+    _init_tracing()
+
     # Warn about likely env var name typos that pydantic-settings silently ignores.
     for typo, correct in _ENV_VAR_TYPOS.items():
         if typo in os.environ:

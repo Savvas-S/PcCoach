@@ -163,7 +163,7 @@ function BuildForm() {
   const selectedBudgetLabel = BUDGETS.find((b) => b.value === budget)?.label;
 
   return (
-    <main className="min-h-screen bg-obsidian-bg text-obsidian-text py-12 px-4">
+    <main className="min-h-screen bg-obsidian-bg/50 text-obsidian-text py-12 px-4">
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
@@ -180,7 +180,7 @@ function BuildForm() {
         <form onSubmit={handleSubmit} className="space-y-1">
 
           {/* Budget */}
-          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+          <section className="bg-obsidian-surface/50 border border-obsidian-border p-8">
             <div className="flex items-baseline gap-3 mb-6">
               <h2 className="font-body font-semibold text-obsidian-text">What&apos;s your budget?</h2>
               <span className="text-xs text-obsidian uppercase tracking-wider">required</span>
@@ -202,7 +202,7 @@ function BuildForm() {
           </section>
 
           {/* Goal */}
-          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+          <section className="bg-obsidian-surface/50 border border-obsidian-border p-8">
             <div className="flex items-baseline gap-3 mb-2">
               <h2 className="font-body font-semibold text-obsidian-text">What will you use it for?</h2>
               <span className="text-xs text-obsidian uppercase tracking-wider">required</span>
@@ -230,7 +230,7 @@ function BuildForm() {
           </section>
 
           {/* Preferences */}
-          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+          <section className="bg-obsidian-surface/50 border border-obsidian-border p-8">
             <div className="flex items-baseline gap-3 mb-2">
               <h2 className="font-body font-semibold text-obsidian-text">Build preferences</h2>
               <span className="text-xs text-obsidian-muted uppercase tracking-wider">optional</span>
@@ -326,7 +326,7 @@ function BuildForm() {
           </section>
 
           {/* Existing Parts */}
-          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+          <section className="bg-obsidian-surface/50 border border-obsidian-border p-8">
             <h2 className="font-body font-semibold text-obsidian-text mb-1">Parts you already own</h2>
             <p className="text-obsidian-muted text-sm mb-6">
               Tag anything you already have — we&apos;ll build around it and skip recommending those parts.
@@ -348,7 +348,7 @@ function BuildForm() {
           </section>
 
           {/* Notes */}
-          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+          <section className="bg-obsidian-surface/50 border border-obsidian-border p-8">
             <h2 className="font-body font-semibold text-obsidian-text mb-1">Anything else?</h2>
             <p className="text-obsidian-muted text-sm mb-5">
               Optional — noise levels, RGB, a case you already own, expansion plans, etc.
@@ -381,8 +381,8 @@ function BuildForm() {
               disabled={!readyToSubmit || loading}
               className={`w-full py-4 text-base font-body font-semibold transition-all ${
                 readyToSubmit && !loading
-                  ? "bg-obsidian text-obsidian-bg hover:brightness-110"
-                  : "bg-obsidian-surface border border-obsidian-border text-obsidian-muted cursor-not-allowed"
+                  ? "btn-shimmer bg-obsidian text-obsidian-bg hover:brightness-110 hover:shadow-[0_0_25px_rgba(251,191,36,0.25)]"
+                  : "bg-obsidian-surface/50 border border-obsidian-border text-obsidian-muted cursor-not-allowed"
               }`}
             >
               {loading

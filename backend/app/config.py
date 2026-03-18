@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     anthropic_api_key: SecretStr | None = None  # required in production
     database_url: SecretStr | None = None  # required when DB is wired up
 
+    # Arize AX — LLM observability (optional; tracing disabled when unset)
+    arize_api_key: SecretStr | None = None
+    arize_space_id: str | None = None
+
     claude_model: str = "claude-sonnet-4-6"
     cors_origins: list[str] = ["http://localhost:3000"]
     environment: Literal["development", "production"] = "development"

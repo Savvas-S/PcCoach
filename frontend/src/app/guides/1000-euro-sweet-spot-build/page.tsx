@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function SweetSpotBuildGuide() {
   return (
-    <main className="min-h-screen bg-obsidian-bg py-12 px-4">
+    <main className="min-h-screen bg-obsidian-bg/50 py-12 px-4">
       <article className="max-w-2xl mx-auto">
         <Link
           href="/"
