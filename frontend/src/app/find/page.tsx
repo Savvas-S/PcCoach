@@ -85,7 +85,7 @@ export default function FindPage() {
   };
 
   return (
-    <main className="min-h-screen bg-obsidian-bg py-12 px-4">
+    <main className="min-h-screen bg-obsidian-bg/50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-12">
           <Link href="/" className="text-obsidian-muted hover:text-obsidian-text text-xs uppercase tracking-widest transition-colors">
@@ -99,7 +99,7 @@ export default function FindPage() {
 
         <form onSubmit={handleSubmit} className="space-y-1">
           {/* Category */}
-          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+          <section className="bg-obsidian-surface/50 border border-obsidian-border p-8">
             <h2 className="font-body font-semibold text-obsidian-text mb-6">What type of component?</h2>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {CATEGORIES.map((c) => (
@@ -121,7 +121,7 @@ export default function FindPage() {
           </section>
 
           {/* Description */}
-          <section className="bg-obsidian-surface border border-obsidian-border p-8">
+          <section className="bg-obsidian-surface/50 border border-obsidian-border p-8">
             <label className="font-body font-semibold text-obsidian-text mb-5 block">
               Describe what you need
             </label>
@@ -146,8 +146,8 @@ export default function FindPage() {
               disabled={!category || !description.trim() || loading}
               className={`w-full py-4 text-base font-body font-semibold transition-all ${
                 !category || !description.trim() || loading
-                  ? "bg-obsidian-surface border border-obsidian-border text-obsidian-muted cursor-not-allowed"
-                  : "bg-obsidian text-obsidian-bg hover:brightness-110"
+                  ? "bg-obsidian-surface/50 border border-obsidian-border text-obsidian-muted cursor-not-allowed"
+                  : "btn-shimmer bg-obsidian text-obsidian-bg hover:brightness-110 hover:shadow-[0_0_25px_rgba(217,119,6,0.25)]"
               }`}
             >
               {loading ? "Finding best match…" : "Find Component →"}
@@ -157,7 +157,7 @@ export default function FindPage() {
 
         {/* Result */}
         {result && (
-          <div className="mt-8 bg-obsidian-surface border border-obsidian-border p-6">
+          <div className="mt-8 bg-obsidian-surface/50 border border-obsidian-border p-6">
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
                 <span className="text-xs font-body text-obsidian border border-obsidian/30 px-2 py-0.5 uppercase tracking-wider">
@@ -199,7 +199,7 @@ export default function FindPage() {
                         href={safeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
+                        className="btn-shimmer inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
                       >
                         Check Current Price on{" "}
                         {result.affiliate_source

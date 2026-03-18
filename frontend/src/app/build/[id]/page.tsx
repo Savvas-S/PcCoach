@@ -49,7 +49,7 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
   const specs = Object.entries(component.specs);
 
   return (
-    <div className="bg-obsidian-surface border border-obsidian-border p-5 hover:border-obsidian-bright transition-colors">
+    <div className="bg-obsidian-surface border border-obsidian-border p-5 hover:border-obsidian-bright transition-colors card-glow">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <span className="text-xs font-body text-obsidian border border-obsidian/30 px-2 py-0.5 uppercase tracking-wider">
@@ -83,7 +83,7 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
                 href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
+                className="btn-shimmer inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
               >
                 Check Current Price on{" "}
                 {component.affiliate_source
@@ -243,7 +243,7 @@ export default function BuildResultPage() {
   if (error) {
     const isExpired = error === "Build not found";
     return (
-      <main className="min-h-screen bg-obsidian-bg flex items-center justify-center">
+      <main className="min-h-screen bg-obsidian-bg/50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-400 mb-2">
             {isExpired ? "This build link has expired." : error}
@@ -263,7 +263,7 @@ export default function BuildResultPage() {
 
   if (!build) {
     return (
-      <main className="min-h-screen bg-obsidian-bg flex items-center justify-center">
+      <main className="min-h-screen bg-obsidian-bg/50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border border-obsidian-bright border-t-obsidian rounded-full animate-spin mx-auto mb-5" />
           <p className="text-obsidian-muted text-sm font-body">Loading your build&hellip;</p>
@@ -287,7 +287,7 @@ export default function BuildResultPage() {
       : "Share this build";
 
   return (
-    <main className="min-h-screen bg-obsidian-bg py-12 px-4">
+    <main className="min-h-screen bg-obsidian-bg/50 py-12 px-4">
       <div className="max-w-3xl mx-auto">
 
         {/* Navigation */}

@@ -57,7 +57,7 @@ export default function Home() {
             {/* Top gold glow */}
             <div
               className="absolute inset-x-0 top-0 h-16 pointer-events-none"
-              style={{ backgroundImage: "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(201,168,76,0.12) 0%, transparent 70%)" }}
+              style={{ backgroundImage: "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(217,119,6,0.12) 0%, transparent 70%)" }}
             />
 
             {/* Badge */}
@@ -90,48 +90,54 @@ export default function Home() {
       </section>
 
       {/* Hero */}
-      <section
-        className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center bg-obsidian-bg"
-        style={{ backgroundImage: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 65%)" }}
-      >
-        <div className="opacity-0 animate-fade-up [animation-delay:0ms] mb-8 inline-flex items-center gap-3 border border-obsidian-border px-5 py-2">
-          <span className="text-xs text-obsidian-muted uppercase tracking-[0.2em]">
-            Free to use &nbsp;&bull;&nbsp; No account required
-          </span>
-        </div>
+      <section className="relative min-h-screen overflow-hidden">
 
-        <h1 className="opacity-0 animate-fade-up [animation-delay:120ms] font-display font-light text-6xl md:text-8xl text-obsidian-text leading-tight mb-8">
-          Build the PC<br className="hidden sm:block" /> you{" "}
-          <em className="text-obsidian not-italic font-normal">actually need.</em>
-        </h1>
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center">
+          <div className="opacity-0 animate-fade-up [animation-delay:0ms] mb-8 inline-flex items-center gap-3 border border-obsidian-border px-5 py-2 backdrop-blur-sm">
+            <span className="text-xs text-obsidian-muted uppercase tracking-[0.2em]">
+              Free to use &nbsp;&bull;&nbsp; No account required
+            </span>
+          </div>
 
-        <p className="opacity-0 animate-fade-up [animation-delay:240ms] text-lg text-obsidian-muted max-w-xl mb-3 leading-relaxed font-body">
-          Set your budget and use case. AI picks every component, checks
-          compatibility end-to-end, and gives you direct buy links from
-          trusted EU PC stores.
-        </p>
+          <h1 className="opacity-0 animate-fade-up [animation-delay:120ms] font-display font-light text-6xl md:text-8xl text-obsidian-text leading-tight mb-8">
+            Build the PC<br className="hidden sm:block" /> you{" "}
+            <em
+              className="text-obsidian not-italic font-normal"
+              style={{ textShadow: "0 0 40px rgba(217,119,6,0.3)" }}
+            >
+              actually need.
+            </em>
+          </h1>
 
-        <p className="opacity-0 animate-fade-up [animation-delay:300ms] text-sm text-obsidian-muted-light mb-12 font-body">
-          Builds complete in under a minute. No guesswork, no mismatched parts.
-        </p>
+          <p className="opacity-0 animate-fade-up [animation-delay:240ms] text-lg text-obsidian-muted max-w-xl mb-3 leading-relaxed font-body">
+            Set your budget and use case. AI picks every component, checks
+            compatibility end-to-end, and gives you direct buy links from
+            trusted EU PC stores.
+          </p>
 
-        <div className="opacity-0 animate-fade-up [animation-delay:380ms] flex flex-col sm:flex-row gap-4">
-          <Link
-            href="/build"
-            className="bg-obsidian text-obsidian-bg font-body font-semibold px-8 py-4 text-base hover:brightness-110 transition-all"
-          >
-            Build My PC &rarr;
-          </Link>
-          <Link
-            href="/find"
-            className="border border-obsidian-border hover:border-obsidian-bright text-obsidian-muted hover:text-obsidian-text font-body font-semibold px-8 py-4 text-base transition-colors"
-          >
-            Find a Component
-          </Link>
+          <p className="opacity-0 animate-fade-up [animation-delay:300ms] text-sm text-obsidian-muted-light mb-12 font-body">
+            Builds complete in under a minute. No guesswork, no mismatched parts.
+          </p>
+
+          <div className="opacity-0 animate-fade-up [animation-delay:380ms] flex flex-col sm:flex-row gap-4">
+            <Link
+              href="/build"
+              className="btn-shimmer bg-obsidian text-obsidian-bg font-body font-semibold px-8 py-4 text-base hover:brightness-110 transition-all hover:shadow-[0_0_30px_rgba(217,119,6,0.3)]"
+            >
+              Build My PC &rarr;
+            </Link>
+            <Link
+              href="/find"
+              className="border border-obsidian-border hover:border-obsidian-bright text-obsidian-muted hover:text-obsidian-text font-body font-semibold px-8 py-4 text-base transition-all hover:shadow-[0_0_20px_rgba(217,119,6,0.08)]"
+            >
+              Find a Component
+            </Link>
+          </div>
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-obsidian-muted-light" aria-hidden="true">
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-obsidian-muted-light z-10" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9" />
           </svg>
@@ -142,7 +148,7 @@ export default function Home() {
       <EditorialSection />
 
       {/* How it works */}
-      <section className="border-t border-obsidian-border py-24 px-4 bg-obsidian-bg">
+      <section className="border-t border-obsidian-border/50 py-24 px-4 bg-obsidian-bg/50">
         <div className="max-w-3xl mx-auto">
           <p className="text-xs text-obsidian uppercase tracking-[0.25em] text-center mb-4">How it works</p>
           <h2 className="font-display font-light text-4xl text-obsidian-text text-center mb-16">
@@ -168,9 +174,9 @@ export default function Home() {
             ].map((item) => (
               <div
                 key={item.step}
-                className="bg-obsidian-surface p-8 hover:bg-obsidian-raised transition-colors"
+                className="bg-obsidian-surface/65 p-8 hover:bg-obsidian-raised transition-colors card-glow"
               >
-                <div className="font-mono text-obsidian text-xs mb-6 tracking-widest">{item.step}</div>
+                <div className="font-mono text-obsidian text-xs mb-6 tracking-widest" style={{ textShadow: "0 0 15px rgba(217,119,6,0.5)" }}>{item.step}</div>
                 <h3 className="font-body font-semibold text-obsidian-text mb-3 text-sm">{item.title}</h3>
                 <p className="text-obsidian-muted text-sm leading-relaxed">{item.desc}</p>
               </div>
@@ -180,7 +186,7 @@ export default function Home() {
       </section>
 
       {/* Example Builds */}
-      <section className="border-t border-obsidian-border py-24 px-4 bg-obsidian-surface">
+      <section className="border-t border-obsidian-border/50 py-24 px-4 bg-obsidian-surface/50">
         <div className="max-w-3xl mx-auto">
           <p className="text-xs text-obsidian uppercase tracking-[0.25em] text-center mb-4">Example builds</p>
           <h2 className="font-display font-light text-4xl text-obsidian-text text-center mb-16">
@@ -190,7 +196,7 @@ export default function Home() {
             {EXAMPLE_BUILDS.map((ex) => (
               <div
                 key={ex.title}
-                className="bg-obsidian-bg p-8 flex flex-col hover:bg-obsidian-raised transition-colors"
+                className="bg-obsidian-bg/65 p-8 flex flex-col hover:bg-obsidian-raised transition-colors card-glow"
               >
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <h3 className="font-display font-normal text-xl text-obsidian-text">{ex.title}</h3>
@@ -209,7 +215,7 @@ export default function Home() {
                 </ul>
                 <Link
                   href={`/build?budget=${ex.budget}&goal=${ex.goal}`}
-                  className="text-center border border-obsidian-border hover:border-obsidian text-obsidian-muted hover:text-obsidian text-sm py-3 transition-colors font-body"
+                  className="btn-shimmer text-center border border-obsidian-border hover:border-obsidian text-obsidian-muted hover:text-obsidian text-sm py-3 transition-colors font-body"
                 >
                   Build this &rarr;
                 </Link>
@@ -223,7 +229,7 @@ export default function Home() {
       </section>
 
       {/* Why trust PcCoach */}
-      <section className="border-t border-obsidian-border py-24 px-4 bg-obsidian-bg">
+      <section className="border-t border-obsidian-border/50 py-24 px-4 bg-obsidian-bg/50">
         <div className="max-w-3xl mx-auto">
           <p className="text-xs text-obsidian uppercase tracking-[0.25em] text-center mb-4">Why trust us</p>
           <h2 className="font-display font-light text-4xl text-obsidian-text text-center mb-16">
@@ -248,7 +254,7 @@ export default function Home() {
                 desc: "The goal is a balanced, working build for your use case — not a list of the most expensive compatible components or whatever's in stock.",
               },
             ].map((item) => (
-              <div key={item.title} className="border-l border-obsidian/30 pl-6">
+              <div key={item.title} className="border-l border-obsidian/30 pl-6 transition-colors hover:border-obsidian">
                 <h3 className="font-body font-semibold text-obsidian-text mb-2 text-sm">{item.title}</h3>
                 <p className="text-obsidian-muted text-sm leading-relaxed">{item.desc}</p>
               </div>
@@ -258,18 +264,21 @@ export default function Home() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="border-t border-obsidian-border py-20 px-4 bg-obsidian-surface text-center">
+      <section className="border-t border-obsidian-border/50 py-20 px-4 bg-obsidian-surface/50 text-center">
         <div className="max-w-lg mx-auto">
           <h2 className="font-display font-light text-4xl text-obsidian-text mb-4">Ready to start?</h2>
           <p className="text-obsidian-muted text-sm mb-10">
             Budgets from €500 to €3,000+. Gaming, workstation, everyday use, and more.
           </p>
-          <Link
-            href="/build"
-            className="inline-block bg-obsidian text-obsidian-bg font-body font-semibold px-10 py-4 text-base hover:brightness-110 transition-all"
-          >
-            Build My PC &rarr;
-          </Link>
+          <div className="relative inline-block">
+            <div className="absolute -inset-6 bg-obsidian/25 rounded-full blur-3xl animate-pulse-glow pointer-events-none" aria-hidden="true" />
+            <Link
+              href="/build"
+              className="relative btn-shimmer inline-block bg-obsidian text-obsidian-bg font-body font-semibold px-10 py-4 text-base hover:brightness-110 transition-all hover:shadow-[0_0_30px_rgba(217,119,6,0.3)]"
+            >
+              Build My PC &rarr;
+            </Link>
+          </div>
         </div>
       </section>
 

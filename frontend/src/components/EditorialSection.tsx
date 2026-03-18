@@ -29,7 +29,7 @@ const GUIDES: GuideCard[] = [
 
 export function EditorialSection() {
   return (
-    <section className="border-t border-obsidian-border py-24 px-4 bg-obsidian-surface">
+    <section className="border-t border-obsidian-border/50 py-24 px-4 bg-obsidian-surface/50">
       <div className="max-w-3xl mx-auto">
         <p className="text-xs text-obsidian uppercase tracking-[0.25em] text-center mb-4">
           Latest guides
@@ -43,7 +43,7 @@ export function EditorialSection() {
             <Link
               key={guide.href}
               href={guide.href}
-              className="bg-obsidian-bg p-8 flex flex-col hover:bg-obsidian-raised transition-colors group"
+              className="bg-obsidian-bg/65 p-8 flex flex-col hover:bg-obsidian-raised transition-colors group card-glow"
             >
               <h3 className="font-body font-semibold text-obsidian-text text-sm mb-3 group-hover:text-obsidian transition-colors leading-snug">
                 {guide.title}
