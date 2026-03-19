@@ -79,9 +79,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 async def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
     retry_after = getattr(exc, "retry_after", None)
+    # Parse "N/period" from config so the message stays in sync.
+    limit_str = settings.rate_limit_ai  # e.g. "2/day"
+    count, _, period = limit_str.partition("/")
     detail = (
-        "Rate limit exceeded — resets in 1 day. "
-        "Each user gets 2 AI requests per day."
+        f"Rate limit exceeded — resets in 1 {period or 'day'}. "
+        f"Each user gets {count} AI requests per {period or 'day'}."
     )
     headers = {"Retry-After": str(retry_after)} if retry_after is not None else {}
     return JSONResponse({"detail": detail}, status_code=429, headers=headers)
