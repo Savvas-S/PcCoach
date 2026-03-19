@@ -42,6 +42,7 @@ CATEGORY_SPEC_KEYS: dict[str, list[str]] = {
     "monitor": ["resolution", "size_inches", "panel", "refresh_hz"],
     "keyboard": ["type", "switch", "layout"],
     "mouse": ["sensor", "weight_g", "wireless"],
+    "toolkit": ["type"],
 }
 
 

@@ -61,6 +61,7 @@ class ComponentCategory(StrEnum):
     monitor = "monitor"
     keyboard = "keyboard"
     mouse = "mouse"
+    toolkit = "toolkit"
 
 
 class BuildStatus(StrEnum):

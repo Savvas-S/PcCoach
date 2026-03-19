@@ -26,6 +26,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   monitor: "Monitor",
   keyboard: "Keyboard",
   mouse: "Mouse",
+  toolkit: "Toolkit",
 };
 
 const SPEC_KEY_OVERRIDES: Record<string, string> = {

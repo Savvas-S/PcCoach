@@ -120,7 +120,7 @@ COMMON_NOTES = [
 CATEGORY_EMOJI = {
     "cpu": "🧠", "gpu": "🎮", "motherboard": "🔧", "ram": "💾",
     "storage": "💿", "psu": "⚡", "case": "📦", "cooling": "❄️",
-    "monitor": "🖥️", "keyboard": "⌨️", "mouse": "🖱️",
+    "monitor": "🖥️", "keyboard": "⌨️", "mouse": "🖱️", "toolkit": "🔧",
 }
 
 

@@ -29,7 +29,8 @@ export type ComponentCategory =
   | "cooling"
   | "monitor"
   | "keyboard"
-  | "mouse";
+  | "mouse"
+  | "toolkit";
 
 export interface BuildRequest {
   goal: UserGoal;
