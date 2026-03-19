@@ -400,10 +400,27 @@ async def _generate_and_reply(chat_id: int, context) -> None:
     }
 
     try:
+        build = None
         async with httpx.AsyncClient(timeout=95.0) as client:
-            r = await client.post(f"{API_URL}/api/v1/build", json=payload)
-            r.raise_for_status()
-            build = r.json()
+            async with client.stream(
+                "POST", f"{API_URL}/api/v1/build", json=payload,
+            ) as r:
+                r.raise_for_status()
+                event_type = ""
+                async for line in r.aiter_lines():
+                    if line.startswith("event: "):
+                        event_type = line[7:]
+                    elif line.startswith("data: "):
+                        if event_type == "result":
+                            build = json.loads(line[6:])
+                        elif event_type == "error":
+                            err = json.loads(line[6:])
+                            raise Exception(
+                                err.get("detail", "Build failed")
+                            )
+                        event_type = ""
+        if build is None:
+            raise Exception("No build result received from API")
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 429:
             logger.warning("Rate limit hit for chat_id=%s", chat_id)

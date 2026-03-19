@@ -4,9 +4,13 @@ These tests use an in-memory SQLite database (via aiosqlite) so they run
 without a real PostgreSQL instance. JSONB is not available in SQLite; we
 use JSON instead via the render_as_batch / JSON fallback provided by
 SQLAlchemy's type system.
+
+POST /api/v1/build returns an SSE stream (text/event-stream). Helper
+``_parse_sse`` extracts typed events from the raw response text.
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+import json
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -133,6 +137,67 @@ _VALID_PAYLOAD = {
 
 
 # ---------------------------------------------------------------------------
+# SSE parsing helper
+# ---------------------------------------------------------------------------
+
+
+def _parse_sse(text: str) -> list[tuple[str, dict]]:
+    """Parse SSE text into a list of (event_type, data_dict) tuples."""
+    events = []
+    for block in text.split("\n\n"):
+        block = block.strip()
+        if not block:
+            continue
+        event_type = ""
+        data = ""
+        for line in block.split("\n"):
+            if line.startswith("event: "):
+                event_type = line[7:]
+            elif line.startswith("data: "):
+                data = line[6:]
+        if event_type and data:
+            events.append((event_type, json.loads(data)))
+    return events
+
+
+def _sse_result(resp) -> dict:
+    """Extract the 'result' event data from an SSE response."""
+    events = _parse_sse(resp.text)
+    for event_type, data in events:
+        if event_type == "result":
+            return data
+    raise AssertionError(f"No 'result' event found in SSE response: {events}")
+
+
+def _sse_error(resp) -> dict:
+    """Extract the 'error' event data from an SSE response."""
+    events = _parse_sse(resp.text)
+    for event_type, data in events:
+        if event_type == "error":
+            return data
+    raise AssertionError(f"No 'error' event found in SSE response: {events}")
+
+
+# ---------------------------------------------------------------------------
+# Async generator mock helper
+# ---------------------------------------------------------------------------
+
+
+async def _mock_build_stream(build: BuildResult):
+    """Create an async generator that mimics generate_build_stream."""
+    yield {
+        "type": "progress",
+        "phase": "scouting",
+        "turn": 1,
+        "elapsed_s": 1.0,
+        "categories_scouted": ["cpu"],
+        "categories_queried": [],
+        "tool": "scout_catalog",
+    }
+    yield {"type": "result", "data": build}
+
+
+# ---------------------------------------------------------------------------
 # POST /api/v1/build — cache miss (calls Claude)
 # ---------------------------------------------------------------------------
 
@@ -146,16 +211,18 @@ class TestCreateBuildCacheMiss:
         build = _make_build_result()
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
-        mock_service.generate_build = AsyncMock(return_value=build)
+        mock_service.generate_build_stream = MagicMock(
+            return_value=_mock_build_stream(build)
+        )
         mock_get_service.return_value = mock_service
 
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
 
-        assert resp.status_code == 201
-        data = resp.json()
+        assert resp.status_code == 200
+        data = _sse_result(resp)
         assert data["id"] == build.id
         assert len(data["components"]) == 1
-        mock_service.generate_build.assert_awaited_once()
+        mock_service.generate_build_stream.assert_called_once()
 
     @patch("app.api.v1.builder.secrets.token_urlsafe", return_value="persist01")
     @patch("app.api.v1.builder.get_claude_service")
@@ -170,11 +237,13 @@ class TestCreateBuildCacheMiss:
         build = _make_build_result("persist01")
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
-        mock_service.generate_build = AsyncMock(return_value=build)
+        mock_service.generate_build_stream = MagicMock(
+            return_value=_mock_build_stream(build)
+        )
         mock_get_service.return_value = mock_service
 
         post_resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
-        assert post_resp.status_code == 201
+        assert post_resp.status_code == 200
 
         resp = client.get("/api/v1/build/persist01")
         assert resp.status_code == 200
@@ -195,18 +264,22 @@ class TestCreateBuildCacheHit:
         build = _make_build_result()
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
-        mock_service.generate_build = AsyncMock(return_value=build)
+        mock_service.generate_build_stream = MagicMock(
+            return_value=_mock_build_stream(build)
+        )
         mock_get_service.return_value = mock_service
 
         # First request — calls Claude
         resp1 = client.post("/api/v1/build", json=_VALID_PAYLOAD)
-        assert resp1.status_code == 201
+        assert resp1.status_code == 200
 
         # Second identical request — must NOT call Claude again
         resp2 = client.post("/api/v1/build", json=_VALID_PAYLOAD)
-        assert resp2.status_code == 201
-        assert resp2.json()["id"] == resp1.json()["id"]
-        mock_service.generate_build.assert_awaited_once()  # still only one call
+        assert resp2.status_code == 200
+        result1 = _sse_result(resp1)
+        result2 = _sse_result(resp2)
+        assert result2["id"] == result1["id"]
+        mock_service.generate_build_stream.assert_called_once()  # still only one call
 
 
 # ---------------------------------------------------------------------------
@@ -228,11 +301,13 @@ class TestGetBuild:
         build = _make_build_result("gettest1")
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
-        mock_service.generate_build = AsyncMock(return_value=build)
+        mock_service.generate_build_stream = MagicMock(
+            return_value=_mock_build_stream(build)
+        )
         mock_get_service.return_value = mock_service
 
         post_resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
-        assert post_resp.status_code == 201
+        assert post_resp.status_code == 200
 
         resp = client.get("/api/v1/build/gettest1")
         assert resp.status_code == 200
@@ -270,38 +345,54 @@ class TestGuardrailBlocking:
 
 
 # ---------------------------------------------------------------------------
-# Error handling
+# Error handling (errors during streaming are SSE error events, not HTTP codes)
 # ---------------------------------------------------------------------------
 
 
 class TestErrorHandling:
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
-    def test_validation_failure_returns_400(
+    def test_validation_failure_returns_error_event(
         self, mock_guardrail, mock_get_service, client
     ):
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
-        mock_service.generate_build = AsyncMock(
-            side_effect=BuildValidationError(
+
+        async def _failing_stream(*args, **kwargs):
+            raise BuildValidationError(
                 [ValidationError("motherboard", "socket_mismatch", "AM5 != LGA1700")]
             )
+            yield  # make it a generator  # noqa: E501 — unreachable but needed for async gen syntax
+
+        mock_service.generate_build_stream = MagicMock(
+            return_value=_failing_stream()
         )
         mock_get_service.return_value = mock_service
 
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
-        assert resp.status_code == 400
-        assert "compatibility" in resp.json()["detail"].lower()
+        assert resp.status_code == 200  # SSE always 200
+        err = _sse_error(resp)
+        assert err["status"] == 400
+        assert "compatibility" in err["detail"].lower()
 
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
-    def test_timeout_returns_504(self, mock_guardrail, mock_get_service, client):
+    def test_timeout_returns_error_event(
+        self, mock_guardrail, mock_get_service, client
+    ):
         mock_guardrail.check.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
-        mock_service.generate_build = AsyncMock(
-            side_effect=TimeoutError("Tool loop exceeded timeout")
+
+        async def _timeout_stream(*args, **kwargs):
+            raise TimeoutError("Tool loop exceeded timeout")
+            yield  # noqa: E501
+
+        mock_service.generate_build_stream = MagicMock(
+            return_value=_timeout_stream()
         )
         mock_get_service.return_value = mock_service
 
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
-        assert resp.status_code == 504
+        assert resp.status_code == 200  # SSE always 200
+        err = _sse_error(resp)
+        assert err["status"] == 504

@@ -1,9 +1,11 @@
-import asyncio
+import json
 import logging
 import secrets
+from collections.abc import AsyncGenerator
 
 import anthropic
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -23,15 +25,69 @@ log = logging.getLogger(__name__)
 router = APIRouter(prefix="/build", tags=["build"])
 
 
-@router.post("", response_model=BuildResult, status_code=201)
+def _sse(event: str, data: str) -> str:
+    """Format a single SSE frame."""
+    return f"event: {event}\ndata: {data}\n\n"
+
+
+def _map_error(
+    exc: Exception, goal: str, budget: str
+) -> tuple[int, str]:
+    """Map known exceptions to (status, detail) for the SSE error event."""
+    ctx = "goal=%s budget=%s error=%s"
+    if isinstance(exc, BuildValidationError):
+        log.warning("Build validation failed: " + ctx, goal, budget, exc)
+        return 400, (
+            "The recommended build has compatibility issues that could "
+            "not be resolved. Please try different requirements."
+        )
+    if isinstance(exc, TimeoutError):
+        log.warning("Tool loop timeout: " + ctx, goal, budget, exc)
+        return 504, "The AI took too long to respond. Please try again."
+    if isinstance(exc, anthropic.APITimeoutError):
+        log.warning("Claude API timed out: " + ctx, goal, budget, exc)
+        return 504, "The AI took too long to respond. Please try again."
+    if isinstance(exc, anthropic.APIConnectionError):
+        log.warning("Claude unreachable: " + ctx, goal, budget, exc)
+        return 502, "Could not reach the AI service. Please try again."
+    if isinstance(exc, anthropic.AuthenticationError):
+        log.error("Claude auth error: " + ctx, goal, budget, exc)
+        return 503, (
+            "Due to high demand, our AI service is temporarily "
+            "unavailable. Please try again later."
+        )
+    if isinstance(exc, anthropic.RateLimitError):
+        log.warning("Claude rate limit: " + ctx, goal, budget, exc)
+        return 503, "The AI service is busy. Please try again."
+    if isinstance(exc, anthropic.InternalServerError):
+        log.warning("Claude overloaded: " + ctx, goal, budget, exc)
+        return 503, (
+            "The AI service is temporarily overloaded. "
+            "Please try again in a moment."
+        )
+    if isinstance(exc, (ValidationError, ValueError)):
+        log.error("Invalid Claude response: " + ctx, goal, budget, exc)
+        return 500, (
+            "Could not generate a valid recommendation. "
+            "Please try again."
+        )
+    log.exception(
+        "Unexpected error: goal=%s budget=%s", goal, budget
+    )
+    return 500, "Internal server error"
+
+
+@router.post("")
 @limiter.shared_limit(lambda: settings.rate_limit_ai, scope="ai_calls")
 async def create_build(
     request: Request,
     payload: BuildRequest,
     db: AsyncSession = Depends(get_db),
-) -> BuildResult:
+):
     client_ip = request.client.host if request.client else "unknown"
     body_hash = hash_build_request(payload)
+
+    # ---- Pre-stream checks (can still raise HTTPException) ----
 
     guard_result = input_guardrail.check(
         notes=payload.notes,
@@ -53,146 +109,84 @@ async def create_build(
     cached = await db.scalar(select(Build).where(Build.request_hash == body_hash))
     if cached:
         log.info("Build cache hit: hash=%s id=%s", body_hash[:8], cached.id)
-        return BuildResult.model_validate(cached.result)
+        result = BuildResult.model_validate(cached.result)
+        result_json = result.model_dump(mode="json")
 
-    # Cache miss — call Claude via agentic tool loop
+        async def cached_stream() -> AsyncGenerator[str, None]:
+            yield _sse("result", json.dumps(result_json))
+
+        return StreamingResponse(
+            cached_stream(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    # ---- Stream the build ----
+
     build_id = secrets.token_urlsafe(8)
 
-    try:
-        claude = get_claude_service()
-        build = await claude.generate_build(
-            payload, build_id=build_id, client_ip=client_ip, db=db
-        )
-    except BuildValidationError as e:
-        log.warning(
-            "Build validation failed after repair: goal=%s budget=%s errors=%s",
-            payload.goal,
-            payload.budget_range,
-            e,
-        )
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "The recommended build has compatibility issues that could not "
-                "be resolved. Please try different requirements."
-            ),
-        )
-    except TimeoutError as e:
-        log.warning(
-            "Tool loop timeout: goal=%s budget=%s error=%s",
-            payload.goal,
-            payload.budget_range,
-            e,
-        )
-        raise HTTPException(
-            status_code=504,
-            detail="The AI took too long to respond. Please try again.",
-        )
-    except anthropic.APITimeoutError as e:
-        log.warning(
-            "Claude API timed out: goal=%s budget=%s error=%s",
-            payload.goal,
-            payload.budget_range,
-            e,
-        )
-        raise HTTPException(
-            status_code=504, detail="The AI took too long to respond. Please try again."
-        )
-    except anthropic.APIConnectionError as e:
-        log.warning(
-            "Claude API unreachable: goal=%s budget=%s error=%s",
-            payload.goal,
-            payload.budget_range,
-            e,
-        )
-        raise HTTPException(
-            status_code=502, detail="Could not reach the AI service. Please try again."
-        )
-    except anthropic.AuthenticationError as e:
-        log.error(
-            "Claude API auth error (key invalid or balance exhausted): goal=%s budget=%s error=%s",
-            payload.goal,
-            payload.budget_range,
-            e,
-        )
-        await asyncio.sleep(3)
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                "Due to high demand, our AI service is temporarily unavailable. "
-                "We apologise for the inconvenience — please try again later."
-            ),
-        )
-    except anthropic.RateLimitError as e:
-        log.warning(
-            "Claude API rate limit hit: goal=%s budget=%s error=%s",
-            payload.goal,
-            payload.budget_range,
-            e,
-        )
-        raise HTTPException(
-            status_code=503,
-            detail="The AI service is busy. Please try again in a few minutes.",
-        )
-    except anthropic.InternalServerError as e:
-        log.warning(
-            "Claude API overloaded (529): goal=%s budget=%s error=%s",
-            payload.goal,
-            payload.budget_range,
-            e,
-        )
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                "The AI service is temporarily overloaded. "
-                "Please try again in a moment."
-            ),
-        )
-    except (ValidationError, ValueError) as e:
-        log.error(
-            "Invalid Claude response structure: goal=%s budget=%s error=%s",
-            payload.goal,
-            payload.budget_range,
-            e,
-        )
-        raise HTTPException(
-            status_code=500,
-            detail="Could not generate a valid recommendation. Please try again.",
-        )
-    except Exception:
-        log.exception(
-            "Unexpected error generating build: goal=%s budget=%s",
-            payload.goal,
-            payload.budget_range,
-        )
-        raise HTTPException(status_code=500, detail="Internal server error")
+    async def event_stream() -> AsyncGenerator[str, None]:
+        try:
+            claude = get_claude_service()
+            build: BuildResult | None = None
+            async for event in claude.generate_build_stream(
+                payload, build_id=build_id, client_ip=client_ip, db=db
+            ):
+                if event["type"] == "progress":
+                    yield _sse("progress", json.dumps(event))
+                elif event["type"] == "result":
+                    build = event["data"]
 
-    try:
-        db.add(
-            Build(
-                id=build_id,
-                request_hash=body_hash,
-                request=payload.model_dump(mode="json"),
-                result=build.model_dump(mode="json"),
+            if build is None:
+                err = {"status": 500, "detail": "No result produced."}
+                yield _sse("error", json.dumps(err))
+                return
+
+            # Persist to DB
+            try:
+                db.add(
+                    Build(
+                        id=build_id,
+                        request_hash=body_hash,
+                        request=payload.model_dump(mode="json"),
+                        result=build.model_dump(mode="json"),
+                    )
+                )
+                await db.commit()
+            except IntegrityError:
+                await db.rollback()
+                dup = await db.scalar(
+                    select(Build).where(Build.request_hash == body_hash)
+                )
+                if dup:
+                    build = BuildResult.model_validate(dup.result)
+
+            log.info(
+                "Build generated: id=%s goal=%s budget=%s components=%d",
+                build_id,
+                payload.goal.value,
+                payload.budget_range.value,
+                len(build.components),
             )
-        )
-        await db.commit()
-    except IntegrityError:
-        # Another concurrent request committed the same hash first — return that result.
-        await db.rollback()
-        cached = await db.scalar(select(Build).where(Build.request_hash == body_hash))
-        if cached:
-            return BuildResult.model_validate(cached.result)
-        raise HTTPException(status_code=500, detail="Internal server error")
+            yield _sse("result", json.dumps(build.model_dump(mode="json")))
 
-    log.info(
-        "Build generated: id=%s goal=%s budget=%s components=%d",
-        build_id,
-        payload.goal.value,
-        payload.budget_range.value,
-        len(build.components),
+        except Exception as exc:
+            status, detail = _map_error(
+                exc, payload.goal.value, payload.budget_range.value
+            )
+            yield _sse("error", json.dumps({"status": status, "detail": detail}))
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
     )
-    return build
 
 
 @router.get("/{build_id}", response_model=BuildResult)

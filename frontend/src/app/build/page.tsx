@@ -3,8 +3,10 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { submitBuild } from "@/lib/api";
+import { submitBuildStream } from "@/lib/api";
+import type { BuildProgress } from "@/lib/api";
 import { ErrorModal } from "@/components/ErrorModal";
+import { BuildLoadingScreen } from "@/components/BuildLoadingScreen";
 import type {
   UserGoal,
   BudgetRange,
@@ -86,6 +88,7 @@ function BuildForm() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [buildProgress, setBuildProgress] = useState<BuildProgress | null>(null);
 
   const [notes, setNotes] = useState("");
   const [budget, setBudget] = useState<BudgetRange | null>(null);
@@ -126,10 +129,11 @@ function BuildForm() {
     if (!goal || !budget) return;
     setLoading(true);
     setError(null);
+    setBuildProgress(null);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 120_000);
     try {
-      const result = await submitBuild(
+      const result = await submitBuildStream(
         {
           goal,
           budget_range: budget,
@@ -141,8 +145,14 @@ function BuildForm() {
           existing_parts: existingParts,
           notes: notes.trim() || undefined,
         },
-        controller.signal
+        setBuildProgress,
+        controller.signal,
       );
+      // Wait for the staggered slot-reveal animation to finish.
+      // Slots reveal at 350ms intervals; delay = slots × 350 + buffer.
+      const slotCount = includePeripherals ? 11 : 8;
+      const revealMs = slotCount * 350 + 800;
+      await new Promise((r) => setTimeout(r, revealMs));
       sessionStorage.setItem("build_result", JSON.stringify(result));
       router.push(`/build/${result.id}`);
     } catch (err) {
@@ -153,6 +163,7 @@ function BuildForm() {
         setError(msg);
       }
       setLoading(false);
+      setBuildProgress(null);
     } finally {
       clearTimeout(timeout);
     }
@@ -400,6 +411,15 @@ function BuildForm() {
       </div>
 
       {error && <ErrorModal message={error} onDismiss={() => setError(null)} />}
+
+      {loading && (
+        <BuildLoadingScreen
+          goalLabel={selectedGoalLabel ?? ""}
+          budgetLabel={selectedBudgetLabel ?? ""}
+          includePeripherals={includePeripherals}
+          progress={buildProgress}
+        />
+      )}
     </main>
   );
 }
