@@ -21,42 +21,38 @@ Revenue model: affiliate commissions (Amazon.de for MVP, more stores planned) �
 
 ```
 PcCoach/
-├── backend/
+├── backend/                    # See backend/CLAUDE.md for detailed docs
 │   ├── app/
-│   │   ├── api/v1/
-│   │   │   ├── router.py         # Registers all routers
-│   │   │   ├── builder.py        # Build recommendation endpoints
-│   │   │   └── search.py         # Component search endpoint
-│   │   ├── db/
-│   │   │   ├── models.py         # SQLAlchemy ORM: Build, Component, AffiliateLink
-│   │   │   ├── all_products.json # Scraped product catalog (~200 products, 8 categories)
-│   │   │   └── seed.py           # Loads all_products.json + peripheral data → seeds DB
-│   │   ├── models/
-│   │   │   └── builder.py        # Pydantic models: BuildRequest, BuildResult, etc.
-│   │   ├── services/
-│   │   │   ├── build_validator.py # Server-side compatibility validation
-│   │   │   ├── catalog.py        # CatalogService — scout/query/resolve from DB
-│   │   │   └── claude.py         # Agentic tool loop + Claude integration
-│   │   ├── security/
-│   │   │   ├── guardrails.py     # Input guardrails (scope, toxicity, budget, dedup)
-│   │   │   ├── output_guard.py   # Output guardrails (leak, off-topic, URL, PII)
-│   │   │   ├── prompt_guard.py   # sanitize_user_input()
-│   │   │   └── events.py         # Structured guardrail event logging
-│   │   ├── prompts/              # YAML prompt sections + manager
-│   │   ├── database.py           # Async engine, session factory, Base
-│   │   ├── config.py             # Settings (pydantic-settings)
-│   │   └── main.py               # FastAPI app + CORS
-│   ├── alembic/                  # DB migrations
-│   │   └── versions/             # One file per migration
-│   └── alembic.ini
-│   ├── pyproject.toml
-│   └── uv.lock
-├── frontend/
-│   └── src/app/                  # Next.js App Router
-├── requests.http                 # Manual endpoint testing
-├── docker-compose.yml            # Production
-├── docker-compose.dev.yml        # Development (hot reload)
-└── Makefile                      # Common commands
+│   │   ├── api/v1/             # Route handlers (builder, search, router)
+│   │   ├── db/                 # ORM models, product catalog JSON, seed script
+│   │   ├── models/             # Pydantic request/response models
+│   │   ├── services/           # ClaudeService, CatalogService, BuildValidator
+│   │   ├── security/           # Input/output guardrails, prompt guard, blocklist
+│   │   ├── prompts/            # YAML prompt sections + manager
+│   │   ├── config.py           # Settings (pydantic-settings)
+│   │   ├── database.py         # Async engine, session factory, Base
+│   │   ├── limiter.py          # slowapi rate limiter + IP resolution
+│   │   └── main.py             # FastAPI app + middleware + lifespan
+│   ├── tests/                  # pytest suite (7 test files)
+│   ├── alembic/                # DB migrations
+│   ├── pyproject.toml          # Dependencies + ruff + pytest config
+│   └── Dockerfile / Dockerfile.dev
+├── frontend/                   # See frontend/CLAUDE.md for detailed docs
+│   ├── src/
+│   │   ├── app/                # Next.js App Router pages
+│   │   ├── components/         # Shared React components
+│   │   └── lib/                # API client, types, URL/price utilities
+│   ├── next.config.js          # Rewrites, CSP, proxy timeout
+│   ├── tailwind.config.ts      # Obsidian dark theme
+│   ├── package.json
+│   └── Dockerfile / Dockerfile.dev
+├── shared/
+│   └── budget_goals.json       # Single source of truth (synced via `make sync-config`)
+├── docker-compose.yml          # Production (4 services)
+├── docker-compose.dev.yml      # Development (hot reload)
+├── Makefile                    # All commands: dev, build, test, deploy, etc.
+├── scripts/setup-nginx.sh      # Production nginx + SSL setup
+└── requests.http               # Manual endpoint testing
 ```
 
 ## Core Flow
@@ -64,17 +60,18 @@ PcCoach/
 ```
 User fills form → POST /api/v1/build (BuildRequest)
                → InputGuardrail checks (scope, toxicity, budget, dedup)
+               → Cache check (Build table by request_hash)
                → ClaudeService starts agentic tool-use loop:
                    Phase 1 — Scout: Claude calls scout_catalog (all categories)
-                   Phase 2 — Select: Claude calls query_catalog (targeted filters)
+                   Phase 2 — Select: Claude calls query_catalog (only if needed)
                    Phase 3 — Submit: Claude calls submit_build (component_ids)
                → BuildValidator checks compatibility (socket, DDR, form factor, PSU, GPU)
-               → If invalid: repair within same loop (1 attempt)
+               → If invalid: repair within same loop (max 1 attempt)
                → CatalogService resolves component_ids → affiliate URLs
                → OutputGuardrail checks (leak, off-topic, URL allowlist, PII, price)
-               → BuildResult streamed as SSE events (see below)
-               → User clicks affiliate link → buys on Amazon.de
-               → You earn commission
+               → BuildResult streamed as SSE events
+               → Persisted to DB (Build table)
+               → User clicks affiliate link → buys on Amazon.de → commission
 ```
 
 Both `/api/v1/build` and `/api/v1/search` use the agentic tool loop — Claude queries the catalog via tools and only sees `component_id` values. Affiliate URLs are resolved server-side after selection.
@@ -98,42 +95,51 @@ The frontend timeout (`120_000 ms`) is coupled to the backend's `AGENTIC_LOOP_TI
 ### Agentic Tool Loop
 
 Claude does **not** receive the full catalog in the prompt. Instead, it queries incrementally:
-- `scout_catalog` — overview of up to 10 products per category (slim format, ~80 chars/product)
-- `query_catalog` — targeted refinement with filters (socket, DDR, form factor, brand)
+- `scout_catalog` — overview of up to 50 products per category (slim format: `id={N} | Brand Model | specs | EUR {price}`)
+- `query_catalog` — targeted refinement with filters (socket, DDR, form factor, brand, cooling_type). Only if scout didn't show a compatible option.
 - `submit_build` / `recommend_component` — terminal tools that trigger server-side validation
 
 The `BuildValidator` (server-side) enforces hard compatibility rules. If validation fails, errors are sent back as `is_error` tool results and Claude repairs within the same conversation. Max 1 repair attempt; after that, `BuildValidationError` → HTTP 400.
 
+Target loop pattern: **scout → submit** (2 turns). Each extra query_catalog adds ~10s latency.
+
 ## API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/v1/build` | Submit build requirements (returns SSE stream) |
-| GET | `/api/v1/build` | List all builds |
-| GET | `/api/v1/build/{id}` | Get a build by ID |
-| POST | `/api/v1/search` | Search for a single component |
+| Method | Path | Description | Rate Limit |
+|--------|------|-------------|------------|
+| POST | `/api/v1/build` | Submit build requirements (returns SSE stream) | `RATE_LIMIT_AI` (shared) |
+| GET | `/api/v1/build` | List all builds | — |
+| GET | `/api/v1/build/{id}` | Get a build by ID | `RATE_LIMIT_READ` |
+| POST | `/api/v1/search` | Search for a single component | `RATE_LIMIT_AI` (shared) |
+| GET | `/health` | Database connectivity check | — |
+| POST | `/internal/clear-cache` | Clear in-memory search cache (private/loopback only) | — |
 
 ## Common Commands
 
 ```bash
 make dev          # Start dev environment (hot reload)
-make dev-build    # Rebuild dev images
+make dev-build    # Rebuild dev images (run after dependency changes)
+make dev-deploy   # Build, migrate, and start dev containers (detached)
 make migrate      # Run pending Alembic migrations (dev)
-make seed         # Seed the component catalog (idempotent)
+make seed         # Seed the component catalog (idempotent, clears search cache)
+make sync-config  # Copy shared/budget_goals.json to all services
 make lock         # Regenerate uv.lock and package-lock.json
 make test         # Run pytest in backend container
 make lint         # Run ruff check + format check
 make logs         # Tail all container logs
+make deploy       # Production: pull, sync-config, build, migrate, up, seed
+make init         # Copy .env.example to .env for all services
 ```
 
-## Backend Conventions
+## Shared Configuration
 
-- **Package manager**: `uv` only — never use pip directly
-- **Linter/formatter**: `ruff` (line length 88, Python 3.12 target)
-- **Settings**: all config via environment variables, loaded through `app/config.py`
-- **API versioning**: routes live under `/api/v1/`
-- **Claude model**: `claude-sonnet-4-6` — do not downgrade without discussion
-- **Async**: use `async def` for all route handlers and service methods
+`shared/budget_goals.json` is the single source of truth for budget→goal mappings.
+It is copied to three locations by `make sync-config`:
+- `backend/app/budget_goals.json`
+- `frontend/src/lib/budget_goals.json`
+- `telegram_bot/budget_goals.json`
+
+Always edit the shared file and run `make sync-config` — never edit the copies directly.
 
 ## Environment Variables
 
@@ -145,6 +151,10 @@ ENVIRONMENT=development
 DATABASE_URL=postgresql+asyncpg://pccoach:<password>@db:5432/pccoach
 MAX_TOOL_TURNS=20               # Max agentic loop iterations
 AGENTIC_LOOP_TIMEOUT=120.0      # Agentic loop wall-clock timeout (seconds)
+RATE_LIMIT_AI=2/day             # Shared pool for /build and /search
+RATE_LIMIT_READ=60/minute       # GET /build/{id}
+ARIZE_API_KEY=...               # Optional: LLM observability
+ARIZE_SPACE_ID=...              # Optional: LLM observability
 ```
 
 Production shell environment (set on the droplet, not in `.env`):
@@ -161,23 +171,39 @@ Frontend (`.env` in `frontend/`):
 BACKEND_URL=http://localhost:8000
 ```
 Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`).
-`BACKEND_URL` is the var that controls where those rewrites forward to — not `NEXT_PUBLIC_API_URL`.
+`BACKEND_URL` is the var that controls where those rewrites forward to.
 
-## Key Models (`backend/app/models/builder.py`)
+## Conventions
 
-- `BuildRequest` — user's requirements (goal, budget, preferences)
-- `ComponentRecommendation` — one component with price + affiliate URL
-- `BuildResult` — full response: request + list of components + summary
+- **Package manager**: `uv` only (backend) — never use pip directly
+- **Linter/formatter**: `ruff` (line length 88, Python 3.12 target, rules: E, F, I, UP)
+- **Settings**: all config via environment variables, loaded through `app/config.py` (pydantic-settings)
+- **API versioning**: routes live under `/api/v1/`
+- **Claude model**: `claude-sonnet-4-6` — do not downgrade without discussion
+- **Async**: use `async def` for all route handlers and service methods
+- **Singletons**: ClaudeService, CatalogService use `@lru_cache(maxsize=1)`
+- **Branching**: feature → `development` → `master` (production)
+- **Tests**: in-memory SQLite (aiosqlite) with JSONB→JSON fallback, mocked Anthropic API, `asyncio_mode = "auto"`
 
-## Notes for Claude Code
+## Docker Architecture
 
-- No services (cleaning/repair), no cart, no checkout — this is an affiliate tool
-- Amazon-only MVP — all affiliate links point to Amazon.de with tag `thepccoach-21`
-- Catalog data lives in `backend/app/db/all_products.json` (~200 scraped products) + peripherals hardcoded in `seed.py`
-- `CatalogService` provides `scout_all()`, `query_for_tool()`, and `resolve_components()` for the agentic loop
-- Do not add abstraction layers unless clearly needed
-- Always use `uv run` inside containers, never bare `python` or `pip`
-- Do not commit `.env` files
+### Production (`docker-compose.yml`)
+- **db**: PostgreSQL 16 Alpine, internal only, healthcheck, 512MB RAM
+- **backend**: FastAPI on `127.0.0.1:8000`, depends on db, 1GB RAM
+- **frontend**: Next.js on `127.0.0.1:3000`, depends on backend, 512MB RAM
+- **telegram-bot**: Depends on backend, 256MB RAM
+
+### Development (`docker-compose.dev.yml`)
+- **db**: PostgreSQL on `0.0.0.0:5432`, `POSTGRES_PASSWORD=pccoach`
+- **backend**: Hot reload via source mount (`./backend:/app`), no resource limits
+- **frontend**: Hot reload via source mount, named volumes for `node_modules` and `.next`
+
+### Nginx (Production)
+- Domain: `thepccoach.com` + `www.thepccoach.com`
+- `/api/` → backend:8000 (120s proxy timeout, buffering OFF for SSE)
+- `/health` → backend:8000
+- `/` → frontend:3000
+- SSL via Certbot (auto-renewal)
 
 ---
 
@@ -187,7 +213,7 @@ Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`)
 
 | Pattern | Why forbidden |
 |---------|---------------|
-| Raw SQL strings with f-strings or `.format()` from user input | SQL injection. Never construct SQL strings from user input. Use SQLAlchemy ORM or `text(...).bindparams(...)` only. |
+| Raw SQL strings with f-strings or `.format()` from user input | SQL injection. Use SQLAlchemy ORM or `text(...).bindparams(...)` only. |
 | `dangerouslySetInnerHTML` with unsanitized data | XSS. Use text content or DOMPurify if HTML rendering is ever needed. |
 | `CORS_ORIGINS = ["*"]` in production | Opens all cross-origin requests. Always set explicit origin list. |
 | Raw user strings interpolated directly into Claude system prompt | Prompt injection. User text must go through `sanitize_user_input()` and be wrapped in `<user_request>…</user_request>`. |
@@ -196,17 +222,15 @@ Note: API calls use relative URLs proxied by Next.js rewrites (`next.config.js`)
 
 ### Guardrails Architecture
 
-Every POST /api/v1/build request flows through three guardrail layers:
-
 ```
 Request
   │
   ▼
 [InputGuardrail]  ← backend/app/security/guardrails.py
   │  • Scope check: hardware keyword allowlist
-  │  • Toxicity/abuse blocklist
+  │  • Toxicity/abuse blocklist (regex patterns)
   │  • Budget sanity (€50–€100,000)
-  │  • Duplicate flooding (SHA-256 hash + TTLCache)
+  │  • Duplicate flooding (SHA-256 hash + TTLCache, 3 per 600s per IP)
   │
   ▼ (passes)
 [ClaudeService]   ← backend/app/services/claude.py
@@ -219,60 +243,26 @@ Request
   │  • System-prompt leak detection → 500
   │  • Off-topic/refusal detection → 400
   │  • Affiliate URL allowlist enforcement (strip non-allowed)
-  │  • Price sanity (strip ≤0 or >€50k; warn if >150% budget)
+  │  • Price sanity (strip ≤0 or >€50k; warn if total >150% budget)
   │  • PII strip from text (phone, email, external URLs)
   │
   ▼ (clean)
 Client
 ```
 
-All guardrail events are emitted via `backend/app/security/events.py` as
-structured JSON at WARNING level to the `security.events` logger.
-
 ### Affiliate URL Allowlist
 
-Only URLs from these hosts are permitted (backend + frontend).
-Currently Amazon-only for MVP — widen when new stores are added.
+Only URLs from these hosts are permitted. **All three lists must be kept in sync.**
 
 | Store | Allowed hosts |
 |-------|--------------|
 | Amazon.de | `amazon.de`, `www.amazon.de` |
 
-Backend: `backend/app/models/builder.py:_ALLOWED_AFFILIATE_HOSTS`
-Backend output guard: `backend/app/security/output_guard.py:_AFFILIATE_ALLOWED_HOSTS`
-Frontend: `frontend/src/lib/url.ts:ALLOWED_AFFILIATE_HOSTS`
-
-All three lists must be kept in sync when stores change.
-
-### Guardrail Event Log Format
-
-Every block/warn/strip emits a JSON line at `WARNING` level:
-
-```json
-{
-  "timestamp": "2026-03-13T12:00:00.000000+00:00",
-  "ip": "1.2.3.4",
-  "guardrail": "InputGuardrail",
-  "action": "blocked",
-  "reason": "Duplicate request detected. Please wait before resubmitting."
-}
-```
-
-`action` values: `"blocked"` | `"warned"` | `"stripped"`
-
-### How to Run Security Tools
-
-```bash
-# Dependency vulnerability scan (run after every uv lock)
-cd backend && uv run pip-audit
-
-# Linter + formatter
-cd backend && uv run ruff check app/
-cd backend && uv run ruff format --check app/
-
-# Full test suite
-cd backend && uv run pytest
-```
+| Location | Variable |
+|----------|----------|
+| Backend models | `backend/app/models/builder.py:_ALLOWED_AFFILIATE_HOSTS` |
+| Backend output guard | `backend/app/security/output_guard.py:_AFFILIATE_ALLOWED_HOSTS` |
+| Frontend | `frontend/src/lib/url.ts:ALLOWED_AFFILIATE_HOSTS` |
 
 ### Rate Limits (configurable via env vars)
 
@@ -282,15 +272,36 @@ cd backend && uv run pytest
 | POST /api/v1/search | 2/day (shared pool) | `RATE_LIMIT_AI` |
 | GET /api/v1/build/{id} | 60/minute | `RATE_LIMIT_READ` |
 
-`POST /build` and `POST /search` share a single rate-limit pool (`scope="ai_calls"`), so the combined limit across both endpoints is `RATE_LIMIT_AI`.
-
+`POST /build` and `POST /search` share a single rate-limit pool (`scope="ai_calls"`).
 Format: `"N/period"` where period is `second`, `minute`, `hour`, or `day`.
+Rate limiting is disabled when `ENVIRONMENT=development`.
 
 ### Secrets
 
 - `ANTHROPIC_API_KEY` and `DATABASE_URL` are `SecretStr` in `config.py`
 - Never log these values — log `"set"` / `"unset"` as a boolean indicator
 - Never commit `.env` files — only `.env.example` with placeholders
+
+---
+
+## Key Constants
+
+| Item | Value | Location |
+|------|-------|----------|
+| Max tool turns | 20 | `config.py:max_tool_turns` |
+| Agentic loop timeout | 120.0 s | `config.py:agentic_loop_timeout` |
+| Claude model | `claude-sonnet-4-6` | `config.py:claude_model` |
+| Claude API timeout | 90 s | `claude.py:_TIMEOUT` |
+| Search cache TTL | 30 min, 128 entries | `search.py:_search_cache` |
+| Duplicate detection window | 600 s, 3 allowed | `guardrails.py:_dup_cache` |
+| Max component price | €50,000 | `output_guard.py:_MAX_COMPONENT_PRICE` |
+| Budget overage ratio | 1.5x | `output_guard.py:_BUDGET_OVERAGE_RATIO` |
+| SSE keepalive interval | 15 s | `builder.py` |
+| Scout limit | 50 products/category | `catalog.py:scout_all()` |
+| Query limit | 15 products | `catalog.py:query_for_tool()` |
+| Max field length (prompt guard) | 2,000 chars | `prompt_guard.py` |
+| Amazon affiliate tag | `thepccoach-21` | `seed.py:_AMAZON_TAG` |
+| Frontend proxy timeout | 120,000 ms | `next.config.js:proxyTimeout` |
 
 ---
 
