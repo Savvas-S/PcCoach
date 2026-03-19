@@ -401,13 +401,19 @@ async def _generate_and_reply(chat_id: int, context) -> None:
 
     try:
         build = None
-        async with httpx.AsyncClient(timeout=95.0) as client:
+        sse_timeout = httpx.Timeout(
+            connect=10.0, read=130.0, write=10.0, pool=10.0
+        )
+        async with httpx.AsyncClient(timeout=sse_timeout) as client:
             async with client.stream(
                 "POST", f"{API_URL}/api/v1/build", json=payload,
             ) as r:
                 r.raise_for_status()
                 event_type = ""
                 async for line in r.aiter_lines():
+                    if not line:
+                        event_type = ""
+                        continue
                     if line.startswith("event: "):
                         event_type = line[7:]
                     elif line.startswith("data: "):

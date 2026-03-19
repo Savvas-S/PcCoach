@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import secrets
@@ -23,6 +24,9 @@ from app.services.claude import get_claude_service
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/build", tags=["build"])
+
+
+_SSE_KEEPALIVE_INTERVAL = 15  # seconds between heartbeat comments
 
 
 def _sse(event: str, data: str) -> str:
@@ -77,7 +81,18 @@ def _map_error(
     return 500, "Internal server error"
 
 
-@router.post("")
+@router.post(
+    "",
+    responses={
+        200: {
+            "description": (
+                "SSE stream. Events: `progress` (phase updates), "
+                "`result` (BuildResult JSON), `error` (status + detail)."
+            ),
+            "content": {"text/event-stream": {}},
+        },
+    },
+)
 @limiter.shared_limit(lambda: settings.rate_limit_ai, scope="ai_calls")
 async def create_build(
     request: Request,
@@ -128,7 +143,8 @@ async def create_build(
 
     build_id = secrets.token_urlsafe(8)
 
-    async def event_stream() -> AsyncGenerator[str, None]:
+    async def _build_events(queue: asyncio.Queue) -> None:
+        """Producer: run the build and push SSE frames onto *queue*."""
         try:
             claude = get_claude_service()
             build: BuildResult | None = None
@@ -136,13 +152,13 @@ async def create_build(
                 payload, build_id=build_id, client_ip=client_ip, db=db
             ):
                 if event["type"] == "progress":
-                    yield _sse("progress", json.dumps(event))
+                    await queue.put(_sse("progress", json.dumps(event)))
                 elif event["type"] == "result":
                     build = event["data"]
 
             if build is None:
                 err = {"status": 500, "detail": "No result produced."}
-                yield _sse("error", json.dumps(err))
+                await queue.put(_sse("error", json.dumps(err)))
                 return
 
             # Persist to DB
@@ -163,6 +179,13 @@ async def create_build(
                 )
                 if dup:
                     build = BuildResult.model_validate(dup.result)
+                else:
+                    log.warning(
+                        "IntegrityError but no duplicate found: "
+                        "build_id=%s hash=%s",
+                        build_id,
+                        body_hash[:8],
+                    )
 
             log.info(
                 "Build generated: id=%s goal=%s budget=%s components=%d",
@@ -171,13 +194,51 @@ async def create_build(
                 payload.budget_range.value,
                 len(build.components),
             )
-            yield _sse("result", json.dumps(build.model_dump(mode="json")))
+            await queue.put(
+                _sse("result", json.dumps(build.model_dump(mode="json")))
+            )
 
         except Exception as exc:
+            if isinstance(exc, anthropic.AuthenticationError):
+                await asyncio.sleep(3)
             status, detail = _map_error(
                 exc, payload.goal.value, payload.budget_range.value
             )
-            yield _sse("error", json.dumps({"status": status, "detail": detail}))
+            await queue.put(
+                _sse("error", json.dumps({"status": status, "detail": detail}))
+            )
+
+    async def event_stream() -> AsyncGenerator[str, None]:
+        queue: asyncio.Queue[str | None] = asyncio.Queue()
+        done = asyncio.Event()
+
+        async def producer() -> None:
+            try:
+                await _build_events(queue)
+            finally:
+                done.set()
+                await queue.put(None)  # sentinel
+
+        task = asyncio.create_task(producer())
+        try:
+            while True:
+                try:
+                    frame = await asyncio.wait_for(
+                        queue.get(), timeout=_SSE_KEEPALIVE_INTERVAL
+                    )
+                except TimeoutError:
+                    # No event within interval — send keepalive comment
+                    yield ": keepalive\n\n"
+                    continue
+                if frame is None:
+                    break
+                yield frame
+        finally:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
     return StreamingResponse(
         event_stream(),

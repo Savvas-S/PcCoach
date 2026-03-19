@@ -145,7 +145,8 @@ export async function submitBuildStream(
     throw new Error(msg);
   }
 
-  const reader = res.body!.getReader();
+  if (!res.body) throw new Error("Server returned an empty response");
+  const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
   let result: BuildResult | null = null;

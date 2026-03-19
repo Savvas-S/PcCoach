@@ -249,7 +249,7 @@ export function BuildLoadingScreen({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian-bg">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian-bg" role="status" aria-label="Building your PC recommendation">
       {/* Atmospheric grain overlay */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -322,12 +322,13 @@ export function BuildLoadingScreen({
 
                   {/* Check mark */}
                   {filled && (
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-obsidian rounded-full flex items-center justify-center build-slot-check">
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-obsidian rounded-full flex items-center justify-center build-slot-check" aria-hidden="true">
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--bg)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M5 12l5 5L20 7" />
                       </svg>
                     </div>
                   )}
+                  {filled && <span className="sr-only">{slot.label} selected</span>}
                 </div>
               </div>
             );
@@ -336,7 +337,7 @@ export function BuildLoadingScreen({
 
         {/* Phase + progress */}
         <div className="space-y-4 build-load-fade-in" style={{ animationDelay: "0.4s" }}>
-          <div className="text-center">
+          <div className="text-center" aria-live="polite" aria-atomic="true">
             <p className="text-obsidian-text text-sm font-body font-medium">
               {phaseInfo.label}
             </p>
@@ -346,7 +347,14 @@ export function BuildLoadingScreen({
           </div>
 
           {/* Progress bar */}
-          <div className="relative h-[2px] bg-obsidian-border rounded-full overflow-hidden">
+          <div
+            className="relative h-[2px] bg-obsidian-border rounded-full overflow-hidden"
+            role="progressbar"
+            aria-valuenow={Math.round(progressPct * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Build progress"
+          >
             <div
               className="absolute inset-y-0 left-0 bg-obsidian rounded-full transition-[width] duration-1000 ease-out"
               style={{ width: `${progressPct * 100}%` }}
