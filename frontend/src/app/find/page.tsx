@@ -20,6 +20,7 @@ const CATEGORIES: { value: ComponentCategory; label: string; icon: string }[] = 
   { value: "monitor", label: "Monitor", icon: "🖵" },
   { value: "keyboard", label: "Keyboard", icon: "⌨️" },
   { value: "mouse", label: "Mouse", icon: "🖱️" },
+  { value: "toolkit", label: "Toolkit", icon: "🔧" },
 ];
 
 const CATEGORY_PLACEHOLDERS: Record<ComponentCategory, string> = {
@@ -34,6 +35,7 @@ const CATEGORY_PLACEHOLDERS: Record<ComponentCategory, string> = {
   monitor: "e.g. 27\" 1440p 165Hz IPS for gaming",
   keyboard: "e.g. compact TKL mechanical, tactile switches",
   mouse: "e.g. lightweight wireless gaming mouse under €80",
+  toolkit: "e.g. precision screwdriver set for PC building",
 };
 
 const SPEC_KEY_OVERRIDES: Record<string, string> = {

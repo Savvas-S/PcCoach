@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import logging
 import time
@@ -25,6 +26,8 @@ from app.security import events as guardrail_events
 from app.security.output_guard import GuardrailBlocked, output_guardrail
 from app.security.prompt_guard import sanitize_user_input
 from app.services.build_validator import (
+    CORE_CATEGORIES,
+    PERIPHERAL_CATEGORIES,
     BuildValidationError,
     BuildValidator,
     ResolvedComponent,
@@ -48,6 +51,8 @@ _ROLE_LOCK = (
 
 _TIMEOUT = 90.0
 
+_BUILD_CATS = CORE_CATEGORIES | PERIPHERAL_CATEGORIES
+_BUILD_CATEGORIES = [c.value for c in ComponentCategory if c.value in _BUILD_CATS]
 _ALL_CATEGORIES = [c.value for c in ComponentCategory]
 
 # ---------------------------------------------------------------------------
@@ -68,7 +73,7 @@ SCOUT_CATALOG_TOOL = {
                 "type": "array",
                 "items": {
                     "type": "string",
-                    "enum": _ALL_CATEGORIES,
+                    "enum": _BUILD_CATEGORIES,
                 },
                 "description": "Categories to scout. Include ALL categories needed for the build.",
             },
@@ -87,7 +92,7 @@ QUERY_CATALOG_TOOL = {
     "input_schema": {
         "type": "object",
         "properties": {
-            "category": {"type": "string", "enum": _ALL_CATEGORIES},
+            "category": {"type": "string", "enum": _BUILD_CATEGORIES},
             "brand": {"type": "string", "description": "Filter by brand (case-insensitive)"},
             "socket": {"type": "string", "description": "CPU socket, e.g. AM5, LGA1700"},
             "form_factor": {"type": "string", "description": "ATX, micro_atx, mini_itx"},
@@ -125,7 +130,7 @@ SUBMIT_BUILD_TOOL = {
                         },
                         "category": {
                             "type": "string",
-                            "enum": _ALL_CATEGORIES,
+                            "enum": _BUILD_CATEGORIES,
                         },
                         "why_selected": {
                             "type": "string",
@@ -218,6 +223,22 @@ RECOMMEND_COMPONENT_TOOL = {
         "required": ["component_id", "reason"],
     },
 }
+
+def _with_category_enum(tool: dict, categories: list[str]) -> dict:
+    """Clone a tool schema, replacing its category enum list."""
+    clone = copy.deepcopy(tool)
+    props = clone["input_schema"]["properties"]
+    if "categories" in props:
+        props["categories"]["items"]["enum"] = categories
+    elif "category" in props:
+        props["category"]["enum"] = categories
+    return clone
+
+
+# Search-specific tools — include ALL categories (e.g. toolkit) so that
+# the /search endpoint can find any product in the catalog.
+SCOUT_SEARCH_TOOL = _with_category_enum(SCOUT_CATALOG_TOOL, _ALL_CATEGORIES)
+QUERY_SEARCH_TOOL = _with_category_enum(QUERY_CATALOG_TOOL, _ALL_CATEGORIES)
 
 
 # ---------------------------------------------------------------------------
@@ -350,7 +371,7 @@ class ClaudeService:
             len(user_message),
         )
 
-        tools = [SCOUT_CATALOG_TOOL, QUERY_CATALOG_TOOL, RECOMMEND_COMPONENT_TOOL]
+        tools = [SCOUT_SEARCH_TOOL, QUERY_SEARCH_TOOL, RECOMMEND_COMPONENT_TOOL]
 
         terminal_data = await self._run_tool_loop(
             db=db,
