@@ -154,9 +154,11 @@ export default function FindPage() {
             >
               {loading ? "Finding best match…" : "Find Component →"}
             </button>
-            <p className="text-center text-obsidian-muted-light text-xs mt-3">
-              Free &middot; 2 AI requests per day &middot; no account needed
-            </p>
+            {!loading && (
+              <p className="text-center text-obsidian-muted-light text-xs mt-3">
+                2 AI requests per day &middot; no account needed
+              </p>
+            )}
           </div>
         </form>
 
