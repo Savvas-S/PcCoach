@@ -118,9 +118,21 @@ async function parseError(res: Response, fallback: string): Promise<string> {
   }
 }
 
-export async function submitBuild(
+export type BuildPhase = "scouting" | "selecting" | "validating" | "repairing";
+
+export interface BuildProgress {
+  phase: BuildPhase;
+  turn: number;
+  elapsed_s: number;
+  categories_scouted: string[];
+  categories_queried: string[];
+  tool: string;
+}
+
+export async function submitBuildStream(
   request: BuildRequest,
-  signal?: AbortSignal
+  onProgress: (progress: BuildProgress) => void,
+  signal?: AbortSignal,
 ): Promise<BuildResult> {
   const res = await fetch(`/api/v1/build`, {
     method: "POST",
@@ -132,7 +144,58 @@ export async function submitBuild(
     const msg = await parseError(res, "Failed to submit build");
     throw new Error(msg);
   }
-  return res.json();
+
+  if (!res.body) throw new Error("Server returned an empty response");
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let result: BuildResult | null = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    // Parse complete SSE frames (separated by double newlines)
+    let boundary: number;
+    while ((boundary = buffer.indexOf("\n\n")) !== -1) {
+      const frame = buffer.slice(0, boundary);
+      buffer = buffer.slice(boundary + 2);
+
+      let eventType = "";
+      let data = "";
+      for (const line of frame.split("\n")) {
+        if (line.startsWith("event: ")) eventType = line.slice(7);
+        else if (line.startsWith("data: ")) data = line.slice(6);
+      }
+
+      if (!eventType || !data) continue;
+
+      if (eventType === "progress") {
+        try { onProgress(JSON.parse(data)); } catch { /* skip malformed */ }
+        // Yield to the event loop so React can render the progress update
+        // before we process the next frame in the same chunk.
+        await new Promise((r) => setTimeout(r, 0));
+      } else if (eventType === "result") {
+        try {
+          const parsed = JSON.parse(data);
+          if (!parsed || !parsed.id || !Array.isArray(parsed.components)) {
+            throw new Error("Malformed build result from server");
+          }
+          result = parsed;
+        } catch {
+          throw new Error("Received an invalid build result. Please try again.");
+        }
+      } else if (eventType === "error") {
+        let detail = "Build generation failed";
+        try { detail = JSON.parse(data).detail || detail; } catch { /* use default */ }
+        throw new Error(detail);
+      }
+    }
+  }
+
+  if (!result) throw new Error("Stream ended without a result");
+  return result;
 }
 
 export async function searchComponent(
