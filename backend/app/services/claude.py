@@ -4,6 +4,7 @@ import copy
 import json
 import logging
 import time
+from collections.abc import AsyncGenerator
 from functools import lru_cache
 
 import anthropic
@@ -284,21 +285,10 @@ class ClaudeService:
         self._validator = BuildValidator()
         self._catalog = get_catalog_service()
 
-    async def generate_build(
-        self,
-        request: BuildRequest,
-        build_id: str,
-        client_ip: str = "unknown",
-        db: AsyncSession | None = None,
-    ) -> BuildResult:
-        """Call Claude via agentic tool loop and return a guardrail-checked BuildResult.
-
-        Raises:
-            ValueError: if Claude returns no valid result.
-            BuildValidationError: if build fails validation after repair attempt.
-            TimeoutError: if the tool loop exceeds the configured timeout.
-            GuardrailBlocked: re-raised as ValueError so callers map it to HTTP.
-        """
+    def _build_prompt_and_tools(
+        self, request: BuildRequest
+    ) -> tuple[str, str, list[dict], set[str]]:
+        """Shared setup for build generation (used by both sync and stream)."""
         safe_notes = sanitize_user_input(request.notes or "none")
 
         user_message = (
@@ -316,18 +306,33 @@ class ClaudeService:
         )
 
         system_prompt = f"{_ROLE_LOCK}\n\n{build_system_prompt()}"
+        tools = [SCOUT_CATALOG_TOOL, QUERY_CATALOG_TOOL, SUBMIT_BUILD_TOOL]
+        required_cats = required_categories(
+            existing_parts=[p.value for p in request.existing_parts],
+            include_peripherals=request.include_peripherals,
+        )
+        return system_prompt, user_message, tools, required_cats
+
+    async def generate_build(
+        self,
+        request: BuildRequest,
+        build_id: str,
+        client_ip: str = "unknown",
+        db: AsyncSession | None = None,
+    ) -> BuildResult:
+        """Call Claude via agentic tool loop and return a BuildResult.
+
+        Raises:
+            ValueError, BuildValidationError, TimeoutError, GuardrailBlocked.
+        """
+        system_prompt, user_message, tools, required_cats = (
+            self._build_prompt_and_tools(request)
+        )
 
         log.info(
             "Claude build prompt — system: %d chars, user: %d chars",
             len(system_prompt),
             len(user_message),
-        )
-
-        tools = [SCOUT_CATALOG_TOOL, QUERY_CATALOG_TOOL, SUBMIT_BUILD_TOOL]
-
-        required_cats = required_categories(
-            existing_parts=[p.value for p in request.existing_parts],
-            include_peripherals=request.include_peripherals,
         )
 
         terminal_data = await self._run_tool_loop(
@@ -346,6 +351,57 @@ class ClaudeService:
             client_ip=client_ip,
             budget_range=request.budget_range,
         )
+
+    async def generate_build_stream(
+        self,
+        request: BuildRequest,
+        build_id: str,
+        client_ip: str = "unknown",
+        db: AsyncSession | None = None,
+    ) -> AsyncGenerator[dict, None]:
+        """Async generator: yields progress dicts, then the BuildResult.
+
+        Yields ``{"type": "progress", ...}`` and ``{"type": "result", ...}``.
+        Raises on error (caller converts to SSE error event).
+        """
+        system_prompt, user_message, tools, required_cats = (
+            self._build_prompt_and_tools(request)
+        )
+
+        log.info(
+            "Claude build prompt (stream) — system: %d chars, user: %d chars",
+            len(system_prompt),
+            len(user_message),
+        )
+
+        terminal_data = None
+        async for event in self._tool_loop_gen(
+            db=db,
+            system_prompt=system_prompt,
+            user_message=user_message,
+            tools=tools,
+            terminal_tool_name="submit_build",
+            required_categories=required_cats,
+            request=request,
+        ):
+            if event["type"] == "progress":
+                yield event
+            elif event["type"] == "done":
+                terminal_data = event["data"]
+
+        if terminal_data is None:
+            raise ValueError(
+                "Tool loop ended without producing a result."
+            )
+
+        build = self._build_result_from_resolved(
+            terminal_data=terminal_data,
+            build_id=build_id,
+            client_ip=client_ip,
+            budget_range=request.budget_range,
+        )
+
+        yield {"type": "result", "data": build}
 
     async def search_component(
         self,
@@ -434,8 +490,37 @@ class ClaudeService:
     ) -> dict:
         """Run the agentic tool-use loop until terminal tool is called.
 
-        Returns the terminal tool's input dict (with resolved components
-        for submit_build).
+        Thin wrapper over ``_tool_loop_gen`` that discards progress events
+        and returns only the terminal tool's data dict.
+        """
+        async for event in self._tool_loop_gen(
+            db=db,
+            system_prompt=system_prompt,
+            user_message=user_message,
+            tools=tools,
+            terminal_tool_name=terminal_tool_name,
+            required_categories=required_categories,
+            request=request,
+        ):
+            if event["type"] == "done":
+                return event["data"]
+        raise ValueError("Tool loop ended without producing a result.")
+
+    async def _tool_loop_gen(
+        self,
+        db: AsyncSession | None,
+        system_prompt: str,
+        user_message: str,
+        tools: list[dict],
+        terminal_tool_name: str,
+        required_categories: set[str] | None = None,
+        request: BuildRequest | None = None,
+    ):
+        """Async generator that drives the agentic tool-use loop.
+
+        Yields dicts with ``type`` key:
+        - ``"progress"`` — after each tool call (phase, categories, turn, elapsed)
+        - ``"done"`` — terminal tool succeeded; ``data`` contains the result
         """
         messages = [{"role": "user", "content": user_message}]
 
@@ -605,7 +690,19 @@ class ClaudeService:
                         "is_error": True,
                     })
 
-            # If terminal tool succeeded, return after all calls are processed
+                # Yield progress after each tool call
+                phase = _phase_for_tool(tool_name, terminal_result)
+                yield {
+                    "type": "progress",
+                    "phase": phase,
+                    "turn": turn,
+                    "elapsed_s": round(time.monotonic() - start_time, 1),
+                    "categories_scouted": sorted(categories_scouted),
+                    "categories_queried": sorted(categories_queried),
+                    "tool": tool_name,
+                }
+
+            # If terminal tool succeeded, yield final result
             if terminal_result and terminal_result["status"] == "success":
                 elapsed = time.monotonic() - start_time
                 # Approximate per-model pricing ($/MTok) — may drift as
@@ -634,7 +731,8 @@ class ClaudeService:
                     total_cache_creation_tokens, total_cache_read_tokens,
                     cost_usd,
                 )
-                return terminal_result["data"]
+                yield {"type": "done", "data": terminal_result["data"]}
+                return
 
             # Add tool results as user message
             messages.append({"role": "user", "content": tool_results})
@@ -1011,6 +1109,21 @@ class ClaudeService:
             checked = checked.model_copy(update={"warnings": existing})
 
         return checked
+
+
+def _phase_for_tool(
+    tool_name: str, terminal_result: dict | None
+) -> str:
+    """Map the tool just called to a progress phase label."""
+    if tool_name == "scout_catalog":
+        return "scouting"
+    if tool_name == "query_catalog":
+        return "selecting"
+    if terminal_result is not None:
+        if terminal_result.get("status") == "repair":
+            return "repairing"
+        return "validating"
+    return "scouting"
 
 
 @lru_cache(maxsize=1)

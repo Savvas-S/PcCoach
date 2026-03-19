@@ -64,6 +64,10 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
         proxy_read_timeout 120s;
         proxy_send_timeout 120s;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_http_version 1.1;
+        proxy_set_header Connection '';
     }
 
     location / {
