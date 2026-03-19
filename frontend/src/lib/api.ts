@@ -177,10 +177,19 @@ export async function submitBuildStream(
         // before we process the next frame in the same chunk.
         await new Promise((r) => setTimeout(r, 0));
       } else if (eventType === "result") {
-        result = JSON.parse(data);
+        try {
+          const parsed = JSON.parse(data);
+          if (!parsed || !parsed.id || !Array.isArray(parsed.components)) {
+            throw new Error("Malformed build result from server");
+          }
+          result = parsed;
+        } catch {
+          throw new Error("Received an invalid build result. Please try again.");
+        }
       } else if (eventType === "error") {
-        const err = JSON.parse(data);
-        throw new Error(err.detail || "Build generation failed");
+        let detail = "Build generation failed";
+        try { detail = JSON.parse(data).detail || detail; } catch { /* use default */ }
+        throw new Error(detail);
       }
     }
   }

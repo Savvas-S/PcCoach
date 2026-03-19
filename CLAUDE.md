@@ -72,12 +72,28 @@ User fills form → POST /api/v1/build (BuildRequest)
                → If invalid: repair within same loop (1 attempt)
                → CatalogService resolves component_ids → affiliate URLs
                → OutputGuardrail checks (leak, off-topic, URL allowlist, PII, price)
-               → BuildResult returned with affiliate links per component
+               → BuildResult streamed as SSE events (see below)
                → User clicks affiliate link → buys on Amazon.de
                → You earn commission
 ```
 
 Both `/api/v1/build` and `/api/v1/search` use the agentic tool loop — Claude queries the catalog via tools and only sees `component_id` values. Affiliate URLs are resolved server-side after selection.
+
+### SSE Streaming Protocol (`POST /api/v1/build`)
+
+The build endpoint returns an SSE stream (`text/event-stream`, HTTP 200).
+Pre-stream errors (guardrail blocks, rate limits) still return normal HTTP errors.
+
+| SSE event type | When | Payload |
+|----------------|------|---------|
+| `progress` | After each tool call in the agentic loop | `{"type":"progress","phase":"scouting\|selecting\|validating\|repairing","turn":N,"elapsed_s":N,"categories_scouted":[...],"categories_queried":[...],"tool":"..."}` |
+| `result` | Build complete, guardrails passed | Full `BuildResult` JSON |
+| `error` | Any exception during streaming | `{"status":NNN,"detail":"..."}` |
+| `: keepalive` | Every ~15 s of inactivity | SSE comment (no event/data) |
+
+Clients must handle all event types. Errors arrive as SSE events (not HTTP status codes) because the stream has already started.
+
+The frontend timeout (`120_000 ms`) is coupled to the backend's `AGENTIC_LOOP_TIMEOUT` (default `120.0 s`). Keep them in sync.
 
 ### Agentic Tool Loop
 
@@ -92,7 +108,7 @@ The `BuildValidator` (server-side) enforces hard compatibility rules. If validat
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/v1/build` | Submit build requirements |
+| POST | `/api/v1/build` | Submit build requirements (returns SSE stream) |
 | GET | `/api/v1/build` | List all builds |
 | GET | `/api/v1/build/{id}` | Get a build by ID |
 | POST | `/api/v1/search` | Search for a single component |

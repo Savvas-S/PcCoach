@@ -12,6 +12,7 @@ POST /api/v1/build returns an SSE stream (text/event-stream). Helper
 import json
 from unittest.mock import MagicMock, patch
 
+import anthropic
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import (
@@ -364,9 +365,7 @@ class TestErrorHandling:
             )
             yield  # make it a generator  # noqa: E501 — unreachable but needed for async gen syntax
 
-        mock_service.generate_build_stream = MagicMock(
-            return_value=_failing_stream()
-        )
+        mock_service.generate_build_stream = MagicMock(return_value=_failing_stream())
         mock_get_service.return_value = mock_service
 
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
@@ -387,12 +386,125 @@ class TestErrorHandling:
             raise TimeoutError("Tool loop exceeded timeout")
             yield  # noqa: E501
 
-        mock_service.generate_build_stream = MagicMock(
-            return_value=_timeout_stream()
-        )
+        mock_service.generate_build_stream = MagicMock(return_value=_timeout_stream())
         mock_get_service.return_value = mock_service
 
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
         assert resp.status_code == 200  # SSE always 200
         err = _sse_error(resp)
         assert err["status"] == 504
+
+
+# ---------------------------------------------------------------------------
+# Parametrized _map_error coverage
+# ---------------------------------------------------------------------------
+
+
+_ERROR_CASES = [
+    (anthropic.APIConnectionError(request=None), 502, "could not reach"),
+    (
+        anthropic.RateLimitError(
+            message="rate limited",
+            response=MagicMock(status_code=429, headers={}),
+            body=None,
+        ),
+        503,
+        "busy",
+    ),
+    (
+        anthropic.AuthenticationError(
+            message="auth",
+            response=MagicMock(status_code=401, headers={}),
+            body=None,
+        ),
+        503,
+        "unavailable",
+    ),
+    (
+        anthropic.InternalServerError(
+            message="overloaded",
+            response=MagicMock(status_code=529, headers={}),
+            body=None,
+        ),
+        503,
+        "overloaded",
+    ),
+    (ValueError("bad response"), 500, "could not generate"),
+    (RuntimeError("unknown"), 500, "internal server error"),
+]
+
+
+class TestMapErrorCoverage:
+    """Verify _map_error returns correct (status, detail) for each exception type."""
+
+    @pytest.mark.parametrize(
+        "exc,expected_status,detail_substr",
+        _ERROR_CASES,
+        ids=[type(e).__name__ for e, _, _ in _ERROR_CASES],
+    )
+    @patch("app.api.v1.builder.get_claude_service")
+    @patch("app.api.v1.builder.input_guardrail")
+    def test_error_mapping(
+        self,
+        mock_guardrail,
+        mock_get_service,
+        exc,
+        expected_status,
+        detail_substr,
+        client,
+    ):
+        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_service = MagicMock()
+
+        async def _raise_stream(*args, **kwargs):
+            if False:
+                yield  # async generator syntax
+            raise exc
+
+        mock_service.generate_build_stream = MagicMock(return_value=_raise_stream())
+        mock_get_service.return_value = mock_service
+
+        resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
+        assert resp.status_code == 200  # SSE always 200
+        err = _sse_error(resp)
+        assert err["status"] == expected_status
+        assert detail_substr in err["detail"].lower()
+
+
+# ---------------------------------------------------------------------------
+# Progress events in SSE output
+# ---------------------------------------------------------------------------
+
+
+class TestProgressEvents:
+    @patch("app.api.v1.builder.get_claude_service")
+    @patch("app.api.v1.builder.input_guardrail")
+    def test_progress_events_present_in_stream(
+        self, mock_guardrail, mock_get_service, client
+    ):
+        build = _make_build_result()
+        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_service = MagicMock()
+        mock_service.generate_build_stream = MagicMock(
+            return_value=_mock_build_stream(build)
+        )
+        mock_get_service.return_value = mock_service
+
+        resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
+        assert resp.status_code == 200
+
+        events = _parse_sse(resp.text)
+        event_types = [et for et, _ in events]
+
+        # Must have at least one progress event before the result
+        assert "progress" in event_types
+        assert "result" in event_types
+        assert event_types.index("progress") < event_types.index("result")
+
+        # Verify progress event shape
+        progress_data = [d for et, d in events if et == "progress"][0]
+        assert "phase" in progress_data
+        assert "turn" in progress_data
+        assert "elapsed_s" in progress_data
+        assert "categories_scouted" in progress_data
+        assert "tool" in progress_data

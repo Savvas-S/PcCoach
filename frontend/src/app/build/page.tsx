@@ -153,6 +153,8 @@ function BuildForm() {
       const slotCount = includePeripherals ? 11 : 8;
       const revealMs = slotCount * 350 + 800;
       await new Promise((r) => setTimeout(r, revealMs));
+      setLoading(false);
+      setBuildProgress(null);
       sessionStorage.setItem("build_result", JSON.stringify(result));
       router.push(`/build/${result.id}`);
     } catch (err) {
