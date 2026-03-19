@@ -131,6 +131,7 @@ function BuildForm() {
     setError(null);
     setBuildProgress(null);
     const controller = new AbortController();
+    // Must match backend AGENTIC_LOOP_TIMEOUT (see CLAUDE.md § SSE Streaming)
     const timeout = setTimeout(() => controller.abort(), 120_000);
     try {
       const result = await submitBuildStream(

@@ -146,6 +146,8 @@ export function BuildLoadingScreen({
   const [revealedSlots, setRevealedSlots] = useState<Set<string>>(
     new Set(),
   );
+  // Mirror of revealedSlots as a ref — avoids stale closures in useEffect
+  const revealedRef = useRef<Set<string>>(new Set());
   const queueRef = useRef<string[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -173,6 +175,7 @@ export function BuildLoadingScreen({
   const drainOne = useCallback(() => {
     const next = queueRef.current.shift();
     if (next) {
+      revealedRef.current.add(next);
       setRevealedSlots((prev) => new Set(prev).add(next));
       timerRef.current = setTimeout(drainOne, REVEAL_INTERVAL_MS);
     } else {
@@ -180,7 +183,8 @@ export function BuildLoadingScreen({
     }
   }, []);
 
-  // When progress arrives, push new categories onto the queue
+  // When progress arrives, push new categories onto the queue.
+  // Uses revealedRef (not revealedSlots state) to avoid stale closures.
   useEffect(() => {
     if (!progress) return;
     const allSeen = new Set([
@@ -190,7 +194,7 @@ export function BuildLoadingScreen({
     // Add any new categories not yet revealed or queued
     const queued = new Set(queueRef.current);
     for (const cat of allSeen) {
-      if (!revealedSlots.has(cat) && !queued.has(cat)) {
+      if (!revealedRef.current.has(cat) && !queued.has(cat)) {
         queueRef.current.push(cat);
       }
     }
@@ -201,7 +205,7 @@ export function BuildLoadingScreen({
     ) {
       for (const slot of slots) {
         if (
-          !revealedSlots.has(slot.key) &&
+          !revealedRef.current.has(slot.key) &&
           !queued.has(slot.key) &&
           !queueRef.current.includes(slot.key)
         ) {
@@ -213,7 +217,7 @@ export function BuildLoadingScreen({
     if (timerRef.current === null && queueRef.current.length > 0) {
       drainOne();
     }
-  }, [progress, slots, drainOne]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [progress, slots, drainOne]);
 
   // Cleanup timer on unmount
   useEffect(() => {

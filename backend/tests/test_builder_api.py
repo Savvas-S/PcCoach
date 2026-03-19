@@ -10,7 +10,7 @@ POST /api/v1/build returns an SSE stream (text/event-stream). Helper
 """
 
 import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import anthropic
 import pytest
@@ -143,19 +143,24 @@ _VALID_PAYLOAD = {
 
 
 def _parse_sse(text: str) -> list[tuple[str, dict]]:
-    """Parse SSE text into a list of (event_type, data_dict) tuples."""
+    """Parse SSE text into a list of (event_type, data_dict) tuples.
+
+    Handles multi-line ``data:`` fields per the SSE spec (multiple
+    ``data:`` lines are concatenated with ``\\n``).
+    """
     events = []
     for block in text.split("\n\n"):
         block = block.strip()
         if not block:
             continue
         event_type = ""
-        data = ""
+        data_lines: list[str] = []
         for line in block.split("\n"):
             if line.startswith("event: "):
                 event_type = line[7:]
             elif line.startswith("data: "):
-                data = line[6:]
+                data_lines.append(line[6:])
+        data = "\n".join(data_lines)
         if event_type and data:
             events.append((event_type, json.loads(data)))
     return events
@@ -360,10 +365,11 @@ class TestErrorHandling:
         mock_service = MagicMock()
 
         async def _failing_stream(*args, **kwargs):
+            if False:
+                yield  # async generator syntax
             raise BuildValidationError(
                 [ValidationError("motherboard", "socket_mismatch", "AM5 != LGA1700")]
             )
-            yield  # make it a generator  # noqa: E501 — unreachable but needed for async gen syntax
 
         mock_service.generate_build_stream = MagicMock(return_value=_failing_stream())
         mock_get_service.return_value = mock_service
@@ -383,8 +389,9 @@ class TestErrorHandling:
         mock_service = MagicMock()
 
         async def _timeout_stream(*args, **kwargs):
+            if False:
+                yield  # async generator syntax
             raise TimeoutError("Tool loop exceeded timeout")
-            yield  # noqa: E501
 
         mock_service.generate_build_stream = MagicMock(return_value=_timeout_stream())
         mock_get_service.return_value = mock_service
@@ -442,12 +449,14 @@ class TestMapErrorCoverage:
         _ERROR_CASES,
         ids=[type(e).__name__ for e, _, _ in _ERROR_CASES],
     )
+    @patch("app.api.v1.builder.asyncio.sleep", new_callable=AsyncMock)
     @patch("app.api.v1.builder.get_claude_service")
     @patch("app.api.v1.builder.input_guardrail")
     def test_error_mapping(
         self,
         mock_guardrail,
         mock_get_service,
+        mock_sleep,
         exc,
         expected_status,
         detail_substr,
