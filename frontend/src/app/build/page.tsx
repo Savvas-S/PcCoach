@@ -403,8 +403,11 @@ function BuildForm() {
                 ? "Building your component list — usually 30–60 seconds…"
                 : "Build My PC \u2192"}
             </button>
+            <p className="text-center text-obsidian-muted-light text-xs mt-3">
+              Free &middot; 2 AI builds per day &middot; no account needed
+            </p>
             {!readyToSubmit && !loading && (
-              <p className="text-center text-obsidian-muted text-sm mt-3">
+              <p className="text-center text-obsidian-muted text-sm mt-2">
                 {!budget ? "Select a budget to continue" : "Select a use case to continue"}
               </p>
             )}

@@ -96,7 +96,7 @@ export default function Home() {
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center">
           <div className="opacity-0 animate-fade-up [animation-delay:0ms] mb-8 inline-flex items-center gap-3 border border-obsidian-border px-5 py-2 backdrop-blur-sm">
             <span className="text-xs text-obsidian-muted uppercase tracking-[0.2em]">
-              Free to use &nbsp;&bull;&nbsp; No account required
+              Free to use &nbsp;&bull;&nbsp; No account required &nbsp;&bull;&nbsp; 2 builds per day
             </span>
           </div>
 
