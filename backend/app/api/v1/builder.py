@@ -34,9 +34,7 @@ def _sse(event: str, data: str) -> str:
     return f"event: {event}\ndata: {data}\n\n"
 
 
-def _map_error(
-    exc: Exception, goal: str, budget: str
-) -> tuple[int, str]:
+def _map_error(exc: Exception, goal: str, budget: str) -> tuple[int, str]:
     """Map known exceptions to (status, detail) for the SSE error event."""
     ctx = "goal=%s budget=%s error=%s"
     if isinstance(exc, BuildValidationError):
@@ -66,18 +64,12 @@ def _map_error(
     if isinstance(exc, anthropic.InternalServerError):
         log.warning("Claude overloaded: " + ctx, goal, budget, exc)
         return 503, (
-            "The AI service is temporarily overloaded. "
-            "Please try again in a moment."
+            "The AI service is temporarily overloaded. Please try again in a moment."
         )
     if isinstance(exc, (ValidationError, ValueError)):
         log.error("Invalid Claude response: " + ctx, goal, budget, exc)
-        return 500, (
-            "Could not generate a valid recommendation. "
-            "Please try again."
-        )
-    log.exception(
-        "Unexpected error: goal=%s budget=%s", goal, budget
-    )
+        return 500, ("Could not generate a valid recommendation. Please try again.")
+    log.exception("Unexpected error: goal=%s budget=%s", goal, budget)
     return 500, "Internal server error"
 
 
@@ -181,8 +173,7 @@ async def create_build(
                     build = BuildResult.model_validate(dup.result)
                 else:
                     log.warning(
-                        "IntegrityError but no duplicate found: "
-                        "build_id=%s hash=%s",
+                        "IntegrityError but no duplicate found: build_id=%s hash=%s",
                         build_id,
                         body_hash[:8],
                     )
@@ -194,9 +185,7 @@ async def create_build(
                 payload.budget_range.value,
                 len(build.components),
             )
-            await queue.put(
-                _sse("result", json.dumps(build.model_dump(mode="json")))
-            )
+            await queue.put(_sse("result", json.dumps(build.model_dump(mode="json"))))
 
         except Exception as exc:
             if isinstance(exc, anthropic.AuthenticationError):
@@ -210,13 +199,11 @@ async def create_build(
 
     async def event_stream() -> AsyncGenerator[str, None]:
         queue: asyncio.Queue[str | None] = asyncio.Queue()
-        done = asyncio.Event()
 
         async def producer() -> None:
             try:
                 await _build_events(queue)
             finally:
-                done.set()
                 await queue.put(None)  # sentinel
 
         task = asyncio.create_task(producer())
