@@ -12,7 +12,10 @@ from app.models.builder import (
     GPUBrand,
     UserGoal,
 )
-from app.services.candidate_filter import _MAX_PER_CATEGORY, CandidateFilter
+from app.services.candidate_filter import (
+    _MAX_PER_CATEGORY,
+    CandidateFilter,
+)
 from app.services.catalog import ToolCatalogResult
 
 # ---------------------------------------------------------------------------
@@ -661,6 +664,345 @@ class TestFilterCandidates:
         assert "gpu" not in result
         assert "case" not in result
         assert "cpu" in result
+
+
+# ---------------------------------------------------------------------------
+# Price floor logic
+# ---------------------------------------------------------------------------
+
+
+class TestPriceFloor:
+    def test_low_budget_no_floor(self):
+        """0_1000 budget should produce a €0 floor (all products pass)."""
+        floor = CandidateFilter._price_floor("0_1000", "low_end_gaming", "gpu")
+        assert floor == 0.0
+
+    def test_mid_budget_gpu_floor(self):
+        """1500_2000 mid_range_gaming GPU: 1500 × 0.35 = 525."""
+        floor = CandidateFilter._price_floor("1500_2000", "mid_range_gaming", "gpu")
+        assert floor == 525.0
+
+    def test_high_budget_cpu_floor(self):
+        """over_3000 high_end_gaming CPU: 3000 × 0.18 = 540."""
+        floor = CandidateFilter._price_floor("over_3000", "high_end_gaming", "cpu")
+        assert floor == 540.0
+
+    def test_unknown_goal_no_floor(self):
+        floor = CandidateFilter._price_floor("2000_3000", "unknown_goal", "gpu")
+        assert floor == 0.0
+
+    def test_peripheral_category_no_floor(self):
+        """Categories not in the goal share dict get no floor."""
+        floor = CandidateFilter._price_floor("2000_3000", "high_end_gaming", "monitor")
+        assert floor == 0.0
+
+
+class TestApplyPriceFloor:
+    def test_zero_floor_passes_all(self):
+        items = [_product(i, price=50.0 + i * 10) for i in range(5)]
+        result = CandidateFilter._apply_price_floor(items, 0.0)
+        assert len(result) == 5
+
+    def test_floor_excludes_cheap(self):
+        items = [
+            _product(1, price=100.0),
+            _product(2, price=200.0),
+            _product(3, price=300.0),
+            _product(4, price=400.0),
+            _product(5, price=500.0),
+        ]
+        result = CandidateFilter._apply_price_floor(items, 250.0)
+        assert len(result) == 3
+        assert all(p.price_eur >= 250.0 for p in result)
+
+    def test_fallback_when_fewer_than_3_remain(self):
+        """If floor leaves < 3 items but catalog has >= 3, return all."""
+        items = [
+            _product(1, price=100.0),
+            _product(2, price=150.0),
+            _product(3, price=200.0),
+            _product(4, price=250.0),
+        ]
+        # Floor at 240 would leave only 1 item — fallback to all 4
+        result = CandidateFilter._apply_price_floor(items, 240.0)
+        assert len(result) == 4
+
+    def test_no_fallback_when_catalog_small(self):
+        """If catalog itself has < 3 items, apply the floor normally."""
+        items = [
+            _product(1, price=100.0),
+            _product(2, price=500.0),
+        ]
+        result = CandidateFilter._apply_price_floor(items, 200.0)
+        assert len(result) == 1
+        assert result[0].id == 2
+
+    def test_empty_after_floor_returns_original(self):
+        """If all items are below floor, return original list."""
+        items = [_product(1, price=50.0), _product(2, price=60.0)]
+        result = CandidateFilter._apply_price_floor(items, 1000.0)
+        assert len(result) == 2
+
+
+class TestPriceFloorIntegration:
+    async def test_high_budget_excludes_cheap_gpus(self):
+        """High budget build should not see budget GPUs."""
+        products = {
+            "cpu": [
+                _product(
+                    1, "AMD", "Ryzen 9 9900X", {"socket": "AM5", "tdp": "120"}, 500
+                ),
+            ],
+            "gpu": [
+                _product(
+                    2,
+                    "MSI",
+                    "GeForce RTX 5060",
+                    {"tdp": "150", "length_mm": "280"},
+                    300,
+                ),
+                _product(
+                    3,
+                    "MSI",
+                    "GeForce RTX 5070",
+                    {"tdp": "220", "length_mm": "310"},
+                    550,
+                ),
+                _product(
+                    4,
+                    "MSI",
+                    "GeForce RTX 5080",
+                    {"tdp": "300", "length_mm": "330"},
+                    800,
+                ),
+                _product(
+                    5,
+                    "MSI",
+                    "GeForce RTX 5090",
+                    {"tdp": "350", "length_mm": "340"},
+                    1200,
+                ),
+            ],
+            "motherboard": [
+                _product(
+                    6,
+                    "MSI",
+                    "X670E",
+                    {
+                        "socket": "AM5",
+                        "form_factor": "ATX",
+                        "ddr_type": "DDR5",
+                    },
+                    300,
+                ),
+            ],
+            "ram": [
+                _product(7, "Corsair", "DDR5 64GB", {"ddr_type": "DDR5"}, 200),
+            ],
+            "storage": [_product(8, "Samsung", "990 Pro", {"type": "NVMe"}, 150)],
+            "psu": [_product(9, "Corsair", "RM1000", {"wattage": "1000"}, 180)],
+            "case": [
+                _product(
+                    10,
+                    "NZXT",
+                    "H7",
+                    {"form_factor": "ATX", "max_gpu_length": "400"},
+                    120,
+                ),
+            ],
+            "cooling": [
+                _product(
+                    11,
+                    "Corsair",
+                    "H150i",
+                    {
+                        "type": "liquid",
+                        "socket_support": "AM5,LGA1700",
+                    },
+                    150,
+                ),
+            ],
+        }
+
+        catalog = _mock_catalog(products)
+        cf = CandidateFilter(catalog=catalog)
+        req = _request(
+            cpu_brand=CPUBrand.amd,
+            budget_range=BudgetRange.over_3000,
+            goal=UserGoal.high_end_gaming,
+        )
+
+        result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
+
+        # GPU floor: 3000 × 0.35 = €1050 → only RTX 5090 (€1200) passes
+        # But that leaves < 3 items while catalog has 4 → fallback returns all 4
+        # Actually: 4 GPUs total, only 1 >= 1050 → < 3 → fallback
+        assert len(result["gpu"]) == 4
+
+    async def test_entry_budget_sees_all(self):
+        """0_1000 budget should see all products (floor = €0)."""
+        products = {
+            "cpu": [
+                _product(1, "AMD", "Ryzen 5 7600", {"socket": "AM5", "tdp": "65"}, 180),
+                _product(
+                    2, "AMD", "Ryzen 5 7500F", {"socket": "AM5", "tdp": "65"}, 140
+                ),
+            ],
+            "gpu": [
+                _product(
+                    3,
+                    "MSI",
+                    "GeForce RTX 5060",
+                    {"tdp": "150", "length_mm": "280"},
+                    300,
+                ),
+            ],
+            "motherboard": [
+                _product(
+                    4,
+                    "MSI",
+                    "B650",
+                    {
+                        "socket": "AM5",
+                        "form_factor": "ATX",
+                        "ddr_type": "DDR5",
+                    },
+                    130,
+                ),
+            ],
+            "ram": [_product(5, "Corsair", "DDR5", {"ddr_type": "DDR5"}, 70)],
+            "storage": [_product(6, "Samsung", "SSD", {"type": "NVMe"}, 80)],
+            "psu": [_product(7, "Corsair", "RM650", {"wattage": "650"}, 80)],
+            "case": [
+                _product(
+                    8,
+                    "NZXT",
+                    "H5",
+                    {"form_factor": "ATX", "max_gpu_length": "400"},
+                    70,
+                ),
+            ],
+            "cooling": [
+                _product(
+                    9,
+                    "Noctua",
+                    "NH-D15",
+                    {"type": "air", "socket_support": "AM5"},
+                    80,
+                ),
+            ],
+        }
+
+        catalog = _mock_catalog(products)
+        cf = CandidateFilter(catalog=catalog)
+        req = _request(
+            cpu_brand=CPUBrand.amd,
+            budget_range=BudgetRange.range_0_1000,
+            goal=UserGoal.low_end_gaming,
+        )
+
+        result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
+
+        # All products should pass — no floor applied
+        assert len(result["cpu"]) == 2
+        assert len(result["gpu"]) == 1
+
+    async def test_mid_budget_filters_cheap_gpus(self):
+        """Mid budget should exclude cheap GPUs when enough remain above floor."""
+        products = {
+            "cpu": [
+                _product(
+                    1, "AMD", "Ryzen 5 7600X", {"socket": "AM5", "tdp": "105"}, 250
+                ),
+            ],
+            "gpu": [
+                _product(
+                    10,
+                    "MSI",
+                    "GeForce GTX 1650",
+                    {"tdp": "75", "length_mm": "200"},
+                    150,
+                ),
+                _product(
+                    11,
+                    "MSI",
+                    "GeForce RTX 5060",
+                    {"tdp": "150", "length_mm": "280"},
+                    300,
+                ),
+                _product(
+                    12,
+                    "MSI",
+                    "GeForce RTX 5070",
+                    {"tdp": "220", "length_mm": "310"},
+                    550,
+                ),
+                _product(
+                    13,
+                    "ASUS",
+                    "GeForce RTX 5070 Ti",
+                    {"tdp": "250", "length_mm": "320"},
+                    650,
+                ),
+                _product(
+                    14,
+                    "MSI",
+                    "GeForce RTX 5080",
+                    {"tdp": "300", "length_mm": "330"},
+                    800,
+                ),
+            ],
+            "motherboard": [
+                _product(
+                    2,
+                    "MSI",
+                    "B650",
+                    {
+                        "socket": "AM5",
+                        "form_factor": "ATX",
+                        "ddr_type": "DDR5",
+                    },
+                    150,
+                ),
+            ],
+            "ram": [_product(3, "Corsair", "DDR5", {"ddr_type": "DDR5"}, 80)],
+            "storage": [_product(4, "Samsung", "SSD", {"type": "NVMe"}, 100)],
+            "psu": [_product(5, "Corsair", "RM750", {"wattage": "750"}, 100)],
+            "case": [
+                _product(
+                    6,
+                    "NZXT",
+                    "H5",
+                    {"form_factor": "ATX", "max_gpu_length": "400"},
+                    80,
+                ),
+            ],
+            "cooling": [
+                _product(
+                    7,
+                    "Noctua",
+                    "NH-D15",
+                    {"type": "air", "socket_support": "AM5"},
+                    90,
+                ),
+            ],
+        }
+
+        catalog = _mock_catalog(products)
+        cf = CandidateFilter(catalog=catalog)
+        # 1500_2000 mid_range_gaming: GPU floor = 1500 × 0.35 = €525
+        req = _request(
+            cpu_brand=CPUBrand.amd,
+            budget_range=BudgetRange.range_1500_2000,
+            goal=UserGoal.mid_range_gaming,
+        )
+
+        result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
+
+        # GPU floor €525 → GTX 1650 (€150), RTX 5060 (€300) excluded
+        # RTX 5070 (€550), RTX 5070 Ti (€650), RTX 5080 (€800) remain → 3 items ≥ 3
+        assert len(result["gpu"]) == 3
+        assert all(p.price_eur >= 525.0 for p in result["gpu"])
 
 
 # ---------------------------------------------------------------------------

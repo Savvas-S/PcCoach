@@ -27,6 +27,90 @@ log = logging.getLogger(__name__)
 # Max candidates per category after filtering
 _MAX_PER_CATEGORY = 15
 
+# Budget range → lower bound in EUR (floor calculation uses the low end)
+_BUDGET_LOWER: dict[str, float] = {
+    "0_1000": 0.0,  # no floor for entry-level
+    "1000_1500": 1_000.0,
+    "1500_2000": 1_500.0,
+    "2000_3000": 2_000.0,
+    "over_3000": 3_000.0,
+}
+
+# Goal → {category → share of total budget}
+# Shares are rough guides — Claude makes the final allocation.
+_GOAL_CATEGORY_SHARE: dict[str, dict[str, float]] = {
+    "high_end_gaming": {
+        "gpu": 0.35,
+        "cpu": 0.18,
+        "motherboard": 0.10,
+        "ram": 0.08,
+        "storage": 0.08,
+        "psu": 0.06,
+        "case": 0.06,
+        "cooling": 0.05,
+    },
+    "mid_range_gaming": {
+        "gpu": 0.35,
+        "cpu": 0.20,
+        "motherboard": 0.10,
+        "ram": 0.08,
+        "storage": 0.08,
+        "psu": 0.06,
+        "case": 0.06,
+        "cooling": 0.04,
+    },
+    "low_end_gaming": {
+        "gpu": 0.30,
+        "cpu": 0.20,
+        "motherboard": 0.10,
+        "ram": 0.10,
+        "storage": 0.10,
+        "psu": 0.06,
+        "case": 0.06,
+        "cooling": 0.04,
+    },
+    "light_work": {
+        "gpu": 0.15,
+        "cpu": 0.25,
+        "motherboard": 0.12,
+        "ram": 0.12,
+        "storage": 0.12,
+        "psu": 0.06,
+        "case": 0.06,
+        "cooling": 0.04,
+    },
+    "heavy_work": {
+        "gpu": 0.20,
+        "cpu": 0.25,
+        "motherboard": 0.12,
+        "ram": 0.15,
+        "storage": 0.10,
+        "psu": 0.06,
+        "case": 0.06,
+        "cooling": 0.05,
+    },
+    "designer": {
+        "gpu": 0.30,
+        "cpu": 0.20,
+        "motherboard": 0.10,
+        "ram": 0.12,
+        "storage": 0.10,
+        "psu": 0.06,
+        "case": 0.06,
+        "cooling": 0.04,
+    },
+    "architecture": {
+        "gpu": 0.25,
+        "cpu": 0.22,
+        "motherboard": 0.10,
+        "ram": 0.15,
+        "storage": 0.10,
+        "psu": 0.06,
+        "case": 0.06,
+        "cooling": 0.04,
+    },
+}
+
 # Socket sets by CPU brand
 _AMD_SOCKETS = frozenset({"AM5", "AM4"})
 _INTEL_SOCKETS = frozenset({"LGA1851", "LGA1700"})
@@ -127,12 +211,19 @@ class CandidateFilter:
             "storage": storage,
         }
 
+        budget_val = request.budget_range.value
+        goal_val = request.goal.value
+
         for cat in required_categories:
             if cat in category_map:
                 items = category_map[cat]
             else:
                 # Peripherals and other categories — pass through unfiltered
                 items = all_products.get(cat, [])
+
+            # Apply budget-aware price floor before trimming
+            floor = self._price_floor(budget_val, goal_val, cat)
+            items = self._apply_price_floor(items, floor)
 
             if not items:
                 log.warning("Pre-filter: 0 candidates for category=%s", cat)
@@ -311,6 +402,34 @@ class CandidateFilter:
                     continue
             result.append(item)
         return result
+
+    # ------------------------------------------------------------------
+    # Budget-aware price floor
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _price_floor(budget_range: str, goal: str, category: str) -> float:
+        """Return minimum price for a category given budget and goal."""
+        budget_lower = _BUDGET_LOWER.get(budget_range, 0.0)
+        goal_shares = _GOAL_CATEGORY_SHARE.get(goal, {})
+        share = goal_shares.get(category, 0.0)
+        return budget_lower * share
+
+    @staticmethod
+    def _apply_price_floor(
+        items: list[ToolCatalogResult],
+        floor: float,
+    ) -> list[ToolCatalogResult]:
+        """Keep items at or above the price floor.
+
+        Falls back to all items if floor is too restrictive (< 3 remain).
+        """
+        if floor <= 0.0:
+            return items
+        filtered = [i for i in items if i.price_eur >= floor]
+        if len(filtered) < 3 and len(items) >= 3:
+            return items  # fallback: sparse catalog
+        return filtered if filtered else items
 
     # ------------------------------------------------------------------
     # Helper methods
