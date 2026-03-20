@@ -134,6 +134,9 @@ class CandidateFilter:
                 # Peripherals and other categories — pass through unfiltered
                 items = all_products.get(cat, [])
 
+            if not items:
+                log.warning("Pre-filter: 0 candidates for category=%s", cat)
+
             # Trim to max candidates (already sorted by price from scout_all)
             result[cat] = items[:_MAX_PER_CATEGORY]
 
@@ -198,28 +201,14 @@ class CandidateFilter:
             return items
         result = []
         for item in items:
-            brand_lower = item.brand.lower()
-            if gpu_brand == GPUBrand.nvidia and brand_lower not in {
-                "nvidia",
-                "evga",
-                "msi",
-                "asus",
-                "gigabyte",
-                "zotac",
-                "palit",
-                "pny",
-                "gainward",
-                "inno3d",
-            }:
-                # For GPU brand, we check model name for nvidia chips
-                model_lower = item.model.lower()
-                if not any(
-                    kw in model_lower for kw in ["geforce", "rtx", "gtx", "nvidia"]
-                ):
+            # AIB partners (MSI, ASUS, etc.) make GPUs for both NVIDIA and
+            # AMD, so we always identify the chip by model name keywords.
+            model_lower = item.model.lower()
+            if gpu_brand == GPUBrand.nvidia:
+                if not any(kw in model_lower for kw in ["geforce", "rtx", "gtx"]):
                     continue
             elif gpu_brand == GPUBrand.amd:
-                model_lower = item.model.lower()
-                if not any(kw in model_lower for kw in ["radeon", "rx ", "amd"]):
+                if not any(kw in model_lower for kw in ["radeon", "rx "]):
                     continue
             result.append(item)
         return result

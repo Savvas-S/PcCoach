@@ -153,6 +153,28 @@ class TestFilterGPUs:
         assert len(result) == 1
         assert result[0].id == 2
 
+    def test_nvidia_excludes_amd_from_same_aib(self):
+        """MSI makes both NVIDIA and AMD cards — AMD must be excluded."""
+        items = [
+            _product(1, "MSI", "GeForce RTX 5070", {}),
+            _product(2, "MSI", "Radeon RX 9070 XT", {}),
+            _product(3, "ASUS", "ROG Strix GeForce RTX 5080", {}),
+            _product(4, "ASUS", "TUF Radeon RX 9070", {}),
+        ]
+        result = CandidateFilter._filter_gpus(items, GPUBrand.nvidia)
+        assert len(result) == 2
+        assert {r.id for r in result} == {1, 3}
+
+    def test_amd_excludes_nvidia_from_same_aib(self):
+        """MSI makes both — NVIDIA must be excluded when AMD preferred."""
+        items = [
+            _product(1, "MSI", "GeForce RTX 5070", {}),
+            _product(2, "MSI", "Radeon RX 9070 XT", {}),
+        ]
+        result = CandidateFilter._filter_gpus(items, GPUBrand.amd)
+        assert len(result) == 1
+        assert result[0].id == 2
+
     def test_no_preference_keeps_all(self):
         items = [
             _product(1, "MSI", "GeForce RTX 5070", {}),

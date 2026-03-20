@@ -314,7 +314,9 @@ class ClaudeService:
 
         # Pre-filter catalog candidates and inject into the user message
         pre_scouted: set[str] = set()
-        if db is not None:
+        if db is None:
+            log.debug("Pre-filtering skipped: db is None")
+        else:
             candidates = await self._filter.filter_candidates(
                 request, required_cats, db
             )
@@ -593,8 +595,8 @@ class ClaudeService:
                 ],
                 tools=tools,
                 messages=messages,
-                # Force tool use on turn 1 so Claude always starts by
-                # querying the catalog rather than responding with text.
+                # Force tool use on turn 1. With pre-filtered candidates,
+                # Claude typically calls submit_build directly.
                 tool_choice={"type": "any"} if turn == 1 else {"type": "auto"},
             )
 
