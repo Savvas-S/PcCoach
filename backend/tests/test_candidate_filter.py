@@ -691,6 +691,11 @@ class TestPriceFloor:
         floor = CandidateFilter._price_floor("2000_3000", "unknown_goal", "gpu")
         assert floor == 0.0
 
+    def test_unknown_budget_no_floor(self):
+        """Unknown budget string falls back to 0.0 via .get() default."""
+        floor = CandidateFilter._price_floor("unknown_budget", "mid_range_gaming", "gpu")
+        assert floor == 0.0
+
     def test_peripheral_category_no_floor(self):
         """Categories not in the goal share dict get no floor."""
         floor = CandidateFilter._price_floor("2000_3000", "high_end_gaming", "monitor")
@@ -1003,6 +1008,195 @@ class TestPriceFloorIntegration:
         # RTX 5070 (€550), RTX 5070 Ti (€650), RTX 5080 (€800) remain → 3 items ≥ 3
         assert len(result["gpu"]) == 3
         assert all(p.price_eur >= 525.0 for p in result["gpu"])
+
+    async def test_heavy_work_goal_different_allocation(self):
+        """Non-gaming goal (heavy_work) weights CPU/RAM higher, GPU lower."""
+        products = {
+            "cpu": [
+                _product(
+                    1, "AMD", "Ryzen 5 7600", {"socket": "AM5", "tdp": "65"}, 200
+                ),
+                _product(
+                    2, "AMD", "Ryzen 7 7700X", {"socket": "AM5", "tdp": "105"}, 300
+                ),
+                _product(
+                    3, "AMD", "Ryzen 9 7900X", {"socket": "AM5", "tdp": "170"}, 400
+                ),
+                _product(
+                    4, "AMD", "Ryzen 9 7950X", {"socket": "AM5", "tdp": "170"}, 550
+                ),
+            ],
+            "gpu": [
+                _product(
+                    10,
+                    "MSI",
+                    "GeForce RTX 5060",
+                    {"tdp": "150", "length_mm": "280"},
+                    300,
+                ),
+                _product(
+                    11,
+                    "MSI",
+                    "GeForce RTX 5070",
+                    {"tdp": "220", "length_mm": "310"},
+                    550,
+                ),
+                _product(
+                    12,
+                    "MSI",
+                    "GeForce RTX 5080",
+                    {"tdp": "300", "length_mm": "330"},
+                    800,
+                ),
+            ],
+            "motherboard": [
+                _product(
+                    20,
+                    "MSI",
+                    "B650",
+                    {
+                        "socket": "AM5",
+                        "form_factor": "ATX",
+                        "ddr_type": "DDR5",
+                    },
+                    150,
+                ),
+            ],
+            "ram": [
+                _product(30, "Corsair", "DDR5 16GB", {"ddr_type": "DDR5"}, 60),
+                _product(31, "Kingston", "DDR5 32GB", {"ddr_type": "DDR5"}, 100),
+                _product(32, "G.Skill", "DDR5 64GB", {"ddr_type": "DDR5"}, 250),
+            ],
+            "storage": [_product(40, "Samsung", "SSD", {"type": "NVMe"}, 100)],
+            "psu": [_product(50, "Corsair", "RM850", {"wattage": "850"}, 120)],
+            "case": [
+                _product(
+                    60,
+                    "NZXT",
+                    "H5",
+                    {"form_factor": "ATX", "max_gpu_length": "400"},
+                    80,
+                ),
+            ],
+            "cooling": [
+                _product(
+                    70,
+                    "Noctua",
+                    "NH-D15",
+                    {"type": "air", "socket_support": "AM5"},
+                    90,
+                ),
+            ],
+        }
+
+        catalog = _mock_catalog(products)
+        cf = CandidateFilter(catalog=catalog)
+        # 2000_3000 heavy_work: GPU share=0.20, CPU share=0.25
+        req = _request(
+            cpu_brand=CPUBrand.amd,
+            budget_range=BudgetRange.range_2000_3000,
+            goal=UserGoal.heavy_work,
+        )
+
+        result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
+
+        # GPU floor = 2000 × 0.20 = €400 → RTX 5060 (€300) excluded
+        # RTX 5070 (€550), RTX 5080 (€800) remain → 2 < 3, but catalog has 3 → fallback
+        assert len(result["gpu"]) == 3
+
+        # CPU floor = 2000 × 0.25 = €500 → only Ryzen 9 7950X (€550) passes
+        # 1 < 3, catalog has 4 → fallback
+        assert len(result["cpu"]) == 4
+
+        # RAM floor = 2000 × 0.15 = €300 → all below → fallback
+        assert len(result["ram"]) == 3
+
+    async def test_compatibility_filter_then_price_floor(self):
+        """Price floor applies to post-compatibility-filter results."""
+        products = {
+            "cpu": [
+                # 3 AMD CPUs + 3 Intel CPUs
+                _product(
+                    1, "AMD", "Ryzen 5 7600", {"socket": "AM5", "tdp": "65"}, 200
+                ),
+                _product(
+                    2, "AMD", "Ryzen 7 7700X", {"socket": "AM5", "tdp": "105"}, 350
+                ),
+                _product(
+                    3, "AMD", "Ryzen 9 7900X", {"socket": "AM5", "tdp": "170"}, 500
+                ),
+                _product(
+                    4, "Intel", "i5-14600K", {"socket": "LGA1700", "tdp": "125"}, 280
+                ),
+                _product(
+                    5, "Intel", "i7-14700K", {"socket": "LGA1700", "tdp": "125"}, 380
+                ),
+                _product(
+                    6, "Intel", "i9-14900K", {"socket": "LGA1700", "tdp": "125"}, 530
+                ),
+            ],
+            "gpu": [
+                _product(
+                    10,
+                    "MSI",
+                    "GeForce RTX 5070",
+                    {"tdp": "220", "length_mm": "310"},
+                    550,
+                ),
+            ],
+            "motherboard": [
+                _product(
+                    20,
+                    "MSI",
+                    "B650",
+                    {
+                        "socket": "AM5",
+                        "form_factor": "ATX",
+                        "ddr_type": "DDR5",
+                    },
+                    150,
+                ),
+            ],
+            "ram": [_product(30, "Corsair", "DDR5", {"ddr_type": "DDR5"}, 80)],
+            "storage": [_product(40, "Samsung", "SSD", {"type": "NVMe"}, 100)],
+            "psu": [_product(50, "Corsair", "RM750", {"wattage": "750"}, 100)],
+            "case": [
+                _product(
+                    60,
+                    "NZXT",
+                    "H5",
+                    {"form_factor": "ATX", "max_gpu_length": "400"},
+                    80,
+                ),
+            ],
+            "cooling": [
+                _product(
+                    70,
+                    "Noctua",
+                    "NH-D15",
+                    {"type": "air", "socket_support": "AM5"},
+                    90,
+                ),
+            ],
+        }
+
+        catalog = _mock_catalog(products)
+        cf = CandidateFilter(catalog=catalog)
+        # AMD preference: compatibility filter keeps only 3 AMD CPUs
+        # CPU floor = 1500 × 0.20 = €300 → Ryzen 5 7600 (€200) excluded
+        # 2 remain (€350, €500) < 3 threshold, but post-compat set has 3 → fallback
+        req = _request(
+            cpu_brand=CPUBrand.amd,
+            budget_range=BudgetRange.range_1500_2000,
+            goal=UserGoal.mid_range_gaming,
+        )
+
+        result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
+
+        # Compatibility filter removed Intel CPUs → 3 AMD CPUs remain
+        # Price floor leaves 2 < 3, original post-compat has 3 → fallback to all 3
+        assert len(result["cpu"]) == 3
+        assert all(c.brand == "AMD" for c in result["cpu"])
 
 
 # ---------------------------------------------------------------------------

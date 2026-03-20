@@ -14,10 +14,12 @@ from functools import lru_cache
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.builder import (
+    BudgetRange,
     BuildRequest,
     CoolingPreference,
     CPUBrand,
     GPUBrand,
+    UserGoal,
 )
 from app.services.build_validator import _FF_RANK
 from app.services.catalog import CatalogService, ToolCatalogResult, get_catalog_service
@@ -110,6 +112,19 @@ _GOAL_CATEGORY_SHARE: dict[str, dict[str, float]] = {
         "cooling": 0.04,
     },
 }
+
+# Verify enum/dict coverage at import time to catch drift early
+_budget_keys = set(_BUDGET_LOWER.keys())
+_budget_enum = {b.value for b in BudgetRange}
+assert _budget_keys == _budget_enum, (
+    f"_BUDGET_LOWER keys {_budget_keys} != BudgetRange values {_budget_enum}"
+)
+
+_goal_keys = set(_GOAL_CATEGORY_SHARE.keys())
+_goal_enum = {g.value for g in UserGoal}
+assert _goal_keys == _goal_enum, (
+    f"_GOAL_CATEGORY_SHARE keys {_goal_keys} != UserGoal values {_goal_enum}"
+)
 
 # Socket sets by CPU brand
 _AMD_SOCKETS = frozenset({"AM5", "AM4"})
