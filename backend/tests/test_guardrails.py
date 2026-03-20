@@ -67,20 +67,16 @@ def _make_search_result(
 
 class TestInputGuardrailBuild:
     def test_clean_request_passes(self, guardrail: InputGuardrail):
-        result = guardrail.check(
+        result = guardrail.check_build_content(
             notes="I want a quiet build",
             budget_range=BudgetRange.range_1000_1500,
-            client_ip="1.2.3.4",
-            body_hash="aaaa",
         )
         assert result.allowed
 
     def test_blocklist_term_blocked(self, guardrail: InputGuardrail):
-        result = guardrail.check(
+        result = guardrail.check_build_content(
             notes="I want to kill you",
             budget_range=BudgetRange.range_1000_1500,
-            client_ip="1.2.3.4",
-            body_hash="bbbb",
         )
         assert not result.allowed
         assert "disallowed" in result.reason.lower()
@@ -88,17 +84,12 @@ class TestInputGuardrailBuild:
     def test_duplicate_detection_fires_on_fourth_request(
         self, guardrail: InputGuardrail
     ):
-        kwargs = dict(
-            notes="silent gaming build",
-            budget_range=BudgetRange.range_1000_1500,
-            client_ip="5.6.7.8",
-            body_hash="cccc",
-        )
+        kwargs = dict(client_ip="5.6.7.8", body_hash="cccc")
         # First 3 should pass
         for _ in range(3):
-            assert guardrail.check(**kwargs).allowed
+            assert guardrail.check_build_duplicate(**kwargs).allowed
         # 4th identical request from same IP → blocked
-        result = guardrail.check(**kwargs)
+        result = guardrail.check_build_duplicate(**kwargs)
         assert not result.allowed
         assert "Duplicate" in result.reason
 
@@ -107,20 +98,15 @@ class TestInputGuardrailBuild:
     ):
         for ip in ["10.0.0.1", "10.0.0.2", "10.0.0.3"]:
             for _ in range(3):
-                result = guardrail.check(
-                    notes="build request",
-                    budget_range=BudgetRange.range_1000_1500,
-                    client_ip=ip,
-                    body_hash="dddd",
+                result = guardrail.check_build_duplicate(
+                    client_ip=ip, body_hash="dddd"
                 )
                 assert result.allowed, f"Unexpected block for IP {ip}"
 
     def test_none_notes_passes(self, guardrail: InputGuardrail):
-        result = guardrail.check(
+        result = guardrail.check_build_content(
             notes=None,
             budget_range=BudgetRange.range_0_1000,
-            client_ip="1.1.1.1",
-            body_hash="eeee",
         )
         assert result.allowed
 
