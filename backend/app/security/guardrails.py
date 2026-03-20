@@ -358,7 +358,7 @@ def hash_build_request(payload: BuildRequest) -> str:
     notes = data.get("notes")
     if isinstance(notes, str):
         normalized = notes.strip().lower()
-        if normalized in {"", "none", "n/a", "no", "nothing", "-", "."}:
+        if normalized in {"", "none", "n/a", "nothing", "-", "."}:
             data["notes"] = None
         else:
             data["notes"] = normalized

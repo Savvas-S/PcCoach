@@ -675,11 +675,19 @@ class TestHashNormalization:
         base = _request(notes=None)
         h_none = hash_build_request(base)
 
-        for trivial in ["none", "Nothing", "N/A", "no", "-", ".", "  none  "]:
+        for trivial in ["none", "Nothing", "N/A", "-", ".", "  none  "]:
             req = _request(notes=trivial)
             assert hash_build_request(req) == h_none, (
                 f"'{trivial}' should hash same as None"
             )
+
+    def test_no_is_not_trivial(self):
+        """'no' alone could be shorthand (e.g. 'no RGB') — treat as meaningful."""
+        from app.security.guardrails import hash_build_request
+
+        h_none = hash_build_request(_request(notes=None))
+        h_no = hash_build_request(_request(notes="no"))
+        assert h_no != h_none
 
     def test_meaningful_notes_differ(self):
         from app.security.guardrails import hash_build_request

@@ -9,3 +9,8 @@ content: |
   Cooling: liquid preference → AIO cooler, air → tower cooler, no_preference → best value.
   Intel K/KF CPUs should pair with Z-chipset to unlock overclocking value.
   Cases shipping with <2 fans: add case fans under the "cooling" category.
+
+  Soft constraints (not server-checked):
+  - RAM speed must be within the motherboard's supported range.
+  - Air cooler height must fit the case (tower coolers can reach 165 mm).
+  - Liquid cooler radiator size (240/360 mm) must match case mounting points.
