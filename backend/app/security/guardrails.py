@@ -176,16 +176,17 @@ class InputGuardrail:
     # Public API
     # ------------------------------------------------------------------
 
-    def check(
+    def check_build_content(
         self,
         *,
         notes: str | None,
         budget_range: BudgetRange,
-        client_ip: str,
-        body_hash: str,
-        # Goal / other enum fields are always valid (Pydantic enforced).
     ) -> GuardrailResult:
-        """Run all checks in priority order.  Returns on first failure."""
+        """Content-only checks (blocklist, budget) without duplicate detection.
+
+        Use this for all requests — cache hits included. Duplicate detection
+        is handled separately by check_build_duplicate().
+        """
         combined_text = (notes or "").lower()
 
         result = self._check_hardware_intent(combined_text, budget_range)
@@ -200,11 +201,20 @@ class InputGuardrail:
         if not result.allowed:
             return result
 
-        result = self._check_duplicate(client_ip, body_hash)
-        if not result.allowed:
-            return result
-
         return _ALLOWED
+
+    def check_build_duplicate(
+        self,
+        *,
+        client_ip: str,
+        body_hash: str,
+    ) -> GuardrailResult:
+        """Duplicate detection only for POST /api/v1/build.
+
+        Content checks are handled separately by check_build_content()
+        which runs earlier in the request pipeline (before the cache check).
+        """
+        return self._check_duplicate(client_ip, body_hash)
 
     def check_search_duplicate(
         self,

@@ -215,7 +215,8 @@ class TestCreateBuildCacheMiss:
         self, mock_guardrail, mock_get_service, client
     ):
         build = _make_build_result()
-        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_content.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_duplicate.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build_stream = MagicMock(
             return_value=_mock_build_stream(build)
@@ -241,7 +242,8 @@ class TestCreateBuildCacheMiss:
         client,
     ):
         build = _make_build_result("persist01")
-        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_content.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_duplicate.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build_stream = MagicMock(
             return_value=_mock_build_stream(build)
@@ -268,7 +270,8 @@ class TestCreateBuildCacheHit:
         self, mock_guardrail, mock_get_service, client
     ):
         build = _make_build_result()
-        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_content.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_duplicate.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build_stream = MagicMock(
             return_value=_mock_build_stream(build)
@@ -305,7 +308,8 @@ class TestGetBuild:
         client,
     ):
         build = _make_build_result("gettest1")
-        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_content.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_duplicate.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build_stream = MagicMock(
             return_value=_mock_build_stream(build)
@@ -333,7 +337,7 @@ class TestGetBuild:
 class TestGuardrailBlocking:
     @patch("app.api.v1.builder.input_guardrail")
     def test_blocked_request_returns_400(self, mock_guardrail, client):
-        mock_guardrail.check.return_value = MagicMock(
+        mock_guardrail.check_build_content.return_value = MagicMock(
             allowed=False, reason="Off-topic request"
         )
         resp = client.post("/api/v1/build", json=_VALID_PAYLOAD)
@@ -342,7 +346,8 @@ class TestGuardrailBlocking:
 
     @patch("app.api.v1.builder.input_guardrail")
     def test_duplicate_request_returns_429(self, mock_guardrail, client):
-        mock_guardrail.check.return_value = MagicMock(
+        mock_guardrail.check_build_content.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_duplicate.return_value = MagicMock(
             allowed=False,
             reason="Duplicate request detected. Please wait before resubmitting.",
         )
@@ -361,7 +366,8 @@ class TestErrorHandling:
     def test_validation_failure_returns_error_event(
         self, mock_guardrail, mock_get_service, client
     ):
-        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_content.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_duplicate.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
 
         async def _failing_stream(*args, **kwargs):
@@ -385,7 +391,8 @@ class TestErrorHandling:
     def test_timeout_returns_error_event(
         self, mock_guardrail, mock_get_service, client
     ):
-        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_content.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_duplicate.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
 
         async def _timeout_stream(*args, **kwargs):
@@ -462,7 +469,8 @@ class TestMapErrorCoverage:
         detail_substr,
         client,
     ):
-        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_content.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_duplicate.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
 
         async def _raise_stream(*args, **kwargs):
@@ -492,7 +500,8 @@ class TestProgressEvents:
         self, mock_guardrail, mock_get_service, client
     ):
         build = _make_build_result()
-        mock_guardrail.check.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_content.return_value = MagicMock(allowed=True)
+        mock_guardrail.check_build_duplicate.return_value = MagicMock(allowed=True)
         mock_service = MagicMock()
         mock_service.generate_build_stream = MagicMock(
             return_value=_mock_build_stream(build)

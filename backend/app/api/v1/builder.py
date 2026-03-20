@@ -93,26 +93,23 @@ async def create_build(
     client_ip = request.client.host if request.client else "unknown"
     body_hash = hash_build_request(payload)
 
-    # ---- Pre-stream checks (can still raise HTTPException) ----
+    # ---- Content guardrails (blocklist, budget) — always run ----
 
-    guard_result = input_guardrail.check(
+    content_result = input_guardrail.check_build_content(
         notes=payload.notes,
         budget_range=payload.budget_range,
-        client_ip=client_ip,
-        body_hash=body_hash,
     )
-    if not guard_result.allowed:
+    if not content_result.allowed:
         guardrail_events.emit(
             ip=client_ip,
             guardrail_name="InputGuardrail",
             action_taken="blocked",
-            reason=guard_result.reason,
+            reason=content_result.reason,
         )
-        status = 429 if "Duplicate" in guard_result.reason else 400
-        raise HTTPException(status_code=status, detail=guard_result.reason)
+        raise HTTPException(status_code=400, detail=content_result.reason)
 
     # Return cached result if the same inputs were seen before.
-    # Cache hits bypass the rate limit since they don't call Claude.
+    # Cache hits bypass rate limit and duplicate detection.
     cached = await db.scalar(select(Build).where(Build.request_hash == body_hash))
     if cached:
         log.info("Build cache hit: hash=%s id=%s", body_hash[:8], cached.id)
@@ -131,7 +128,20 @@ async def create_build(
             },
         )
 
-    # Rate limit only uncached requests that will call Claude
+    # Duplicate detection + rate limit — only for uncached requests
+    dup_result = input_guardrail.check_build_duplicate(
+        client_ip=client_ip,
+        body_hash=body_hash,
+    )
+    if not dup_result.allowed:
+        guardrail_events.emit(
+            ip=client_ip,
+            guardrail_name="InputGuardrail",
+            action_taken="blocked",
+            reason=dup_result.reason,
+        )
+        raise HTTPException(status_code=429, detail=dup_result.reason)
+
     check_ai_rate_limit(request)
 
     # ---- Stream the build ----
