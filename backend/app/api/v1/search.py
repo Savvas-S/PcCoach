@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db
-from app.limiter import limiter
+from app.limiter import check_ai_rate_limit, limiter
 from app.models.builder import ComponentSearchRequest, ComponentSearchResult
 from app.security import events as guardrail_events
 from app.security.guardrails import hash_search_request, input_guardrail
@@ -30,7 +30,6 @@ def clear_search_cache() -> int:
 
 
 @router.post("", response_model=ComponentSearchResult, status_code=200)
-@limiter.shared_limit(lambda: settings.rate_limit_ai, scope="ai_calls")
 async def search_component(
     request: Request,
     payload: ComponentSearchRequest,
@@ -78,6 +77,9 @@ async def search_component(
         )
         status = 429 if "Duplicate" in guard_result.reason else 400
         raise HTTPException(status_code=status, detail=guard_result.reason)
+
+    # Rate limit only uncached requests that will call Claude
+    check_ai_rate_limit(request)
 
     # ------------------------------------------------------------------
     # Claude agentic tool loop

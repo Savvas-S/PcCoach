@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_db
 from app.db.models import Build
-from app.limiter import limiter
+from app.limiter import check_ai_rate_limit, limiter
 from app.models.builder import BuildRequest, BuildResult
 from app.security import events as guardrail_events
 from app.security.guardrails import hash_build_request, input_guardrail
@@ -85,7 +85,6 @@ def _map_error(exc: Exception, goal: str, budget: str) -> tuple[int, str]:
         },
     },
 )
-@limiter.shared_limit(lambda: settings.rate_limit_ai, scope="ai_calls")
 async def create_build(
     request: Request,
     payload: BuildRequest,
@@ -112,7 +111,8 @@ async def create_build(
         status = 429 if "Duplicate" in guard_result.reason else 400
         raise HTTPException(status_code=status, detail=guard_result.reason)
 
-    # Return cached result if the same inputs were seen before
+    # Return cached result if the same inputs were seen before.
+    # Cache hits bypass the rate limit since they don't call Claude.
     cached = await db.scalar(select(Build).where(Build.request_hash == body_hash))
     if cached:
         log.info("Build cache hit: hash=%s id=%s", body_hash[:8], cached.id)
@@ -130,6 +130,9 @@ async def create_build(
                 "X-Accel-Buffering": "no",
             },
         )
+
+    # Rate limit only uncached requests that will call Claude
+    check_ai_rate_limit(request)
 
     # ---- Stream the build ----
 
