@@ -77,7 +77,7 @@ class TestInputGuardrailBuild:
 
     def test_blocklist_term_blocked(self, guardrail: InputGuardrail):
         result = guardrail.check(
-            notes="kill all enemies",
+            notes="I want to kill you",
             budget_range=BudgetRange.range_1000_1500,
             client_ip="1.2.3.4",
             body_hash="bbbb",
@@ -131,31 +131,21 @@ class TestInputGuardrailBuild:
 
 
 class TestInputGuardrailSearch:
-    def test_clean_description_passes(self, guardrail: InputGuardrail):
-        result = guardrail.check_search(
-            description="best gaming CPU under €300",
+    def test_first_request_passes(self, guardrail: InputGuardrail):
+        result = guardrail.check_search_duplicate(
             client_ip="1.2.3.4",
             body_hash="ffff",
         )
         assert result.allowed
 
-    def test_blocklist_term_blocked(self, guardrail: InputGuardrail):
-        result = guardrail.check_search(
-            description="bomb",
-            client_ip="1.2.3.4",
-            body_hash="gggg",
-        )
-        assert not result.allowed
-
     def test_duplicate_detection_on_search(self, guardrail: InputGuardrail):
         kwargs = dict(
-            description="RTX 4070 for 1440p",
             client_ip="9.9.9.9",
             body_hash="hhhh",
         )
         for _ in range(3):
-            assert guardrail.check_search(**kwargs).allowed
-        assert not guardrail.check_search(**kwargs).allowed
+            assert guardrail.check_search_duplicate(**kwargs).allowed
+        assert not guardrail.check_search_duplicate(**kwargs).allowed
 
 
 # ---------------------------------------------------------------------------
@@ -308,3 +298,67 @@ class TestOutputGuardrailSearch:
         result = out_guard.check_search(sr)
         assert isinstance(result, ComponentSearchResult)
         assert result.reason == original
+
+
+# ---------------------------------------------------------------------------
+# InputGuardrail — check_search_content (content-only, no duplicate tracking)
+# ---------------------------------------------------------------------------
+
+
+class TestCheckSearchContent:
+    def test_clean_description_passes(self, guardrail: InputGuardrail):
+        result = guardrail.check_search_content(description="best GPU for 1440p")
+        assert result.allowed
+
+    def test_blocklist_blocked(self, guardrail: InputGuardrail):
+        result = guardrail.check_search_content(description="bomb threat")
+        assert not result.allowed
+        assert "disallowed" in result.reason.lower()
+
+    # -- Normalization bypass tests --
+
+    def test_zero_width_chars_blocked(self, guardrail: InputGuardrail):
+        result = guardrail.check_search_content(
+            description="su\u200bck my di\u200bck"
+        )
+        assert not result.allowed
+
+    def test_leetspeak_blocked(self, guardrail: InputGuardrail):
+        result = guardrail.check_search_content(description="suck my d1ck")
+        assert not result.allowed
+
+    def test_cyrillic_homoglyph_blocked(self, guardrail: InputGuardrail):
+        # Cyrillic с (U+0441) instead of Latin c
+        result = guardrail.check_search_content(
+            description="su\u0441k my di\u0441k"
+        )
+        assert not result.allowed
+
+    def test_spaced_out_blocked(self, guardrail: InputGuardrail):
+        result = guardrail.check_search_content(
+            description="s u c k  m y  d i c k"
+        )
+        assert not result.allowed
+
+    def test_legitimate_text_with_numbers_passes(self, guardrail: InputGuardrail):
+        """Leetspeak normalization must not cause false positives on PC specs."""
+        legit = [
+            "I want 32GB RAM and 2TB storage",
+            "Ryzen 7 7800X3D with RTX 5070",
+            "budget build under 1000 euros",
+            "need 750W PSU minimum",
+        ]
+        for text in legit:
+            result = guardrail.check_search_content(description=text)
+            assert result.allowed, f"False positive on: {text}"
+
+    def test_does_not_increment_duplicate_counter(self, guardrail: InputGuardrail):
+        """check_search_content must not count toward duplicate detection."""
+        for _ in range(10):
+            guardrail.check_search_content(description="RTX 4070")
+        # Duplicate counter should still be at 0 (content check doesn't count)
+        result = guardrail.check_search_duplicate(
+            client_ip="1.2.3.4",
+            body_hash="zzzz",
+        )
+        assert result.allowed

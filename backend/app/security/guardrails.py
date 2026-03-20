@@ -20,12 +20,76 @@ multi-process / multi-node deployments.
 import hashlib
 import json
 import logging
+import re
+import unicodedata
 from dataclasses import dataclass
 
 from cachetools import TTLCache
 
 from app.models.builder import BudgetRange, BuildRequest, ComponentSearchRequest
 from app.security.blocklist import BLOCKLIST
+
+# ---------------------------------------------------------------------------
+# Text normalization for blocklist matching
+# ---------------------------------------------------------------------------
+# Zero-width and invisible Unicode characters used to break regex matching.
+_INVISIBLE_CHARS = re.compile(
+    r"[\u200b\u200c\u200d\u200e\u200f\ufeff\u00ad\u034f"
+    r"\u2060\u2061\u2062\u2063\u2064\u206a-\u206f]"
+)
+# Leetspeak substitutions — only digits commonly used as letter replacements.
+# Applied contextually (only when a digit sits between letters) to avoid
+# corrupting legitimate numbers like "32GB" or "RTX 5070".
+_LEET_DIGIT_MAP = {"0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t"}
+_LEET_SYMBOL_MAP = str.maketrans("@$!", "as!")
+# Matches a digit that has a letter on at least one side (e.g. "d1ck", "pr0n")
+_LEET_DIGIT_RE = re.compile(r"(?<=[a-z])(\d)(?=[a-z])|(?<=[a-z])(\d)$|^(\d)(?=[a-z])")
+# Common Cyrillic → Latin homoglyphs (NFKD doesn't cover these)
+_HOMOGLYPHS: dict[str, str] = {
+    "\u0430": "a", "\u0435": "e", "\u043e": "o", "\u0440": "p",
+    "\u0441": "c", "\u0443": "y", "\u0445": "x", "\u043a": "k",
+    "\u0456": "i", "\u0458": "j", "\u04bb": "h", "\u0455": "s",
+}
+
+
+# Spaceless patterns — matched against text with ALL spaces removed to catch
+# "s u c k  d i c k" style bypasses. These use substring matching (no \b)
+# since word boundaries don't exist in collapsed text.
+_SPACELESS_BLOCKLIST: list[re.Pattern[str]] = [
+    re.compile(p, re.IGNORECASE)
+    for p in [
+        r"suck(?:my)?dick",
+        r"suck(?:my)?cock",
+        r"(?:lick|eat)(?:my)?(?:dick|cock|pussy|ass)",
+        r"blowjob",
+        r"handjob",
+        r"jerkoff",
+    ]
+]
+
+
+def _normalize_for_blocklist(text: str) -> str:
+    """Normalize text to defeat common blocklist bypass techniques.
+
+    Applied before regex matching, not to the stored/displayed text.
+    """
+    # 1. Unicode NFKD normalization
+    text = unicodedata.normalize("NFKD", text)
+    # 2. Strip invisible/zero-width characters
+    text = _INVISIBLE_CHARS.sub("", text)
+    # 3. Cyrillic homoglyph substitution
+    text = "".join(_HOMOGLYPHS.get(c, c) for c in text)
+    # 4. Strip non-ASCII (catches remaining exotic bypasses)
+    text = text.encode("ascii", "ignore").decode("ascii")
+    # 5. Leetspeak: substitute digits only when adjacent to letters
+    #    ("d1ck" → "dick" but "32GB" stays "32GB")
+    def _leet_replace(m: re.Match) -> str:
+        d = m.group(1) or m.group(2) or m.group(3)
+        return _LEET_DIGIT_MAP.get(d, d)
+
+    text = _LEET_DIGIT_RE.sub(_leet_replace, text)
+    text = text.translate(_LEET_SYMBOL_MAP)
+    return text
 
 _log = logging.getLogger("security.guardrails")
 
@@ -142,29 +206,28 @@ class InputGuardrail:
 
         return _ALLOWED
 
-    def check_search(
+    def check_search_duplicate(
         self,
         *,
-        description: str,
         client_ip: str,
         body_hash: str,
     ) -> GuardrailResult:
-        """Guardrail checks for POST /api/v1/search.
+        """Duplicate detection only for POST /api/v1/search.
 
-        Applies blocklist and duplicate detection.  Budget and hardware-intent
-        checks are not relevant for the single-component search endpoint.
+        Content checks (blocklist) are handled separately by
+        check_search_content() which runs earlier in the request pipeline
+        (before the cache check). This method only adds duplicate detection
+        for uncached requests that will hit Claude.
         """
-        combined_text = description.lower()
+        return self._check_duplicate(client_ip, body_hash)
 
-        result = self._check_blocklist(combined_text)
-        if not result.allowed:
-            return result
+    def check_search_content(self, *, description: str) -> GuardrailResult:
+        """Content-only checks (blocklist) without duplicate detection.
 
-        result = self._check_duplicate(client_ip, body_hash)
-        if not result.allowed:
-            return result
-
-        return _ALLOWED
+        Use this for requests that will be served from cache — the blocklist
+        must still run, but duplicate counting should be skipped.
+        """
+        return self._check_blocklist(description.lower())
 
     # ------------------------------------------------------------------
     # Individual checks
@@ -190,9 +253,28 @@ class InputGuardrail:
         return _ALLOWED
 
     def _check_blocklist(self, combined_text: str) -> GuardrailResult:
-        """Reject requests matching the abuse blocklist."""
+        """Reject requests matching the abuse blocklist.
+
+        Normalizes text before matching to defeat zero-width characters,
+        leetspeak, homoglyphs, and character-spacing bypass techniques.
+        Checks both with and without spaces to catch "s u c k" patterns.
+        """
+        normalized = _normalize_for_blocklist(combined_text)
+        # Check normalized text with standard patterns
         for pattern in BLOCKLIST:
-            if pattern.search(combined_text):
+            if pattern.search(normalized):
+                _log.warning(
+                    "input_guardrail: blocklist match pattern=%s",
+                    pattern.pattern[:30],
+                )
+                return GuardrailResult(
+                    allowed=False,
+                    reason="Request contains disallowed content.",
+                )
+        # Also check with spaces collapsed to catch "s u c k  d i c k"
+        spaceless = normalized.replace(" ", "")
+        for pattern in _SPACELESS_BLOCKLIST:
+            if pattern.search(spaceless):
                 _log.warning(
                     "input_guardrail: blocklist match pattern=%s",
                     pattern.pattern[:30],  # log only pattern prefix, not user text

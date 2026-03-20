@@ -1,22 +1,22 @@
-/**
- * Convert an exact price to a rounded estimated range string (e.g. "€300 – €350").
- * Uses €25 steps below €100 and €50 steps above.
- */
-export function priceRange(price: number): string {
-  if (!Number.isFinite(price) || price <= 0) return "Check price on store";
-  const step = price < 100 ? 25 : 50;
-  const low = Math.floor(price / step) * step;
-  const high = low + step;
-  return `\u20AC${low} \u2013 \u20AC${high}`;
+/** True when a price is a usable positive number. */
+export function isValidPrice(price: number): boolean {
+  return Number.isFinite(price) && price > 0;
 }
 
 /**
- * Convert a total build price to a wider estimated range (€100 steps).
+ * Format a price as a clean euro string (e.g. "€299.00").
+ * Returns "Check price on store" for invalid/zero prices.
  */
-export function totalPriceRange(price: number): string {
+export function formatPrice(price: number): string {
+  if (!isValidPrice(price)) return "Check price on store";
+  return `\u20AC${price.toFixed(2)}`;
+}
+
+/**
+ * Format a total build price (e.g. "€1,249.00").
+ * Returns "Check prices on store" for invalid/zero prices.
+ */
+export function formatTotalPrice(price: number): string {
   if (!Number.isFinite(price) || price <= 0) return "Check prices on store";
-  const step = 100;
-  const low = Math.floor(price / step) * step;
-  const high = low + step;
-  return `\u20AC${low} \u2013 \u20AC${high}`;
+  return `\u20AC${price.toLocaleString("en-IE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

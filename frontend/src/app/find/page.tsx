@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { searchComponent, SOURCE_LABELS } from "@/lib/api";
 import { safeAffiliateUrl } from "@/lib/url";
-import { priceRange } from "@/lib/price";
+import { formatPrice, isValidPrice } from "@/lib/price";
 import { ErrorModal } from "@/components/ErrorModal";
 import type { ComponentCategory, ComponentSearchResult } from "@/lib/api";
 
@@ -175,7 +175,7 @@ export default function FindPage() {
               </div>
               <div className="text-right shrink-0">
                 <div className="font-mono text-sm text-obsidian-muted">
-                  Est: {priceRange(result.estimated_price_eur)}
+                  {formatPrice(result.estimated_price_eur)}
                 </div>
               </div>
             </div>
@@ -206,12 +206,15 @@ export default function FindPage() {
                         href={safeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn-shimmer inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
+                        className="btn-shimmer inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-sm px-5 py-2.5 hover:brightness-110 transition-all whitespace-nowrap tracking-wide"
                       >
-                        Check Current Price on{" "}
-                        {result.affiliate_source
-                          ? SOURCE_LABELS[result.affiliate_source]
-                          : "Amazon"} &rarr;
+                        {isValidPrice(result.estimated_price_eur)
+                          ? <>{formatPrice(result.estimated_price_eur)}{" "}
+                              <span className="text-xs opacity-70">
+                                on {result.affiliate_source ? SOURCE_LABELS[result.affiliate_source] : "Amazon"}
+                              </span></>
+                          : <>View on {result.affiliate_source ? SOURCE_LABELS[result.affiliate_source] : "Amazon"}</>
+                        } &rarr;
                       </a>
                     );
                   })()}

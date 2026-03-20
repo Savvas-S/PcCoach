@@ -563,6 +563,9 @@ class ClaudeService:
                 ],
                 tools=tools,
                 messages=messages,
+                # Force tool use on turn 1 so Claude always starts by
+                # querying the catalog rather than responding with text.
+                tool_choice={"type": "any"} if turn == 1 else {"type": "auto"},
             )
 
             # Re-check timeout after the API call (which can take up to

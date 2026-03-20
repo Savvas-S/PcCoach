@@ -5,7 +5,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getBuild, SOURCE_LABELS } from "@/lib/api";
 import { safeAffiliateUrl } from "@/lib/url";
-import { priceRange, totalPriceRange } from "@/lib/price";
+import { formatPrice, formatTotalPrice } from "@/lib/price";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import type {
   BuildResult,
   ComponentCategory,
@@ -45,6 +46,14 @@ function formatSpecKey(key: string): string {
 
 const PERIPHERAL_CATEGORIES = new Set<ComponentCategory>(["monitor", "keyboard", "mouse"]);
 
+function ExternalLinkIcon() {
+  return (
+    <svg className="w-3 h-3 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 17L17 7M17 7H7M17 7v10" />
+    </svg>
+  );
+}
+
 function ComponentCard({ component }: { component: ComponentRecommendation }) {
   const label = CATEGORY_LABELS[component.category] || component.category;
   const specs = Object.entries(component.specs);
@@ -52,7 +61,11 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
   return (
     <div className="bg-obsidian-surface border border-obsidian-border p-5 hover:border-obsidian-bright transition-colors card-glow">
       <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
+        <div className="flex items-start gap-4 flex-1 min-w-0">
+          <div className="shrink-0 mt-1 w-8 h-8 flex items-center justify-center border border-obsidian/20 bg-obsidian/[0.05] text-obsidian">
+            <CategoryIcon category={component.category} size={18} />
+          </div>
+          <div className="flex-1 min-w-0">
           <span className="text-xs font-body text-obsidian border border-obsidian/30 px-2 py-0.5 uppercase tracking-wider">
             {label}
           </span>
@@ -71,25 +84,27 @@ function ComponentCard({ component }: { component: ComponentRecommendation }) {
               ))}
             </div>
           )}
+          </div>
         </div>
 
-        <div className="text-right shrink-0 flex flex-col items-end gap-3">
-          <div className="font-mono text-sm text-obsidian-muted">
-            Est: {priceRange(component.price_eur)}
-          </div>
+        <div className="text-right shrink-0 flex flex-col items-end gap-2">
+          <span className="font-mono text-lg font-medium text-obsidian">
+            {formatPrice(component.price_eur)}
+          </span>
           {(() => {
             const safeUrl = safeAffiliateUrl(component.affiliate_url);
+            const source = component.affiliate_source
+              ? SOURCE_LABELS[component.affiliate_source]
+              : "Amazon";
             return safeUrl ? (
               <a
                 href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-shimmer inline-block bg-obsidian text-obsidian-bg font-body font-semibold text-xs px-4 py-2.5 hover:brightness-110 transition-all whitespace-nowrap uppercase tracking-wide"
+                className="group inline-flex items-center gap-1.5 border border-obsidian/40 hover:border-obsidian text-obsidian-muted hover:text-obsidian text-xs font-body px-3 py-1.5 transition-all whitespace-nowrap"
               >
-                Check Current Price on{" "}
-                {component.affiliate_source
-                  ? SOURCE_LABELS[component.affiliate_source]
-                  : "Amazon"} &rarr;
+                {source}
+                <ExternalLinkIcon />
               </a>
             ) : (
               <span className="text-xs text-obsidian-muted-light">No link yet</span>
@@ -118,23 +133,24 @@ function UpgradeCard({ suggestion }: { suggestion: UpgradeSuggestion }) {
           <p className="text-obsidian-muted text-sm mt-0.5">Replaces the {suggestion.current_name}</p>
           <p className="text-obsidian-text text-sm mt-2">{suggestion.reason}</p>
         </div>
-        <div className="text-right shrink-0 flex flex-col items-end gap-3">
-          <div className="font-mono text-sm font-medium text-amber-400">
-            Est. +{priceRange(suggestion.extra_cost_eur)}
-          </div>
+        <div className="text-right shrink-0 flex flex-col items-end gap-2">
+          <span className="font-mono text-sm font-medium text-amber-400">
+            +{formatPrice(suggestion.extra_cost_eur)}
+          </span>
           {(() => {
             const safeUrl = safeAffiliateUrl(suggestion.affiliate_url);
+            const source = suggestion.affiliate_source
+              ? SOURCE_LABELS[suggestion.affiliate_source]
+              : "Amazon";
             return safeUrl ? (
               <a
                 href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-amber-700 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
+                className="group inline-flex items-center gap-1.5 border border-amber-700/40 hover:border-amber-500 text-amber-400/70 hover:text-amber-400 text-xs font-body px-3 py-1.5 transition-all whitespace-nowrap"
               >
-                Check Price on{" "}
-                {suggestion.affiliate_source
-                  ? SOURCE_LABELS[suggestion.affiliate_source]
-                  : "Amazon"} &rarr;
+                {source}
+                <ExternalLinkIcon />
               </a>
             ) : null;
           })()}
@@ -161,23 +177,24 @@ function DowngradeCard({ suggestion }: { suggestion: DowngradeSuggestion }) {
           <p className="text-obsidian-muted text-sm mt-0.5">Replaces the {suggestion.current_name}</p>
           <p className="text-obsidian-text text-sm mt-2">{suggestion.reason}</p>
         </div>
-        <div className="text-right shrink-0 flex flex-col items-end gap-3">
-          <div className="font-mono text-sm font-medium text-green-400">
-            Est. save {priceRange(suggestion.savings_eur)}
-          </div>
+        <div className="text-right shrink-0 flex flex-col items-end gap-2">
+          <span className="font-mono text-sm font-medium text-green-400">
+            Save {formatPrice(suggestion.savings_eur)}
+          </span>
           {(() => {
             const safeUrl = safeAffiliateUrl(suggestion.affiliate_url);
+            const source = suggestion.affiliate_source
+              ? SOURCE_LABELS[suggestion.affiliate_source]
+              : "Amazon";
             return safeUrl ? (
               <a
                 href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-green-700 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide transition-colors whitespace-nowrap"
+                className="group inline-flex items-center gap-1.5 border border-green-700/40 hover:border-green-500 text-green-400/70 hover:text-green-400 text-xs font-body px-3 py-1.5 transition-all whitespace-nowrap"
               >
-                Check Price on{" "}
-                {suggestion.affiliate_source
-                  ? SOURCE_LABELS[suggestion.affiliate_source]
-                  : "Amazon"} &rarr;
+                {source}
+                <ExternalLinkIcon />
               </a>
             ) : null;
           })()}
@@ -313,10 +330,10 @@ export default function BuildResultPage() {
           {build.total_price_eur != null && (
             <div className="flex items-baseline gap-3 mt-3 flex-wrap">
               <span className="font-mono text-3xl font-medium text-obsidian">
-                {totalPriceRange(build.total_price_eur)}
+                {formatTotalPrice(build.total_price_eur)}
               </span>
               <span className="text-obsidian-muted text-sm">
-                estimated total &middot;{" "}
+                total &middot;{" "}
                 {build.components.length} component{build.components.length !== 1 ? "s" : ""}
               </span>
             </div>
@@ -369,7 +386,7 @@ export default function BuildResultPage() {
         )}
 
         <p className="text-obsidian-muted-light text-xs mb-10 font-mono">
-          Estimated price ranges are approximate. Click through to verify the current price before ordering.
+          Prices shown are from our catalog and may differ at checkout. Always confirm before purchasing.
         </p>
 
         {/* Alternatives */}
@@ -391,8 +408,8 @@ export default function BuildResultPage() {
         <div className="border border-obsidian-border bg-obsidian-surface p-5 mb-8">
           <p className="font-body font-semibold text-obsidian-text mb-1">Ready to order?</p>
           <p className="text-obsidian-muted text-sm leading-relaxed">
-            Click each component above to check the current price on the store.
-            Our estimates are approximate — always confirm before purchasing.
+            Click each component above to buy it on the store.
+            Prices may vary at checkout — always confirm before purchasing.
           </p>
         </div>
 
