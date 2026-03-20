@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db
-from app.limiter import limiter
+from app.limiter import check_ai_rate_limit, limiter
 from app.models.builder import ComponentSearchRequest, ComponentSearchResult
 from app.security import events as guardrail_events
 from app.security.guardrails import hash_search_request, input_guardrail
@@ -22,21 +22,49 @@ router = APIRouter(prefix="/search", tags=["search"])
 _search_cache: TTLCache[str, dict] = TTLCache(maxsize=128, ttl=1800)
 
 
+def clear_search_cache() -> int:
+    """Clear the search cache. Returns the number of evicted entries."""
+    n = len(_search_cache)
+    _search_cache.clear()
+    return n
+
+
 @router.post("", response_model=ComponentSearchResult, status_code=200)
-@limiter.shared_limit(lambda: settings.rate_limit_ai, scope="ai_calls")
 async def search_component(
     request: Request,
     payload: ComponentSearchRequest,
     db: AsyncSession = Depends(get_db),
 ) -> ComponentSearchResult:
-    # ------------------------------------------------------------------
-    # Input guardrails — blocklist + duplicate detection
-    # ------------------------------------------------------------------
     client_ip = request.client.host if request.client else "unknown"
     body_hash = hash_search_request(payload)
 
-    guard_result = input_guardrail.check_search(
+    # ------------------------------------------------------------------
+    # Content guardrails (blocklist) — always run, even for cache hits
+    # ------------------------------------------------------------------
+    content_result = input_guardrail.check_search_content(
         description=payload.description,
+    )
+    if not content_result.allowed:
+        guardrail_events.emit(
+            ip=client_ip,
+            guardrail_name="InputGuardrail.search",
+            action_taken="blocked",
+            reason=content_result.reason,
+        )
+        raise HTTPException(status_code=400, detail=content_result.reason)
+
+    # ------------------------------------------------------------------
+    # Cache check — cached results are free, skip duplicate detection
+    # ------------------------------------------------------------------
+    cached = _search_cache.get(body_hash)
+    if cached:
+        log.info("Search cache hit: hash=%s", body_hash[:8])
+        return ComponentSearchResult.model_validate(cached)
+
+    # ------------------------------------------------------------------
+    # Duplicate detection — only for uncached requests that hit Claude
+    # ------------------------------------------------------------------
+    guard_result = input_guardrail.check_search_duplicate(
         client_ip=client_ip,
         body_hash=body_hash,
     )
@@ -50,13 +78,8 @@ async def search_component(
         status = 429 if "Duplicate" in guard_result.reason else 400
         raise HTTPException(status_code=status, detail=guard_result.reason)
 
-    # ------------------------------------------------------------------
-    # Cache check — return cached result for identical search requests
-    # ------------------------------------------------------------------
-    cached = _search_cache.get(body_hash)
-    if cached:
-        log.info("Search cache hit: hash=%s", body_hash[:8])
-        return ComponentSearchResult.model_validate(cached)
+    # Rate limit only uncached requests that will call Claude
+    check_ai_rate_limit(request)
 
     # ------------------------------------------------------------------
     # Claude agentic tool loop

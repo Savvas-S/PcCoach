@@ -238,6 +238,24 @@ async def seed_catalog(db: AsyncSession) -> None:
     log.info("Seeded %d components with affiliate links.", len(products))
 
 
+def _clear_web_cache() -> None:
+    """Tell the running web process to drop its in-memory search cache.
+
+    Called after seeding so stale cached results don't survive a catalog update.
+    Failures are logged but not fatal — the cache will expire naturally (TTL 30 min).
+    """
+    import urllib.request
+
+    # Assumes seed runs inside the same container as the web process (docker exec).
+    url = "http://localhost:8000/internal/clear-cache"
+    try:
+        req = urllib.request.Request(url, method="POST", data=b"")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            log.info("Search cache cleared: %s", resp.read().decode())
+    except Exception as exc:
+        log.warning("Could not clear search cache (web process may be down): %s", exc)
+
+
 async def _main() -> None:
     """Entry point for `python -m app.db.seed`."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -247,6 +265,8 @@ async def _main() -> None:
 
     async for db in get_db():
         await seed_catalog(db)
+
+    _clear_web_cache()
 
 
 if __name__ == "__main__":

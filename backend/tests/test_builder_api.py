@@ -517,3 +517,42 @@ class TestProgressEvents:
         assert "elapsed_s" in progress_data
         assert "categories_scouted" in progress_data
         assert "tool" in progress_data
+
+
+# ---------------------------------------------------------------------------
+# Internal cache-clear endpoint
+# ---------------------------------------------------------------------------
+
+
+class TestClearCache:
+    @patch("app.main.ipaddress.ip_address")
+    def test_clear_cache_from_localhost(self, mock_ip, client):
+        mock_addr = MagicMock()
+        mock_addr.is_loopback = True
+        mock_addr.is_private = True
+        mock_ip.return_value = mock_addr
+        resp = client.post("/internal/clear-cache")
+        assert resp.status_code == 200
+        assert "cleared" in resp.json()
+
+    @patch("app.main.ipaddress.ip_address")
+    def test_clear_cache_returns_evicted_count(self, mock_ip, client):
+        mock_addr = MagicMock()
+        mock_addr.is_loopback = True
+        mock_addr.is_private = True
+        mock_ip.return_value = mock_addr
+
+        from app.api.v1.search import _search_cache
+
+        _search_cache["key1"] = {"dummy": True}
+        _search_cache["key2"] = {"dummy": True}
+        resp = client.post("/internal/clear-cache")
+        assert resp.status_code == 200
+        assert resp.json()["cleared"] == 2
+        assert len(_search_cache) == 0
+
+    def test_clear_cache_rejected_from_public_ip(self, client):
+        """TestClient sends 'testclient' as host which is not a valid IP —
+        should be rejected with 403."""
+        resp = client.post("/internal/clear-cache")
+        assert resp.status_code == 403

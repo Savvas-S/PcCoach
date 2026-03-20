@@ -42,3 +42,32 @@ def _get_client_ip(request: Request) -> str:
 # This means a missing/unset ENVIRONMENT defaults to enforcing limits — safe by default.
 _env = os.environ.get("ENVIRONMENT", "production")
 limiter = Limiter(key_func=_get_client_ip, enabled=_env != "development")
+
+
+def check_ai_rate_limit(request: Request) -> None:
+    """Manually check the shared AI rate limit and raise 429 if exceeded.
+
+    Use this instead of @limiter.shared_limit when the rate limit should
+    only apply conditionally (e.g. skip for cache hits that don't call Claude).
+
+    Raises slowapi.errors.RateLimitExceeded so the global handler in main.py
+    formats the response consistently with decorator-based limits.
+    """
+    if not limiter.enabled:
+        return
+
+    from limits import parse
+
+    from app.config import settings
+
+    key = _get_client_ip(request)
+    limit = parse(settings.rate_limit_ai)
+    if not limiter.limiter.hit(limit, "ai_calls", key):
+        from fastapi import HTTPException
+
+        count, _, period = settings.rate_limit_ai.partition("/")
+        detail = (
+            f"Rate limit exceeded — resets in 1 {period or 'day'}. "
+            f"Each user gets {count} AI requests per {period or 'day'}."
+        )
+        raise HTTPException(status_code=429, detail=detail)

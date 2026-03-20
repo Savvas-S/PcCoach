@@ -1,10 +1,11 @@
+import ipaddress
 import logging
 import os
 from contextlib import asynccontextmanager
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s — %(message)s")
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -203,3 +204,27 @@ app.include_router(v1_router, prefix="/api/v1")
 async def health(db: AsyncSession = Depends(get_db)):
     await db.execute(text("SELECT 1"))
     return {"status": "ok"}
+
+
+@app.post("/internal/clear-cache")
+async def clear_cache(request: Request) -> dict:
+    """Clear in-memory search cache. Only accessible from private/loopback IPs.
+
+    In production, nginx only proxies /api/ and /health — the /internal/ path
+    is not exposed to the internet. The IP check is a defence-in-depth guard
+    for environments without nginx (e.g. direct container access).
+    """
+    client = request.client.host if request.client else ""
+    try:
+        addr = ipaddress.ip_address(client)
+        if not (addr.is_loopback or addr.is_private):
+            raise HTTPException(status_code=403, detail="Forbidden")
+    except ValueError:
+        log.warning("clear-cache: unparseable client IP %r — rejecting", client)
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    from app.api.v1.search import clear_search_cache
+
+    evicted = clear_search_cache()
+    log.info("Cache cleared: evicted=%d entries (triggered by %s)", evicted, client)
+    return {"cleared": evicted}

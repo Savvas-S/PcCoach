@@ -16,10 +16,14 @@ import re
 # Each entry is a compiled regex pattern.
 # Patterns are case-insensitive and matched anywhere in the combined text.
 _RAW_PATTERNS: list[str] = [
-    # Explicit violence / threats
-    r"\b(?:kill|murder|bomb|attack|terroris[mt])\b",
-    # Extreme sexual content triggers
+    # Explicit violence / threats — require threatening context to avoid
+    # false positives on gaming slang ("kill it in games", "bomb-proof build")
+    r"\b(?:kill|murder|attack)\s+(?:you|him|her|them|people|someone|everyone)\b",
+    r"\b(?:bomb\s+threat|terroris[mt])\b",
+    # Extreme / crude sexual content triggers
     r"\b(?:porn|xxx|onlyfans|nude|naked)\b",
+    r"\b(?:suck|lick|eat)\s+(?:my\s+)?(?:dick|cock|pussy|ass)\b",
+    r"\b(?:blow\s*job|hand\s*job|jerk\s+off)\b",
     # Hate speech — only the most unambiguous slurs (keep this list very short)
     # We use Unicode-normalised regex-safe representations to avoid storing
     # slur strings literally in source.  These are the ASCII forms.
