@@ -1062,6 +1062,13 @@ class ClaudeService:
                 )
             )
 
+        # Build a category→price lookup from the main build components
+        _cat_price: dict[str, float] = {}
+        for comp_data in terminal_data["components"]:
+            cid = comp_data["component_id"]
+            if cid in resolved:
+                _cat_price[comp_data["category"]] = resolved[cid].price_eur
+
         # Handle upgrade suggestion
         upgrade_suggestion = None
         if terminal_data.get("upgrade_suggestion"):
@@ -1069,17 +1076,36 @@ class ClaudeService:
             upgrade_id = us.get("upgrade_component_id")
             if upgrade_id and upgrade_id in resolved:
                 urc = resolved[upgrade_id]
-                try:
-                    upgrade_suggestion = UpgradeSuggestion(
-                        component_category=us["component_category"],
-                        current_name=us["current_name"],
-                        upgrade_name=f"{urc.brand} {urc.model}",
-                        extra_cost_eur=us["extra_cost_eur"],
-                        reason=us["reason"],
-                        affiliate_url=urc.affiliate_url,
-                        affiliate_source=urc.affiliate_source,
+                # Compute real price delta and cap at €75
+                current_price = _cat_price.get(us.get("component_category", ""))
+                if current_price is not None:
+                    real_extra = round(urc.price_eur - current_price, 2)
+                    if real_extra > 75 or real_extra <= 0:
+                        log.info(
+                            "Upgrade suggestion dropped: real extra cost €%.2f "
+                            "(claimed €%.2f) exceeds €75 cap or is non-positive",
+                            real_extra,
+                            us.get("extra_cost_eur", 0),
+                        )
+                        upgrade_suggestion = None
+                    else:
+                        try:
+                            upgrade_suggestion = UpgradeSuggestion(
+                                component_category=us["component_category"],
+                                current_name=us["current_name"],
+                                upgrade_name=f"{urc.brand} {urc.model}",
+                                extra_cost_eur=real_extra,
+                                reason=us["reason"],
+                                affiliate_url=urc.affiliate_url,
+                                affiliate_source=urc.affiliate_source,
+                            )
+                        except (ValueError, ValidationError):
+                            upgrade_suggestion = None
+                else:
+                    log.warning(
+                        "Cannot verify upgrade price: category %s not in build",
+                        us.get("component_category"),
                     )
-                except (ValueError, ValidationError):
                     upgrade_suggestion = None
             else:
                 log.warning(
@@ -1095,17 +1121,36 @@ class ClaudeService:
             downgrade_id = ds.get("downgrade_component_id")
             if downgrade_id and downgrade_id in resolved:
                 drc = resolved[downgrade_id]
-                try:
-                    downgrade_suggestion = DowngradeSuggestion(
-                        component_category=ds["component_category"],
-                        current_name=ds["current_name"],
-                        downgrade_name=f"{drc.brand} {drc.model}",
-                        savings_eur=ds["savings_eur"],
-                        reason=ds["reason"],
-                        affiliate_url=drc.affiliate_url,
-                        affiliate_source=drc.affiliate_source,
+                # Compute real savings and cap at €100
+                current_price = _cat_price.get(ds.get("component_category", ""))
+                if current_price is not None:
+                    real_savings = round(current_price - drc.price_eur, 2)
+                    if real_savings > 100 or real_savings <= 0:
+                        log.info(
+                            "Downgrade suggestion dropped: real savings €%.2f "
+                            "(claimed €%.2f) exceeds €100 cap or is non-positive",
+                            real_savings,
+                            ds.get("savings_eur", 0),
+                        )
+                        downgrade_suggestion = None
+                    else:
+                        try:
+                            downgrade_suggestion = DowngradeSuggestion(
+                                component_category=ds["component_category"],
+                                current_name=ds["current_name"],
+                                downgrade_name=f"{drc.brand} {drc.model}",
+                                savings_eur=real_savings,
+                                reason=ds["reason"],
+                                affiliate_url=drc.affiliate_url,
+                                affiliate_source=drc.affiliate_source,
+                            )
+                        except (ValueError, ValidationError):
+                            downgrade_suggestion = None
+                else:
+                    log.warning(
+                        "Cannot verify downgrade price: category %s not in build",
+                        ds.get("component_category"),
                     )
-                except (ValueError, ValidationError):
                     downgrade_suggestion = None
             else:
                 log.warning(
