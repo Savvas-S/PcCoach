@@ -35,7 +35,8 @@ from app.services.build_validator import (
     format_repair_error,
     required_categories,
 )
-from app.services.catalog import CATEGORY_SPEC_KEYS, get_catalog_service
+from app.services.candidate_filter import get_candidate_filter
+from app.services.catalog import get_catalog_service
 
 log = logging.getLogger(__name__)
 
@@ -63,9 +64,9 @@ _ALL_CATEGORIES = [c.value for c in ComponentCategory]
 SCOUT_CATALOG_TOOL = {
     "name": "scout_catalog",
     "description": (
-        "Get an overview of ALL available components. Returns up to 50 in-stock "
-        "products per category sorted by price. Call this FIRST, then go straight to "
-        "submit_build — you will have the full catalog."
+        "Fallback: get up to 50 in-stock products/category sorted by price. "
+        "Pre-filtered candidates are already in the message — use only if "
+        "the pre-filtered set is missing a needed category."
     ),
     "input_schema": {
         "type": "object",
@@ -76,7 +77,9 @@ SCOUT_CATALOG_TOOL = {
                     "type": "string",
                     "enum": _BUILD_CATEGORIES,
                 },
-                "description": "Categories to scout. Include ALL categories needed for the build.",
+                "description": (
+                    "Categories to scout. Include ALL categories needed for the build."
+                ),
             },
         },
         "required": ["categories"],
@@ -86,17 +89,25 @@ SCOUT_CATALOG_TOOL = {
 QUERY_CATALOG_TOOL = {
     "name": "query_catalog",
     "description": (
-        "Query with filters ONLY if scout_catalog did not show a compatible option "
-        "for a category. Returns up to 15 results sorted by price. "
-        "Do NOT use this just to see more options -- prefer submitting directly."
+        "Targeted query with filters. Use ONLY if pre-filtered candidates "
+        "lack compatible options for a category. Returns up to 15 results."
     ),
     "input_schema": {
         "type": "object",
         "properties": {
             "category": {"type": "string", "enum": _BUILD_CATEGORIES},
-            "brand": {"type": "string", "description": "Filter by brand (case-insensitive)"},
-            "socket": {"type": "string", "description": "CPU socket, e.g. AM5, LGA1700"},
-            "form_factor": {"type": "string", "description": "ATX, micro_atx, mini_itx"},
+            "brand": {
+                "type": "string",
+                "description": "Filter by brand",
+            },
+            "socket": {
+                "type": "string",
+                "description": "CPU socket, e.g. AM5",
+            },
+            "form_factor": {
+                "type": "string",
+                "description": "ATX, micro_atx, mini_itx",
+            },
             "ddr_type": {"type": "string", "description": "DDR4 or DDR5"},
             "cooling_type": {"type": "string", "enum": ["air", "liquid"]},
         },
@@ -107,18 +118,15 @@ QUERY_CATALOG_TOOL = {
 SUBMIT_BUILD_TOOL = {
     "name": "submit_build",
     "description": (
-        "Submit your final build recommendation. Provide component_id values "
-        "from scout_catalog or query_catalog results."
+        "Submit your final build. Use component_id values from the "
+        "pre-filtered catalog or tool results."
     ),
     "input_schema": {
         "type": "object",
         "properties": {
             "summary": {
                 "type": "string",
-                "description": (
-                    "2-3 sentence explanation of the build "
-                    "choices and why they fit the user's needs"
-                ),
+                "description": "2-3 sentence explanation of the build choices",
             },
             "components": {
                 "type": "array",
@@ -127,7 +135,7 @@ SUBMIT_BUILD_TOOL = {
                     "properties": {
                         "component_id": {
                             "type": "integer",
-                            "description": "ID from scout_catalog or query_catalog results",
+                            "description": "ID from catalog",
                         },
                         "category": {
                             "type": "string",
@@ -143,10 +151,7 @@ SUBMIT_BUILD_TOOL = {
             },
             "upgrade_suggestion": {
                 "type": "object",
-                "description": (
-                    "Optional single-component upgrade if it "
-                    "meaningfully improves the build for under €75 extra"
-                ),
+                "description": "Optional upgrade (under €75 extra)",
                 "properties": {
                     "component_category": {
                         "type": "string",
@@ -155,7 +160,6 @@ SUBMIT_BUILD_TOOL = {
                     "current_name": {"type": "string"},
                     "upgrade_component_id": {
                         "type": "integer",
-                        "description": "Component ID of the upgrade option from catalog results",
                     },
                     "extra_cost_eur": {"type": "number", "minimum": 0.01},
                     "reason": {"type": "string"},
@@ -170,10 +174,7 @@ SUBMIT_BUILD_TOOL = {
             },
             "downgrade_suggestion": {
                 "type": "object",
-                "description": (
-                    "Optional single-component downgrade that saves "
-                    "money while still adequately meeting the use case"
-                ),
+                "description": "Optional downgrade that saves money",
                 "properties": {
                     "component_category": {
                         "type": "string",
@@ -182,7 +183,6 @@ SUBMIT_BUILD_TOOL = {
                     "current_name": {"type": "string"},
                     "downgrade_component_id": {
                         "type": "integer",
-                        "description": "Component ID of the downgrade option from catalog results",
                     },
                     "savings_eur": {"type": "number", "minimum": 0.01},
                     "reason": {"type": "string"},
@@ -202,28 +202,23 @@ SUBMIT_BUILD_TOOL = {
 
 RECOMMEND_COMPONENT_TOOL = {
     "name": "recommend_component",
-    "description": (
-        "Return the best single component matching the user's description. "
-        "Provide the component_id from scout_catalog or query_catalog results."
-    ),
+    "description": "Return the best single component matching the user's description.",
     "input_schema": {
         "type": "object",
         "properties": {
             "component_id": {
                 "type": "integer",
-                "description": "ID from scout_catalog or query_catalog results",
+                "description": "ID from catalog",
             },
             "reason": {
                 "type": "string",
-                "description": (
-                    "2-3 sentences explaining why this "
-                    "component best matches the request"
-                ),
+                "description": "2-3 sentences explaining why this component fits",
             },
         },
         "required": ["component_id", "reason"],
     },
 }
+
 
 def _with_category_enum(tool: dict, categories: list[str]) -> dict:
     """Clone a tool schema, replacing its category enum list."""
@@ -284,11 +279,16 @@ class ClaudeService:
         self.model = settings.claude_model
         self._validator = BuildValidator()
         self._catalog = get_catalog_service()
+        self._filter = get_candidate_filter()
 
-    def _build_prompt_and_tools(
-        self, request: BuildRequest
-    ) -> tuple[str, str, list[dict], set[str]]:
-        """Shared setup for build generation (used by both sync and stream)."""
+    async def _build_prompt_and_tools(
+        self, request: BuildRequest, db: AsyncSession | None = None
+    ) -> tuple[str, str, list[dict], set[str], set[str]]:
+        """Shared setup for build generation (used by both sync and stream).
+
+        Returns (system_prompt, user_message, tools, required_cats, pre_scouted).
+        pre_scouted contains category names injected into the prompt via pre-filter.
+        """
         safe_notes = sanitize_user_input(request.notes or "none")
 
         user_message = (
@@ -311,7 +311,24 @@ class ClaudeService:
             existing_parts=[p.value for p in request.existing_parts],
             include_peripherals=request.include_peripherals,
         )
-        return system_prompt, user_message, tools, required_cats
+
+        # Pre-filter catalog candidates and inject into the user message
+        pre_scouted: set[str] = set()
+        if db is not None:
+            candidates = await self._filter.filter_candidates(
+                request, required_cats, db
+            )
+            if candidates:
+                catalog_text = _format_tool_results(candidates)
+                user_message += (
+                    "\n\n## Pre-Filtered Catalog (compatible candidates)\n\n"
+                    + catalog_text
+                    + "These candidates are pre-filtered for compatibility. "
+                    "Go directly to submit_build using component IDs above."
+                )
+                pre_scouted = set(candidates.keys())
+
+        return system_prompt, user_message, tools, required_cats, pre_scouted
 
     async def generate_build(
         self,
@@ -325,9 +342,13 @@ class ClaudeService:
         Raises:
             ValueError, BuildValidationError, TimeoutError, GuardrailBlocked.
         """
-        system_prompt, user_message, tools, required_cats = (
-            self._build_prompt_and_tools(request)
-        )
+        (
+            system_prompt,
+            user_message,
+            tools,
+            required_cats,
+            pre_scouted,
+        ) = await self._build_prompt_and_tools(request, db)
 
         log.info(
             "Claude build prompt — system: %d chars, user: %d chars",
@@ -343,6 +364,7 @@ class ClaudeService:
             terminal_tool_name="submit_build",
             required_categories=required_cats,
             request=request,
+            pre_scouted_categories=pre_scouted,
         )
 
         return self._build_result_from_resolved(
@@ -364,9 +386,13 @@ class ClaudeService:
         Yields ``{"type": "progress", ...}`` and ``{"type": "result", ...}``.
         Raises on error (caller converts to SSE error event).
         """
-        system_prompt, user_message, tools, required_cats = (
-            self._build_prompt_and_tools(request)
-        )
+        (
+            system_prompt,
+            user_message,
+            tools,
+            required_cats,
+            pre_scouted,
+        ) = await self._build_prompt_and_tools(request, db)
 
         log.info(
             "Claude build prompt (stream) — system: %d chars, user: %d chars",
@@ -383,6 +409,7 @@ class ClaudeService:
             terminal_tool_name="submit_build",
             required_categories=required_cats,
             request=request,
+            pre_scouted_categories=pre_scouted,
         ):
             if event["type"] == "progress":
                 yield event
@@ -390,9 +417,7 @@ class ClaudeService:
                 terminal_data = event["data"]
 
         if terminal_data is None:
-            raise ValueError(
-                "Tool loop ended without producing a result."
-            )
+            raise ValueError("Tool loop ended without producing a result.")
 
         build = self._build_result_from_resolved(
             terminal_data=terminal_data,
@@ -487,6 +512,7 @@ class ClaudeService:
         terminal_tool_name: str,
         required_categories: set[str] | None = None,
         request: BuildRequest | None = None,
+        pre_scouted_categories: set[str] | None = None,
     ) -> dict:
         """Run the agentic tool-use loop until terminal tool is called.
 
@@ -501,6 +527,7 @@ class ClaudeService:
             terminal_tool_name=terminal_tool_name,
             required_categories=required_categories,
             request=request,
+            pre_scouted_categories=pre_scouted_categories,
         ):
             if event["type"] == "done":
                 return event["data"]
@@ -515,6 +542,7 @@ class ClaudeService:
         terminal_tool_name: str,
         required_categories: set[str] | None = None,
         request: BuildRequest | None = None,
+        pre_scouted_categories: set[str] | None = None,
     ):
         """Async generator that drives the agentic tool-use loop.
 
@@ -524,7 +552,9 @@ class ClaudeService:
         """
         messages = [{"role": "user", "content": user_message}]
 
-        categories_scouted: set[str] = set()
+        # Pre-scouted categories are treated as already seen by the premature
+        # submission check, so Claude can submit directly without calling scout.
+        categories_scouted: set[str] = set(pre_scouted_categories or set())
         categories_queried: set[str] = set()
         query_history: list[str] = []
         repair_attempts = 0
@@ -592,8 +622,11 @@ class ClaudeService:
             log.info(
                 "Turn %d usage — input: %d, output: %d, "
                 "cache_create: %d, cache_read: %d",
-                turn, turn_input, turn_output,
-                turn_cache_creation, turn_cache_read,
+                turn,
+                turn_input,
+                turn_output,
+                turn_cache_creation,
+                turn_cache_read,
             )
 
             # Find tool_use blocks
@@ -633,21 +666,28 @@ class ClaudeService:
                     result_text = await self._handle_scout_catalog(
                         db, tool_input, categories_scouted
                     )
-                    tool_results.append({
-                        "type": "tool_result",
-                        "tool_use_id": tool_use.id,
-                        "content": result_text,
-                    })
+                    tool_results.append(
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": tool_use.id,
+                            "content": result_text,
+                        }
+                    )
 
                 elif tool_name == "query_catalog":
                     result_text = await self._handle_query_catalog(
-                        db, tool_input, categories_queried, query_history,
+                        db,
+                        tool_input,
+                        categories_queried,
+                        query_history,
                     )
-                    tool_results.append({
-                        "type": "tool_result",
-                        "tool_use_id": tool_use.id,
-                        "content": result_text,
-                    })
+                    tool_results.append(
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": tool_use.id,
+                            "content": result_text,
+                        }
+                    )
 
                 elif tool_name == terminal_tool_name:
                     terminal_result = await self._handle_terminal_tool(
@@ -664,34 +704,42 @@ class ClaudeService:
 
                     if terminal_result["status"] == "repair":
                         repair_attempts += 1
-                        tool_results.append({
-                            "type": "tool_result",
-                            "tool_use_id": tool_use.id,
-                            "content": terminal_result["error_text"],
-                            "is_error": True,
-                        })
+                        tool_results.append(
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": tool_use.id,
+                                "content": terminal_result["error_text"],
+                                "is_error": True,
+                            }
+                        )
                     elif terminal_result["status"] == "premature":
-                        tool_results.append({
-                            "type": "tool_result",
-                            "tool_use_id": tool_use.id,
-                            "content": terminal_result["error_text"],
-                            "is_error": True,
-                        })
+                        tool_results.append(
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": tool_use.id,
+                                "content": terminal_result["error_text"],
+                                "is_error": True,
+                            }
+                        )
                     else:
                         # success — placeholder result (won't be sent)
-                        tool_results.append({
+                        tool_results.append(
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": tool_use.id,
+                                "content": "Build accepted.",
+                            }
+                        )
+                else:
+                    tool_results.append(
+                        {
                             "type": "tool_result",
                             "tool_use_id": tool_use.id,
-                            "content": "Build accepted.",
-                        })
-                else:
-                    tool_results.append({
-                        "type": "tool_result",
-                        "tool_use_id": tool_use.id,
-                        "content": f"Unknown tool '{tool_name}'. Use one of: "
-                        f"scout_catalog, query_catalog, {terminal_tool_name}",
-                        "is_error": True,
-                    })
+                            "content": f"Unknown tool '{tool_name}'. Use one of: "
+                            f"scout_catalog, query_catalog, {terminal_tool_name}",
+                            "is_error": True,
+                        }
+                    )
 
                 # Yield progress after each tool call
                 phase = _phase_for_tool(tool_name, terminal_result)
@@ -714,9 +762,7 @@ class ClaudeService:
                     "claude-sonnet-4-6": (3.0, 15.0, 3.75, 0.30),
                     "claude-haiku-4-5-20251001": (0.80, 4.0, 1.0, 0.08),
                 }
-                inp, out, cw, cr = _PRICING.get(
-                    self.model, (3.0, 15.0, 3.75, 0.30)
-                )
+                inp, out, cw, cr = _PRICING.get(self.model, (3.0, 15.0, 3.75, 0.30))
                 cost_usd = (
                     total_input_tokens * inp
                     + total_output_tokens * out
@@ -729,9 +775,13 @@ class ClaudeService:
                     "input_tokens: %d, output_tokens: %d, "
                     "cache_create: %d, cache_read: %d, "
                     "estimated_cost: $%.4f",
-                    self.model, turn, elapsed,
-                    total_input_tokens, total_output_tokens,
-                    total_cache_creation_tokens, total_cache_read_tokens,
+                    self.model,
+                    turn,
+                    elapsed,
+                    total_input_tokens,
+                    total_output_tokens,
+                    total_cache_creation_tokens,
+                    total_cache_read_tokens,
                     cost_usd,
                 )
                 yield {"type": "done", "data": terminal_result["data"]}
@@ -921,9 +971,7 @@ class ClaudeService:
                 cat_map[cat] = resolved[comp_id]
 
         # Validate compatibility
-        validation = self._validator.validate(
-            cat_map, required_categories or set()
-        )
+        validation = self._validator.validate(cat_map, required_categories or set())
 
         if not validation.valid:
             if repair_attempts >= 1:
@@ -944,9 +992,7 @@ class ClaudeService:
 
         # Success — attach resolved data to terminal_data
         tool_input["_resolved"] = resolved
-        tool_input["_validation_warnings"] = [
-            w.message for w in validation.warnings
-        ]
+        tool_input["_validation_warnings"] = [w.message for w in validation.warnings]
         return {"status": "success", "data": tool_input}
 
     def _check_premature_submit(
@@ -966,9 +1012,7 @@ class ClaudeService:
         if required_categories:
             missing = required_categories - submitted_cats
             if missing:
-                errors.append(
-                    f"Missing required categories: {sorted(missing)}."
-                )
+                errors.append(f"Missing required categories: {sorted(missing)}.")
 
         # Check submitted categories were seen in scout or query
         unqueried = submitted_cats - all_seen
@@ -1114,9 +1158,7 @@ class ClaudeService:
         return checked
 
 
-def _phase_for_tool(
-    tool_name: str, terminal_result: dict | None
-) -> str:
+def _phase_for_tool(tool_name: str, terminal_result: dict | None) -> str:
     """Map the tool just called to a progress phase label."""
     if tool_name == "scout_catalog":
         return "scouting"

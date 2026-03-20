@@ -5,7 +5,7 @@ content: |
   - All prices in EUR, realistic current market prices
   - Exclude any categories listed in existing_parts
   - Include monitor, keyboard, mouse only if include_peripherals is true
-  - Always recommend compatible components (CPU socket ↔ motherboard, RAM type, PSU wattage)
+  - Server validates compatibility — see Compatibility section
   - Provide meaningful specs for each component (e.g. cores, clock, VRAM, capacity)
 
   ## User Notes — Priority and Handling

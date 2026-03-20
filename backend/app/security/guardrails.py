@@ -46,9 +46,18 @@ _LEET_SYMBOL_MAP = str.maketrans("@$!", "as!")
 _LEET_DIGIT_RE = re.compile(r"(?<=[a-z])(\d)(?=[a-z])|(?<=[a-z])(\d)$|^(\d)(?=[a-z])")
 # Common Cyrillic → Latin homoglyphs (NFKD doesn't cover these)
 _HOMOGLYPHS: dict[str, str] = {
-    "\u0430": "a", "\u0435": "e", "\u043e": "o", "\u0440": "p",
-    "\u0441": "c", "\u0443": "y", "\u0445": "x", "\u043a": "k",
-    "\u0456": "i", "\u0458": "j", "\u04bb": "h", "\u0455": "s",
+    "\u0430": "a",
+    "\u0435": "e",
+    "\u043e": "o",
+    "\u0440": "p",
+    "\u0441": "c",
+    "\u0443": "y",
+    "\u0445": "x",
+    "\u043a": "k",
+    "\u0456": "i",
+    "\u0458": "j",
+    "\u04bb": "h",
+    "\u0455": "s",
 }
 
 
@@ -81,6 +90,7 @@ def _normalize_for_blocklist(text: str) -> str:
     text = "".join(_HOMOGLYPHS.get(c, c) for c in text)
     # 4. Strip non-ASCII (catches remaining exotic bypasses)
     text = text.encode("ascii", "ignore").decode("ascii")
+
     # 5. Leetspeak: substitute digits only when adjacent to letters
     #    ("d1ck" → "dick" but "32GB" stays "32GB")
     def _leet_replace(m: re.Match) -> str:
@@ -90,6 +100,7 @@ def _normalize_for_blocklist(text: str) -> str:
     text = _LEET_DIGIT_RE.sub(_leet_replace, text)
     text = text.translate(_LEET_SYMBOL_MAP)
     return text
+
 
 _log = logging.getLogger("security.guardrails")
 
@@ -343,8 +354,17 @@ def hash_build_request(payload: BuildRequest) -> str:
     Notes are case-insensitive: "Best CPU" and "best cpu" produce the same hash.
     """
     data = payload.model_dump(mode="json")
-    if isinstance(data.get("notes"), str):
-        data["notes"] = data["notes"].lower()
+    # Normalize trivial notes to None for better cache hits
+    notes = data.get("notes")
+    if isinstance(notes, str):
+        normalized = notes.strip().lower()
+        if normalized in {"", "none", "n/a", "no", "nothing", "-", "."}:
+            data["notes"] = None
+        else:
+            data["notes"] = normalized
+    # Sort existing_parts for order-independent hashing
+    if data.get("existing_parts"):
+        data["existing_parts"] = sorted(data["existing_parts"])
     canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode()).hexdigest()
 

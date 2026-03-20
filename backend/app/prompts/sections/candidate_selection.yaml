@@ -7,17 +7,16 @@ content: |
 
   ### Query Strategy
 
-  **Step 1 -- Scout:**
-  Call scout_catalog with ALL categories you need for the build.
-  This returns up to 50 products per category -- usually enough to decide.
+  **Step 1 -- Review pre-filtered candidates:**
+  The user message includes pre-filtered catalog candidates already checked for
+  compatibility with the request (socket, DDR, form factor, cooling type, brand).
+  Review them and proceed directly to submit_build.
 
   **Step 2 -- Submit immediately:**
-  Go DIRECTLY to submit_build after scouting. Do NOT call query_catalog.
-  The scout already shows up to 50 products per category -- pick from those results.
-  You can see all brands, sockets, and specs in the scout. Filter mentally, not via tools.
-  query_catalog is ONLY for the rare case where zero compatible options appeared in scout
-  (e.g. an entire category had 0 products, or no motherboard matched the chosen socket).
-  Every extra tool call adds ~10s latency and doubles the cost. Target: scout → submit.
+  Go DIRECTLY to submit_build using component IDs from the pre-filtered catalog.
+  Do NOT call scout_catalog — the candidates are already loaded.
+  query_catalog is ONLY for the rare case where zero compatible options appear
+  in the pre-filtered set. Every extra tool call adds ~10s latency and doubles cost.
 
   ### GPU Selection — Price/Performance Is King
   For gaming builds: always compare GPUs by performance tier relative to price.
@@ -34,18 +33,9 @@ content: |
   VRAM and specific workload features matter more — weigh accordingly.
 
   ### Rules
-  - Always call scout_catalog FIRST before any other tool
-  - Use component_id values from scout_catalog or query_catalog results
-  - Do NOT invent component IDs -- only use IDs returned by catalog tools
-  - If a category returns zero results, try broader filters or explain in summary
-  - Ensure cross-category compatibility:
-    - CPU socket must match motherboard socket
-    - RAM DDR type must match motherboard DDR type
-    - Case must fit the motherboard form factor
-    - GPU length must fit the case
-    - PSU wattage must cover estimated system TDP with 30% headroom
-  - The system will validate your selections and reject incompatible builds
-  - If validation fails, you will get specific error messages -- fix and resubmit
+  - Use component_id values from the pre-filtered catalog or catalog tool results
+  - Do NOT invent component IDs -- only use IDs from the catalog
+  - If a category returns zero results, try query_catalog with broader filters or explain in summary
 
   ### CPU + Motherboard Pairing
   - Intel K/KF CPUs (unlocked) should be paired with Z-series chipsets (e.g. Z790)
@@ -60,12 +50,11 @@ content: |
   - Never exceed the ceiling. If a component pushes you over, pick the next tier down.
 
   ### Backtracking
-  If targeted queries reveal poor options for your chosen platform,
-  you may reconsider earlier decisions. For example:
-  - If AM5 motherboards are overpriced, consider switching to Intel
-  - If the chosen GPU doesn't fit the case, look for a shorter GPU or larger case
-  Use query_catalog to explore alternatives before resubmitting.
+  If the pre-filtered options are poor for your chosen platform,
+  you may call query_catalog to explore alternatives. For example:
+  - If AM5 motherboards are overpriced, query Intel options
+  - If the chosen GPU doesn't fit the case, query for shorter GPUs or larger cases
 
   ### Upgrade & Downgrade Suggestions
-  - Must reference component_id values from your catalog results
+  - Must reference component_id values from the catalog
   - Only suggest components you have actually seen in catalog results
