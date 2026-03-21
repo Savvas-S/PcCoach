@@ -1229,6 +1229,107 @@ class ClaudeService:
         return checked
 
 
+async def summarize_build(
+    request: BuildRequest,
+    engine_result: "BuildEngineResult",
+) -> tuple[str, str | None, str | None]:
+    """Generate a narrative summary for an engine-selected build.
+
+    Makes a single Claude call with no tools. Returns:
+        (summary, upgrade_reason, downgrade_reason)
+
+    upgrade_reason and downgrade_reason may be None.
+    """
+    from engine.models.result import BuildEngineResult  # noqa: F811
+
+    # Build component list for the prompt
+    lines = []
+    for cat, comp in engine_result.components.items():
+        specs_str = ", ".join(f"{k}: {v}" for k, v in comp.specs.items() if v)
+        lines.append(f"- {cat}: {comp.brand} {comp.model} ({specs_str})")
+    components_text = "\n".join(lines)
+
+    upgrade_text = ""
+    if engine_result.upgrade_candidate:
+        u = engine_result.upgrade_candidate
+        upgrade_text = (
+            f"\nUpgrade option for {engine_result.upgrade_category}: "
+            f"{u.brand} {u.model}"
+        )
+
+    downgrade_text = ""
+    if engine_result.downgrade_candidate:
+        d = engine_result.downgrade_candidate
+        downgrade_text = (
+            f"\nDowngrade option for {engine_result.downgrade_category}: "
+            f"{d.brand} {d.model}"
+        )
+
+    user_msg = (
+        f"Goal: {request.goal.value}\n"
+        f"Budget: {request.budget_range.value} EUR\n"
+        f"Platform: {engine_result.family_used}\n\n"
+        f"Selected components:\n{components_text}"
+        f"{upgrade_text}{downgrade_text}"
+    )
+
+    # Load summary prompt
+    from pathlib import Path
+
+    import yaml
+
+    prompt_path = (
+        Path(__file__).parent.parent / "prompts" / "sections" / "summary.yaml"
+    )
+    with open(prompt_path) as f:
+        prompt_data = yaml.safe_load(f)
+    system_prompt = _ROLE_LOCK + "\n\n" + prompt_data["content"]
+
+    api_key = (
+        settings.anthropic_api_key.get_secret_value()
+        if settings.anthropic_api_key
+        else None
+    )
+    client = anthropic.AsyncAnthropic(api_key=api_key, timeout=30.0)
+
+    response = await client.messages.create(
+        model=settings.claude_model,
+        max_tokens=400,
+        system=system_prompt,
+        messages=[{"role": "user", "content": user_msg}],
+    )
+
+    text = response.content[0].text if response.content else ""
+    log.info(
+        "Summary generated: tokens=%d/%d",
+        response.usage.input_tokens,
+        response.usage.output_tokens,
+    )
+
+    # Parse structured response
+    summary = ""
+    upgrade_reason = None
+    downgrade_reason = None
+
+    for line in text.split("\n"):
+        line = line.strip()
+        if line.startswith("SUMMARY:"):
+            summary = line[len("SUMMARY:"):].strip()
+        elif line.startswith("UPGRADE_REASON:"):
+            val = line[len("UPGRADE_REASON:"):].strip()
+            if val.lower() != "none":
+                upgrade_reason = val
+        elif line.startswith("DOWNGRADE_REASON:"):
+            val = line[len("DOWNGRADE_REASON:"):].strip()
+            if val.lower() != "none":
+                downgrade_reason = val
+        elif summary and not line.startswith(("UPGRADE", "DOWNGRADE")):
+            # Multi-line summary
+            summary += " " + line
+
+    return summary.strip(), upgrade_reason, downgrade_reason
+
+
 def _phase_for_tool(tool_name: str, terminal_result: dict | None) -> str:
     """Map the tool just called to a progress phase label."""
     if tool_name == "scout_catalog":
