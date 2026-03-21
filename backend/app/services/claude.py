@@ -168,12 +168,9 @@ SUBMIT_BUILD_TOOL = {
                     "extra_cost_eur": {
                         "type": "number",
                         "minimum": 0.01,
-                        "maximum": 75,
                         "description": (
-                            "Exact price difference: upgrade price minus "
-                            "current price (from catalog). Must be ≤ 75. "
-                            "If no upgrade exists within €75, omit the "
-                            "entire upgrade_suggestion."
+                            "Catalog price difference: upgrade price minus "
+                            "current price. Server overrides with verified value."
                         ),
                     },
                     "reason": {"type": "string"},
@@ -209,12 +206,9 @@ SUBMIT_BUILD_TOOL = {
                     "savings_eur": {
                         "type": "number",
                         "minimum": 0.01,
-                        "maximum": 100,
                         "description": (
-                            "Exact price difference: current price minus "
-                            "downgrade price (from catalog). Must be ≤ 100. "
-                            "If no downgrade saves under €100, omit the "
-                            "entire downgrade_suggestion."
+                            "Catalog price difference: current price minus "
+                            "downgrade price. Server overrides with verified value."
                         ),
                     },
                     "reason": {"type": "string"},
@@ -1108,16 +1102,15 @@ class ClaudeService:
             upgrade_id = us.get("upgrade_component_id")
             if upgrade_id and upgrade_id in resolved:
                 urc = resolved[upgrade_id]
-                # Compute real price delta and cap at €75
+                # Compute real price delta — override Claude's claimed value
                 current_price = _cat_price.get(us.get("component_category", ""))
                 if current_price is not None:
                     real_extra = round(urc.price_eur - current_price, 2)
-                    if real_extra > 75 or real_extra <= 0:
+                    if real_extra <= 0:
                         log.info(
-                            "Upgrade suggestion dropped: real extra cost €%.2f "
-                            "(claimed €%.2f) exceeds €75 cap or is non-positive",
+                            "Upgrade suggestion dropped: upgrade component "
+                            "is not more expensive (delta €%.2f)",
                             real_extra,
-                            us.get("extra_cost_eur", 0),
                         )
                         upgrade_suggestion = None
                     else:
@@ -1153,16 +1146,15 @@ class ClaudeService:
             downgrade_id = ds.get("downgrade_component_id")
             if downgrade_id and downgrade_id in resolved:
                 drc = resolved[downgrade_id]
-                # Compute real savings and cap at €100
+                # Compute real savings — override Claude's claimed value
                 current_price = _cat_price.get(ds.get("component_category", ""))
                 if current_price is not None:
                     real_savings = round(current_price - drc.price_eur, 2)
-                    if real_savings > 100 or real_savings <= 0:
+                    if real_savings <= 0:
                         log.info(
-                            "Downgrade suggestion dropped: real savings €%.2f "
-                            "(claimed €%.2f) exceeds €100 cap or is non-positive",
+                            "Downgrade suggestion dropped: downgrade component "
+                            "is not cheaper (delta €%.2f)",
                             real_savings,
-                            ds.get("savings_eur", 0),
                         )
                         downgrade_suggestion = None
                     else:

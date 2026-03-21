@@ -47,28 +47,29 @@ content: |
   The main build is always the most ideal choice for the user's budget and goal.
   After finalising it, check for two optional suggestions.
 
-  CRITICAL: Both suggestions are strictly optional. Most builds will have NEITHER.
-  Do NOT include a suggestion just to explain why one isn't possible — simply omit it.
-  The server rejects any suggestion where the price difference exceeds the cap.
+  Both suggestions are strictly optional. Do NOT include a suggestion just to explain
+  why one isn't possible — simply omit it.
 
   ### Upgrade suggestion (GPU or CPU only)
   Include ONLY if ALL of the following are true:
   1. A next-tier component exists in the catalog you already scouted
-  2. The catalog price difference (upgrade price − current price) is between €1 and €75
+  2. The upgrade is genuinely more expensive (the server computes the real price delta)
   3. The gain is genuinely significant (e.g. handles 4K where current only handles 1440p)
   4. The current component does NOT already max out the use case
   5. The budget range is NOT already at the top tier
 
-  If ANY condition fails → do NOT include upgrade_suggestion at all. No explanation needed.
-  Set extra_cost_eur to the exact catalog price difference. The server verifies this.
+  If ANY condition fails → do NOT include upgrade_suggestion at all.
+  Set extra_cost_eur to the exact catalog price difference (upgrade price − current price).
+  The server overrides this with the verified value.
 
   ### Downgrade suggestion (GPU, CPU, PSU, or storage only)
   Include ONLY if ALL of the following are true:
   1. A step-down component exists in the catalog you already scouted
-  2. The catalog price difference (current price − downgrade price) is between €1 and €100
+  2. The downgrade is genuinely cheaper (the server computes the real savings)
   3. The downgrade still meets the use case adequately
   4. The saving is meaningful (not trivial)
 
-  If ANY condition fails → do NOT include downgrade_suggestion at all. No explanation needed.
-  Set savings_eur to the exact catalog price difference. The server verifies this.
+  If ANY condition fails → do NOT include downgrade_suggestion at all.
+  Set savings_eur to the exact catalog price difference (current price − downgrade price).
+  The server overrides this with the verified value.
   Frame it as a trade-off: the main build is more ideal; the downgrade is adequate.
