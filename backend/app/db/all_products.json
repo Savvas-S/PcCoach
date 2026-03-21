@@ -3,19 +3,38 @@
     {
       "category": "cpu",
       "brand": "AMD",
-      "model": "Ryzen 5 5600X",
+      "model": "Ryzen 5 4500",
       "specs": {
         "socket": "AM4",
+        "cores": "6",
         "threads": "12",
         "tdp": "65",
-        "boost_ghz": "4.6",
-        "cores": "6"
+        "boost_ghz": "4.1"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B08166SLDF",
-          "price_eur": 140
+          "asin": "B09VCJN7HZ",
+          "price_eur": 68.2
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 5500",
+      "specs": {
+        "socket": "AM4",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "4.2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09VCJ171S",
+          "price_eur": 68.2
         }
       ]
     },
@@ -34,26 +53,311 @@
         {
           "store": "amazon",
           "asin": "B09NPJRDGD",
-          "price_eur": 130
+          "price_eur": 131.0
         }
       ]
     },
     {
       "category": "cpu",
       "brand": "AMD",
-      "model": "Ryzen 7 7800X3D",
+      "model": "Ryzen 5 7500F",
       "specs": {
         "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "boost_ghz": "5.0",
+        "tdp": "65"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D1CK42PV",
+          "price_eur": 131.9
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 8500G",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "5"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CQ4JV8D5",
+          "price_eur": 133.34
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 5600",
+      "specs": {
+        "socket": "AM4",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "4.4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09VCHR1VH",
+          "price_eur": 133.75
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 5600X",
+      "specs": {
+        "socket": "AM4",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "4.6",
+        "cores": "6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B08166SLDF",
+          "price_eur": 140.6
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-12600KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "10",
+        "threads": "16",
+        "tdp": "125",
+        "boost_ghz": "4.9"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09GYKK56H",
+          "price_eur": 146.39
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 5700X",
+      "specs": {
+        "socket": "AM4",
         "cores": "8",
         "threads": "16",
-        "tdp": "120",
+        "tdp": "65",
+        "boost_ghz": "4.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C3T4MFMM",
+          "price_eur": 146.78
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-14400F",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "10",
+        "threads": "16",
+        "tdp": "148",
+        "boost_ghz": "4.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CQ1Y7KHV",
+          "price_eur": 158.59
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 9600X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "5.4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D6NN6TM7",
+          "price_eur": 163.1
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 7600X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "105",
+        "boost_ghz": "5.3"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BBJDS62N",
+          "price_eur": 163.1
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 5700",
+      "specs": {
+        "socket": "AM4",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "65",
+        "boost_ghz": "4.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FQPCRG7P",
+          "price_eur": 164.06
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 8600G",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
         "boost_ghz": "5.0"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0BTZB7F88",
-          "price_eur": 350
+          "asin": "B0CQ4GYTTX",
+          "price_eur": 164.9
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 7600X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "4.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F9XH8DBP",
+          "price_eur": 167.08
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 5 9600",
+      "specs": {
+        "socket": "AM5",
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "5.2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FHDXP318",
+          "price_eur": 167.08
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 5800X",
+      "specs": {
+        "socket": "AM4",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "105",
+        "boost_ghz": "4.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0815XFSGK",
+          "price_eur": 173.73
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 5700G",
+      "specs": {
+        "socket": "AM4",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "65",
+        "boost_ghz": "4.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B091J3NYVF",
+          "price_eur": 173.73
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 5800",
+      "specs": {
+        "socket": "AM4",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "105",
+        "boost_ghz": "4.8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D6NNDQ92",
+          "price_eur": 173.73
         }
       ]
     },
@@ -72,26 +376,482 @@
         {
           "store": "amazon",
           "asin": "B0DFK2P311",
-          "price_eur": 180
+          "price_eur": 179.0
         }
       ]
     },
     {
       "category": "cpu",
       "brand": "AMD",
-      "model": "Ryzen 9 9950X3D",
+      "model": "Ryzen 5 7500X3D",
       "specs": {
         "socket": "AM5",
-        "cores": "16",
-        "threads": "32",
-        "tdp": "170",
-        "boost_ghz": "5.7"
+        "cores": "6",
+        "threads": "12",
+        "tdp": "65",
+        "boost_ghz": "4.5"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0DVZSG8D5",
-          "price_eur": 650
+          "asin": "B0FT8X951Z",
+          "price_eur": 206.59
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 8700F",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "65",
+        "boost_ghz": "5.0"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D2JCMP34",
+          "price_eur": 213.6
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 7700X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "105",
+        "boost_ghz": "5.4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BBHHT8LY",
+          "price_eur": 220.49
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-12700KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "12",
+        "threads": "20",
+        "tdp": "125",
+        "boost_ghz": "5.0"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09GYJJ1PT",
+          "price_eur": 231.01
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i9-12900KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "16",
+        "threads": "24",
+        "tdp": "125",
+        "boost_ghz": "5.2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09GYHRNBL",
+          "price_eur": 231.01
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-14400",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "10",
+        "threads": "16",
+        "tdp": "65",
+        "boost_ghz": "4.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CQ1M1YXM",
+          "price_eur": 234.74
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core Ultra 7 265KF",
+      "specs": {
+        "socket": "LGA1851",
+        "cores": "20",
+        "threads": "28",
+        "tdp": "125",
+        "boost_ghz": "5.5"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DFK2WHF8",
+          "price_eur": 239.0
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-14700K",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "20",
+        "threads": "28",
+        "tdp": "125",
+        "boost_ghz": "5.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CHBFWJDN",
+          "price_eur": 255.16
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core Ultra 7 265K",
+      "specs": {
+        "socket": "LGA1851",
+        "cores": "20",
+        "threads": "28",
+        "tdp": "125",
+        "boost_ghz": "5.5"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DFK2MH2D",
+          "price_eur": 259.0
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-14600KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "14",
+        "threads": "20",
+        "tdp": "125",
+        "boost_ghz": "5.3"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CHBH63YX",
+          "price_eur": 259.0
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-12700F",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "12",
+        "threads": "20",
+        "tdp": "65",
+        "boost_ghz": "4.9"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09MDHZ2YQ",
+          "price_eur": 269.05
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 8700G",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "65",
+        "boost_ghz": "5.1"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FK5SQZ44",
+          "price_eur": 281.93
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-13500",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "14",
+        "threads": "20",
+        "tdp": "65",
+        "boost_ghz": "4.8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BN5YLBRG",
+          "price_eur": 285.39
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 9700X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "105",
+        "boost_ghz": "5.5"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D6NMDNNX",
+          "price_eur": 290.4
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-14700F",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "20",
+        "threads": "28",
+        "tdp": "65",
+        "boost_ghz": "5.4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CQ65ST43",
+          "price_eur": 292.97
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 7900X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "12",
+        "threads": "24",
+        "tdp": "170",
+        "boost_ghz": "5.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BBJ59WJ4",
+          "price_eur": 305.89
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 9800X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "140",
+        "boost_ghz": "5.2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DKFMSMYK",
+          "price_eur": 314.42
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i5-13600KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "14",
+        "threads": "20",
+        "tdp": "125",
+        "boost_ghz": "5.1"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BG64N549",
+          "price_eur": 331.0
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 7800X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "120",
+        "boost_ghz": "5.0"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BTZB7F88",
+          "price_eur": 349.84
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i7-14700KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "20",
+        "threads": "28",
+        "tdp": "125",
+        "boost_ghz": "5.4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CGJC178L",
+          "price_eur": 351.0
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 9900X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "12",
+        "threads": "24",
+        "tdp": "120",
+        "boost_ghz": "5.6"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D6NN87T8",
+          "price_eur": 362.64
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i9-14900KF",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "24",
+        "threads": "32",
+        "tdp": "125",
+        "boost_ghz": "6.0"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CHBJXG7G",
+          "price_eur": 424.39
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "Intel",
+      "model": "Core i9-14900K",
+      "specs": {
+        "socket": "LGA1700",
+        "cores": "24",
+        "threads": "32",
+        "tdp": "125",
+        "boost_ghz": "6.0"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CHBJGFBC",
+          "price_eur": 449.9
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 7 9850X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "8",
+        "threads": "16",
+        "tdp": "140",
+        "boost_ghz": "5.2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0G8JMLXNQ",
+          "price_eur": 454.0
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 5900X",
+      "specs": {
+        "socket": "AM4",
+        "threads": "24",
+        "tdp": "105",
+        "boost_ghz": "4.8",
+        "cores": "12"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B08164VTWH",
+          "price_eur": 488.0
         }
       ]
     },
@@ -110,25 +870,119 @@
         {
           "store": "amazon",
           "asin": "B0DFKC99VL",
-          "price_eur": 480
+          "price_eur": 477.99
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 9950X",
+      "specs": {
+        "socket": "AM5",
+        "cores": "16",
+        "threads": "32",
+        "tdp": "170",
+        "boost_ghz": "5.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D6NNRBGP",
+          "price_eur": 512.7
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 9900X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "12",
+        "threads": "24",
+        "tdp": "120",
+        "boost_ghz": "5.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DWGWN8GY",
+          "price_eur": 556.99
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 9950X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "16",
+        "threads": "32",
+        "tdp": "170",
+        "boost_ghz": "5.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DVZSG8D5",
+          "price_eur": 651.72
+        }
+      ]
+    },
+    {
+      "category": "cpu",
+      "brand": "AMD",
+      "model": "Ryzen 9 7950X3D",
+      "specs": {
+        "socket": "AM5",
+        "cores": "16",
+        "threads": "32",
+        "tdp": "120",
+        "boost_ghz": "5.7"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BTRH9MNS",
+          "price_eur": 688.31
         }
       ]
     },
     {
       "category": "gpu",
       "brand": "NVIDIA",
-      "model": "ASUS Dual GeForce RTX 4060 EVO OC Edition 8GB",
+      "model": "MSI GeForce RTX 3050 Ventus 2X E 6G OC",
       "specs": {
-        "vram_gb": "8",
-        "tdp": "115",
-        "length_mm": "227",
+        "vram_gb": "6",
+        "tdp": "70",
+        "length_mm": "235",
         "interface": "PCIe 4.0 x8"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B086ZTB81P",
-          "price_eur": 260
+          "asin": "B0BSN1QFXX",
+          "price_eur": 205.33
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Dual GeForce RTX 3050 OC Edition 6GB",
+      "specs": {
+        "vram_gb": "6",
+        "tdp": "70",
+        "length_mm": "200",
+        "interface": "PCIe 4.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B086ZSQZZ7",
+          "price_eur": 209.0
         }
       ]
     },
@@ -146,7 +1000,79 @@
         {
           "store": "amazon",
           "asin": "B0DKPGQT97",
-          "price_eur": 260
+          "price_eur": 259.27
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Dual GeForce RTX 4060 EVO OC Edition 8GB",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "115",
+        "length_mm": "227",
+        "interface": "PCIe 4.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B086ZTB81P",
+          "price_eur": 259.27
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "PNY GeForce RTX 5050 8GB Single Fan",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "150",
+        "length_mm": "200",
+        "interface": "PCIe 5.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FSSZY5FL",
+          "price_eur": 264.99
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Dual GeForce RTX 5050 8GB OC Edition",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "150",
+        "length_mm": "227",
+        "interface": "PCIe 5.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09CMF65V5",
+          "price_eur": 299.74
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5060 Windforce MAX OC 8G",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "150",
+        "length_mm": "240",
+        "interface": "PCIe 5.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FDQTZXDQ",
+          "price_eur": 319.19
         }
       ]
     },
@@ -164,7 +1090,403 @@
         {
           "store": "amazon",
           "asin": "B0DYPFY7JG",
-          "price_eur": 600
+          "price_eur": 597.1
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5060 Gaming OC 8G",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "150",
+        "length_mm": "280",
+        "interface": "PCIe 5.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F6NJT2K6",
+          "price_eur": 335.48
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "Gigabyte Radeon RX 9060 XT Gaming OC 16G",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "150",
+        "length_mm": "280",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F7HTR8DQ",
+          "price_eur": 335.48
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5060 Eagle MAX OC 8G",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "150",
+        "length_mm": "240",
+        "interface": "PCIe 5.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FN85QDCD",
+          "price_eur": 344.44
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Dual GeForce RTX 5060 8GB OC Edition",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "150",
+        "length_mm": "227",
+        "interface": "PCIe 5.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FMS51B6M",
+          "price_eur": 349.99
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Prime GeForce RTX 5060 8GB OC Edition",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "150",
+        "length_mm": "260",
+        "interface": "PCIe 5.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CSFMYN1W",
+          "price_eur": 356.01
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Dual GeForce RTX 4060 EVO 8G OC",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "115",
+        "length_mm": "227",
+        "interface": "PCIe 4.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CVQLKYSK",
+          "price_eur": 401.39
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "MSI GeForce RTX 4060 Ventus 2X 8G OC",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "115",
+        "length_mm": "240",
+        "interface": "PCIe 4.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C7W8GZMJ",
+          "price_eur": 408.55
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "Sapphire Radeon RX 9060 XT Gaming OC 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "150",
+        "length_mm": "240",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F8C5T1B2",
+          "price_eur": 428.7
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "Sapphire Pulse Radeon RX 9060 XT Gaming OC 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "150",
+        "length_mm": "240",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F8C6MWSY",
+          "price_eur": 428.7
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "Gigabyte Radeon RX 9060 XT OC Ice 16G",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "150",
+        "length_mm": "280",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0G2YHW2LT",
+          "price_eur": 451.11
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Dual GeForce RTX 4060 Ti EVO 8G OC",
+      "specs": {
+        "vram_gb": "8",
+        "tdp": "160",
+        "length_mm": "227",
+        "interface": "PCIe 4.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CVQKRBGC",
+          "price_eur": 520.46
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "MSI GeForce RTX 5070 12G Shadow 2X OC",
+      "specs": {
+        "vram_gb": "12",
+        "tdp": "250",
+        "length_mm": "230",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DZCYPFVT",
+          "price_eur": 596.99
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Dual GeForce RTX 5070 12GB OC Edition",
+      "specs": {
+        "vram_gb": "12",
+        "tdp": "250",
+        "length_mm": "240",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F8KJKC9Y",
+          "price_eur": 597.9
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "Sapphire Pulse Radeon RX 9070 Gaming 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "200",
+        "length_mm": "300",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DRPSF34T",
+          "price_eur": 611.31
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "MSI GeForce RTX 4060 Ti Ventus 3X 16G OC",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "165",
+        "length_mm": "308",
+        "interface": "PCIe 4.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CBK8TQS1",
+          "price_eur": 612.71
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5070 Windforce OC SFF 12G",
+      "specs": {
+        "vram_gb": "12",
+        "tdp": "250",
+        "length_mm": "242",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DTGP2WMT",
+          "price_eur": 629.9
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5070 Eagle OC SFF 12G",
+      "specs": {
+        "vram_gb": "12",
+        "tdp": "250",
+        "length_mm": "290",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DTGP4M7J",
+          "price_eur": 629.9
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "XFX Quicksilver Radeon RX 9070 OC Gaming Edition 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "200",
+        "length_mm": "320",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DZD7GVLR",
+          "price_eur": 631.94
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS Prime GeForce RTX 5060 Ti 16GB OC Edition",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "180",
+        "length_mm": "300",
+        "interface": "PCIe 5.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F4DQYLP5",
+          "price_eur": 656.99
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5070 Gaming OC 12G",
+      "specs": {
+        "vram_gb": "12",
+        "tdp": "250",
+        "length_mm": "300",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DTGNTQ3C",
+          "price_eur": 659.99
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5060 Ti Windforce MAX OC 16G",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "180",
+        "length_mm": "290",
+        "interface": "PCIe 5.0 x8"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FDQXHYFW",
+          "price_eur": 663.0
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "ASUS Prime Radeon RX 9070 XT OC Edition 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "250",
+        "length_mm": "310",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09BMQNNR1",
+          "price_eur": 672.99
         }
       ]
     },
@@ -182,7 +1504,187 @@
         {
           "store": "amazon",
           "asin": "B0DT7B79K9",
-          "price_eur": 680
+          "price_eur": 678.71
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "Sapphire Pulse Radeon RX 9070 XT Gaming 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "250",
+        "length_mm": "300",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DRPRZMK2",
+          "price_eur": 679.0
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS TUF Gaming GeForce RTX 5070 12GB OC Edition",
+      "specs": {
+        "vram_gb": "12",
+        "tdp": "250",
+        "length_mm": "320",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DYPGW2KB",
+          "price_eur": 691.19
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "Sapphire Nitro+ Radeon RX 9070 XT Gaming OC 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "250",
+        "length_mm": "340",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DRPPXB5X",
+          "price_eur": 728.9
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "Sapphire Pure Radeon RX 9070 XT Gaming OC 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "250",
+        "length_mm": "300",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DRPRKYR6",
+          "price_eur": 740.39
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "AMD",
+      "model": "XFX Mercury Radeon RX 9070 XT OC Gaming Edition 16GB",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "250",
+        "length_mm": "340",
+        "interface": "PCIe 4.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DXW1R1YT",
+          "price_eur": 749.0
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 5070 Founders Edition 12GB",
+      "specs": {
+        "vram_gb": "12",
+        "tdp": "250",
+        "length_mm": "300",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F7XHBT13",
+          "price_eur": 830.0
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "MSI GeForce RTX 5070 Ti 16G Shadow 3X OC",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "300",
+        "length_mm": "310",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DZD6QV9L",
+          "price_eur": 945.0
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5070 Ti Windforce OC SFF 16G",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "300",
+        "length_mm": "270",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DTGNB9Q5",
+          "price_eur": 949.0
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5080 Windforce OC SFF 16G",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "360",
+        "length_mm": "270",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DT9Y2B49",
+          "price_eur": 1266.35
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "Gigabyte GeForce RTX 5080 Gaming OC 16G",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "360",
+        "length_mm": "310",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DSQ1RCZV",
+          "price_eur": 1349.0
         }
       ]
     },
@@ -200,7 +1702,25 @@
         {
           "store": "amazon",
           "asin": "B0DYVCGVK4",
-          "price_eur": 1460
+          "price_eur": 1457.99
+        }
+      ]
+    },
+    {
+      "category": "gpu",
+      "brand": "NVIDIA",
+      "model": "ASUS ROG Astral GeForce RTX 5080 16GB OC Edition",
+      "specs": {
+        "vram_gb": "16",
+        "tdp": "360",
+        "length_mm": "358",
+        "interface": "PCIe 5.0 x16"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DS643QRW",
+          "price_eur": 1646.0
         }
       ]
     },
@@ -218,7 +1738,151 @@
         {
           "store": "amazon",
           "asin": "B0DTHV8THW",
-          "price_eur": 3595
+          "price_eur": 3595.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime A520M-K Mainboard Sockel AM4",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD A520",
+        "form_factor": "micro_atx",
+        "ddr_type": "DDR4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B08DQB2GDN",
+          "price_eur": 52.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B550M-A WiFi II Gaming Mainboard Sockel Ryzen AM4",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09LVQXHBG",
+          "price_eur": 83.93
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B550-F Gaming WI-FI II Mainboard Sockel AMD AM4",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09LVQCMK4",
+          "price_eur": 83.93
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "B550 Gaming X V2 Mainboard – AMD Ryzen 5000 CPUs, 10+3",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B08K16S4K1",
+          "price_eur": 97.3
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B650M-R Gaming Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CS71GLWC",
+          "price_eur": 98.14
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B550-Plus Gaming Mainboard Sockel AM4",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B089HGSZ1J",
+          "price_eur": 99.12
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "B550M Gaming X WIFI6 Mainboard – AMD Ryzen 5000",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F3P3XTMZ",
+          "price_eur": 99.46
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "X570-A PRO",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07TDST84Q",
+          "price_eur": 100.9
         }
       ]
     },
@@ -236,7 +1900,97 @@
         {
           "store": "amazon",
           "asin": "B08BCQF1BD",
-          "price_eur": 100
+          "price_eur": 100.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "B550 Eagle WIFI6 Mainboard – AMD Ryzen 5000 G-Serie CPUs,",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DXWWWTH8",
+          "price_eur": 101.11
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MPG X570 Gaming Plus",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "form_factor": "ATX",
+        "ddr_type": "DDR4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07T5QDRFX",
+          "price_eur": 109.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "X570 AORUS ELITE ATX Mainboards - Grafikprozessoren",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07TSKR7ZX",
+          "price_eur": 109.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MPG B550 Gaming Plus (ATX",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B08B4V6H3N",
+          "price_eur": 109.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B760-PLUS Intel B760 LGA1700 ATX Motherboard PCIe",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C3ZP533K",
+          "price_eur": 110.99
         }
       ]
     },
@@ -254,7 +2008,349 @@
         {
           "store": "amazon",
           "asin": "B0BZD3BMZL",
-          "price_eur": 115
+          "price_eur": 116.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B550M-Plus Gaming Mainboard Sockel AM4",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B089HDJS79",
+          "price_eur": 119.75
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B650M-A II-CSM Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C5F29N81",
+          "price_eur": 120.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "B650 Eagle Mainboard - AMD Ryzen 9000er-Serie, 12+2+2",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DBM78F2D",
+          "price_eur": 122.99
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B650M-A WiFi II Gaming Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BSVDKRKN",
+          "price_eur": 125.99
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming X570-Plus Mainboard Sockel AM4",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07TNSYXXV",
+          "price_eur": 129.79
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "B650 Eagle AX AM5 LGA 1718 AMD B650 ATX, DDR5 Triple M.2,",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B083TZ68H1",
+          "price_eur": 131.89
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B760M-PLUS II Mainboard Sockel Intel LGA 1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B086ZSQNPP",
+          "price_eur": 134.95
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B860M-K Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMPSGF6",
+          "price_eur": 137.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG B760 Tomahawk WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BMM7NZDX",
+          "price_eur": 137.91
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B760-PLUS WiFi Mainboard Sockel Intel LGA 1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BVKYWPFT",
+          "price_eur": 139.6
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B760-A Gaming WiFi Mainboard Sockel Intel LGA 1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BRY2WXBK",
+          "price_eur": 139.6
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "B650 Gaming X AX V2 Mainboard - AMD Ryzen 9000er-Serie,",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CSKH56WN",
+          "price_eur": 141.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Pro B650M-CT-CSM Business Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BSDYZSMR",
+          "price_eur": 142.11
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B650-PLUS Gaming Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BHJ1JQ7B",
+          "price_eur": 142.28
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "PRO B650-P WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BHBT5BD3",
+          "price_eur": 144.16
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B650-PLUS WiFi Gaming Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DQQ86WQ7",
+          "price_eur": 147.09
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B650-E WiFi Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CSPFLY9N",
+          "price_eur": 147.69
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASRock",
+      "model": "B650 Steel Legend WiFi",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CXPXBF2M",
+          "price_eur": 149.98
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B860-PLUS WiFi Gaming Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMQHPZM",
+          "price_eur": 153.0
         }
       ]
     },
@@ -272,7 +2368,421 @@
         {
           "store": "amazon",
           "asin": "B0BHJKR3BV",
-          "price_eur": 155
+          "price_eur": 154.98
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B650-PLUS WiFi Socket AM5 Ryzen 7000 ATX Gaming",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BHN7GGBQ",
+          "price_eur": 154.98
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B760-I Gaming WiFi Mainboard Sockel Intel LGA 1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "mini_itx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BNQFXLJR",
+          "price_eur": 155.99
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "PRO B860M-C-CSM Business Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BY7S9MG9",
+          "price_eur": 159.8
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix X570-F Gaming Mainboard Sockel AM4",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "form_factor": "ATX",
+        "ddr_type": "DDR4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07TLM9YHL",
+          "price_eur": 161.51
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG B550 Tomahawk MAX WiFi Mainboard ATX, AM4 - AMD Ryzen",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD B550",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09Z6XT5RH",
+          "price_eur": 161.51
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix Z790-F Gaming WiFi Mainboard Sockel Intel LGA1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BH94RXPC",
+          "price_eur": 164.59
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "Z790 Eagle AX Motherboard",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CTMYKLL2",
+          "price_eur": 164.59
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG B650 Tomahawk WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BDS873GF",
+          "price_eur": 164.82
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MB5909 Motherboard B650 Gaming Plus WiFi",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CJ2F5PVF",
+          "price_eur": 169.49
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B650-A Gaming WiFi Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BHHVHQXZ",
+          "price_eur": 170.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B860M-PLUS Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMQNGMG",
+          "price_eur": 171.1
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime Z790-P WiFi Gaming Mainboard Sockel Intel LGA1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BH94MZ1Q",
+          "price_eur": 172.37
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime B860-PLUS-CSM Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMQ2QK3",
+          "price_eur": 173.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "Gigabyte",
+      "model": "X870 Gaming WIFI6 AM5 LGA 1718, ATX, DDR5, 3X M.2, PCIe",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD X870",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DHWLN5XT",
+          "price_eur": 182.6
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG Z790 Tomahawk WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09Y1FJBHX",
+          "price_eur": 184.99
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "Z790 Gaming Plus WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CFY88TFH",
+          "price_eur": 184.99
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime Z890-P Gaming Mainboard Sockel Intel LGA1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DJDFX4M1",
+          "price_eur": 189.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B650E-F Gaming WiFi Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BHHTJZM9",
+          "price_eur": 191.45
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix X570-E Gaming ATX Motherboard, AMD Socket AM4,",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "form_factor": "ATX",
+        "ddr_type": "DDR4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07TQVK1HJ",
+          "price_eur": 191.45
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B650E-PLUS WiFi Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F1Z5982Y",
+          "price_eur": 194.67
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming Z790-Plus WiFi Mainboard Sockel Intel LGA1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BPHCPSCM",
+          "price_eur": 206.98
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG B650 Tomahawk WiFi Gaming Motherboard",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B650",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BHCCNSRH",
+          "price_eur": 208.57
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B760-F Gaming WiFi Mainboard Sockel Intel LGA 1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel B760",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BNQ99F3F",
+          "price_eur": 213.34
         }
       ]
     },
@@ -290,7 +2800,151 @@
         {
           "store": "amazon",
           "asin": "B0BV2CQMHJ",
-          "price_eur": 215
+          "price_eur": 215.41
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "PRO Q870M-C-CSM Business Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Q870",
+        "ddr_type": "DDR5",
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F3JPLZ53",
+          "price_eur": 216.9
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B860-A Gaming WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMRTWC5",
+          "price_eur": 222.94
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG B850 Tomahawk MAX WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B850",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPKVF29H",
+          "price_eur": 227.3
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B860-I Gaming WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "mini_itx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMRBJVC",
+          "price_eur": 229.25
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming B850-BTF WiFi W Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD B850",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F3JMPF86",
+          "price_eur": 237.57
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "Z890 Gaming Plus WiFi Mainboard, ATX",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BSLK78WJ",
+          "price_eur": 239.95
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "TUF Gaming Z890-PRO WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DJDG5GGN",
+          "price_eur": 249.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix B860-F Gaming WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel B860",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DPMR5NRR",
+          "price_eur": 254.98
         }
       ]
     },
@@ -308,7 +2962,7 @@
         {
           "store": "amazon",
           "asin": "B0DCVVXK8D",
-          "price_eur": 280
+          "price_eur": 279.54
         }
       ]
     },
@@ -326,7 +2980,151 @@
         {
           "store": "amazon",
           "asin": "B0DJDF92JW",
-          "price_eur": 310
+          "price_eur": 309.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix X870E-H Gaming WIFI7 Mainboard Sockel AMD AM5",
+      "specs": {
+        "socket": "AM5",
+        "chipset": "AMD X670E",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09CD4WSR6",
+          "price_eur": 325.99
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "ROG Strix Z890-H Gaming WiFi Mainboard Sockel Intel LGA 1851",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DT7QYG6W",
+          "price_eur": 344.88
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "ASUS",
+      "model": "Prime Z790-A WiFi Gaming Mainboard Sockel Intel LGA1700",
+      "specs": {
+        "socket": "LGA1700",
+        "chipset": "Intel Z790",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BH954689",
+          "price_eur": 349.98
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "NZXT",
+      "model": "N9 Z890 - Intel Z890 LGA 1851 ATX Gaming-Mainboard für Core",
+      "specs": {
+        "socket": "LGA1851",
+        "chipset": "Intel Z890",
+        "ddr_type": "DDR5",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DN6W4MDT",
+          "price_eur": 417.0
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MPG X570 Gaming Edge WiFi",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "form_factor": "ATX",
+        "ddr_type": "DDR4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07T8HJVY8",
+          "price_eur": 459.27
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MEG X570 Unify",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07YWF1G9S",
+          "price_eur": 459.27
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "Gaming Edge AM4 AMD X570 ATX DDR4 Motherboard",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07T2FWCYG",
+          "price_eur": 459.27
+        }
+      ]
+    },
+    {
+      "category": "motherboard",
+      "brand": "MSI",
+      "model": "MAG X570S Torpedo MAX Gaming Mainboard ATX",
+      "specs": {
+        "socket": "AM4",
+        "chipset": "AMD X570",
+        "ddr_type": "DDR4",
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09BYXWFXH",
+          "price_eur": 481.64
         }
       ]
     },
@@ -343,7 +3141,41 @@
         {
           "store": "amazon",
           "asin": "B0143UM4TC",
-          "price_eur": 145
+          "price_eur": 146.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance RGB Pro 16GB (2x8GB) DDR4 3200MHz",
+      "specs": {
+        "ddr_type": "DDR4",
+        "capacity_gb": "16",
+        "speed_mhz": "3200"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B07D1XCKWW",
+          "price_eur": 154.63
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Crucial",
+      "model": "RAM 16GB (2x8GB) DDR4 3200MHz CL22",
+      "specs": {
+        "ddr_type": "DDR4",
+        "capacity_gb": "16",
+        "speed_mhz": "3200"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B08C53LL9J",
+          "price_eur": 155.79
         }
       ]
     },
@@ -360,14 +3192,82 @@
         {
           "store": "amazon",
           "asin": "B07RW6Z692",
-          "price_eur": 200
+          "price_eur": 199.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Kingston",
+      "model": "FURY Beast DDR5 16GB 6000MHz CL36",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "16",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BRTJFFBW",
+          "price_eur": 253.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Kingston",
+      "model": "FURY Beast DDR5 16GB 5600MHz CL36",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "16",
+        "speed_mhz": "5600"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BRTJCLBJ",
+          "price_eur": 254.89
         }
       ]
     },
     {
       "category": "ram",
       "brand": "Corsair",
-      "model": "Vengeance DDR5 32GB (2x16GB) 6000MHz CL36 AMD EXPO",
+      "model": "Vengeance RGB PRO 32GB (2x16GB) DDR4 3600MHz C18",
+      "specs": {
+        "ddr_type": "DDR4",
+        "capacity_gb": "32",
+        "speed_mhz": "3600"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B082DGZJ9C",
+          "price_eur": 328.0
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Crucial",
+      "model": "Pro DDR5 32GB (2x16GB) 6400MHz CL38",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6400"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DHFD5625",
+          "price_eur": 382.9
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance RGB DDR5 32GB (2x16GB) 6000MHz CL36",
       "specs": {
         "ddr_type": "DDR5",
         "capacity_gb": "32",
@@ -376,8 +3276,59 @@
       "links": [
         {
           "store": "amazon",
-          "asin": "B0CJ8ZHMVF",
-          "price_eur": 430
+          "asin": "B0BZHTVHN5",
+          "price_eur": 392.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance DDR5 32GB (2x16GB) 6000MHz CL36",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BZHW15KF",
+          "price_eur": 396.39
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Crucial",
+      "model": "Pro DDR5 32GB (2x16GB) 6000MHz CL36",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CTHXMYL8",
+          "price_eur": 399.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Crucial",
+      "model": "DDR5 32GB (2x16GB) 4800MHz",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "4800"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09HW9886B",
+          "price_eur": 406.0
         }
       ]
     },
@@ -394,7 +3345,126 @@
         {
           "store": "amazon",
           "asin": "B0CYHC58P6",
-          "price_eur": 425
+          "price_eur": 426.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance DDR5 32GB (2x16GB) 6000MHz CL36 AMD EXPO",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CJ8ZHMVF",
+          "price_eur": 428.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Crucial",
+      "model": "Pro DDR5 32GB (2x16GB) 6400MHz CL32",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6400"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FQMLKVLS",
+          "price_eur": 442.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance RGB DDR5 32GB (2x16GB) 6000MHz CL36 AMD EXPO",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CJ8ZJPF3",
+          "price_eur": 449.0
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Kingston",
+      "model": "FURY Beast RGB EXPO DDR5 32GB (2x16GB) 6000MHz CL30",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CYM58GFS",
+          "price_eur": 456.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance RGB DDR5 32GB (2x16GB) 6000MHz CL30",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "32",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BPTKD797",
+          "price_eur": 473.49
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance DDR5 64GB (2x32GB) 5600MHz C40",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "64",
+        "speed_mhz": "5600"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09NCPTVX5",
+          "price_eur": 489.91
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Kingston",
+      "model": "FURY Beast 64GB (2x32GB) DDR4 3200MHz CL16",
+      "specs": {
+        "ddr_type": "DDR4",
+        "capacity_gb": "64",
+        "speed_mhz": "3200"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B097K4DBDF",
+          "price_eur": 523.62
         }
       ]
     },
@@ -411,7 +3481,109 @@
         {
           "store": "amazon",
           "asin": "B0DSQVNBD5",
-          "price_eur": 655
+          "price_eur": 652.89
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Crucial",
+      "model": "Pro DDR5 64GB (2x32GB) 5600MHz",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "64",
+        "speed_mhz": "5600"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C79H54TQ",
+          "price_eur": 699.0
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Kingston",
+      "model": "FURY Beast RGB EXPO DDR5 64GB (2x32GB) 6000MHz CL36",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "64",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BRTJDWYD",
+          "price_eur": 799.99
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance RGB DDR5 64GB (2x32GB) 6400MHz CL32",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "64",
+        "speed_mhz": "6400"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C1RGLVZ8",
+          "price_eur": 867.23
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Kingston",
+      "model": "FURY Beast DDR5 64GB (2x32GB) 6000MHz CL30",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "64",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CYHC9FQB",
+          "price_eur": 879.6
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance DDR5 64GB (2x32GB) 6000MHz C40",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "64",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FV3LHXBJ",
+          "price_eur": 879.71
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Corsair",
+      "model": "Vengeance RGB DDR5 64GB (2x32GB) 6000MHz CL30 AMD EXPO",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "64",
+        "speed_mhz": "6000"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C5M9P5GK",
+          "price_eur": 890.0
         }
       ]
     },
@@ -428,7 +3600,24 @@
         {
           "store": "amazon",
           "asin": "B0C5M7J967",
-          "price_eur": 940
+          "price_eur": 942.09
+        }
+      ]
+    },
+    {
+      "category": "ram",
+      "brand": "Crucial",
+      "model": "Pro DDR5 128GB (2x64GB) 5600MHz",
+      "specs": {
+        "ddr_type": "DDR5",
+        "capacity_gb": "128",
+        "speed_mhz": "5600"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DSR5P84D",
+          "price_eur": 1167.9
         }
       ]
     },
@@ -446,7 +3635,43 @@
         {
           "store": "amazon",
           "asin": "B0DC8K6KQD",
-          "price_eur": 100
+          "price_eur": 99.99
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Western Digital",
+      "model": "WD Blue SN570 250GB M.2 NVMe",
+      "specs": {
+        "type": "NVMe",
+        "capacity_gb": "250",
+        "form_factor": "M.2 2280",
+        "interface": "PCIe 3.0 x4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09HKGGPLR",
+          "price_eur": 109.99
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Crucial",
+      "model": "P510 1TB M.2 NVMe PCIe 5.0",
+      "specs": {
+        "type": "NVMe",
+        "capacity_gb": "1000",
+        "form_factor": "M.2 2280",
+        "interface": "PCIe 5.0 x4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DZ5ZK225",
+          "price_eur": 148.9
         }
       ]
     },
@@ -464,7 +3689,25 @@
         {
           "store": "amazon",
           "asin": "B0DGH2FH7T",
-          "price_eur": 150
+          "price_eur": 149.99
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Samsung",
+      "model": "870 EVO 1TB 2.5\" SATA SSD",
+      "specs": {
+        "type": "SATA",
+        "capacity_gb": "1000",
+        "form_factor": "2.5 inch",
+        "interface": "SATA III"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B08PC5DKZQ",
+          "price_eur": 167.99
         }
       ]
     },
@@ -482,25 +3725,7 @@
         {
           "store": "amazon",
           "asin": "B0B9C3ZVHR",
-          "price_eur": 180
-        }
-      ]
-    },
-    {
-      "category": "storage",
-      "brand": "Crucial",
-      "model": "P310 2TB M.2 NVMe PCIe 4.0",
-      "specs": {
-        "type": "NVMe",
-        "capacity_gb": "2000",
-        "form_factor": "M.2 2280",
-        "interface": "PCIe 4.0 x4"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0DV32WGWM",
-          "price_eur": 250
+          "price_eur": 179.99
         }
       ]
     },
@@ -518,7 +3743,61 @@
         {
           "store": "amazon",
           "asin": "B0DWFMD52T",
-          "price_eur": 190
+          "price_eur": 189.99
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Crucial",
+      "model": "P310 2TB M.2 NVMe PCIe 4.0",
+      "specs": {
+        "type": "NVMe",
+        "capacity_gb": "2000",
+        "form_factor": "M.2 2280",
+        "interface": "PCIe 4.0 x4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DV32WGWM",
+          "price_eur": 252.23
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Samsung",
+      "model": "990 EVO Plus 2TB M.2 NVMe",
+      "specs": {
+        "type": "NVMe",
+        "capacity_gb": "2000",
+        "form_factor": "M.2 2280",
+        "interface": "PCIe 5.0 x2"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DGHB9V34",
+          "price_eur": 264.9
+        }
+      ]
+    },
+    {
+      "category": "storage",
+      "brand": "Samsung",
+      "model": "990 PRO 2TB M.2 NVMe",
+      "specs": {
+        "type": "NVMe",
+        "capacity_gb": "2000",
+        "form_factor": "M.2 2280",
+        "interface": "PCIe 4.0 x4"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0B9C4DKKG",
+          "price_eur": 286.54
         }
       ]
     },
@@ -536,7 +3815,7 @@
         {
           "store": "amazon",
           "asin": "B0DWFLPMM5",
-          "price_eur": 305
+          "price_eur": 302.9
         }
       ]
     },
@@ -553,7 +3832,7 @@
         {
           "store": "amazon",
           "asin": "B0DLH7PRGY",
-          "price_eur": 70
+          "price_eur": 67.9
         }
       ]
     },
@@ -570,14 +3849,31 @@
         {
           "store": "amazon",
           "asin": "B0DLH776YJ",
-          "price_eur": 75
+          "price_eur": 76.14
         }
       ]
     },
     {
       "category": "psu",
-      "brand": "Corsair",
-      "model": "RM750e 750W",
+      "brand": "MSI",
+      "model": "MAG A650GL 650W",
+      "specs": {
+        "wattage": "650",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C3M9B8Q2",
+          "price_eur": 76.42
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "Gigabyte",
+      "model": "UD750GM PG5 V2 750W PCIe 5.1",
       "specs": {
         "wattage": "750",
         "efficiency": "80 Plus Gold",
@@ -586,8 +3882,25 @@
       "links": [
         {
           "store": "amazon",
-          "asin": "B0DMTMK2Q5",
-          "price_eur": 85
+          "asin": "B0FFN58NBZ",
+          "price_eur": 76.99
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "Thermaltake",
+      "model": "Toughpower GT 750W ATX 3.1",
+      "specs": {
+        "wattage": "750",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DD4B94MH",
+          "price_eur": 83.63
         }
       ]
     },
@@ -604,7 +3917,160 @@
         {
           "store": "amazon",
           "asin": "B0DLH73G3W",
-          "price_eur": 85
+          "price_eur": 84.9
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "Corsair",
+      "model": "RM750e 750W",
+      "specs": {
+        "wattage": "750",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DMTMK2Q5",
+          "price_eur": 85.4
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "MSI",
+      "model": "MAG A750GL PCIE5 750W",
+      "specs": {
+        "wattage": "750",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C3M86HCB",
+          "price_eur": 94.99
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "MSI",
+      "model": "MAG A850GL PCIE5 850W",
+      "specs": {
+        "wattage": "850",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C3MC57D5",
+          "price_eur": 99.9
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "Corsair",
+      "model": "RM850 850W",
+      "specs": {
+        "wattage": "850",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B097F55SB9",
+          "price_eur": 99.9
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "ASUS",
+      "model": "TUF Gaming 850W",
+      "specs": {
+        "wattage": "850",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BK541686",
+          "price_eur": 101.64
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "Corsair",
+      "model": "RM750x SHIFT 750W",
+      "specs": {
+        "wattage": "750",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CXF5WNXR",
+          "price_eur": 104.9
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "MSI",
+      "model": "MAG A850GLS PCIE5 850W ATX 3.1",
+      "specs": {
+        "wattage": "850",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FB43WPJC",
+          "price_eur": 109.99
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "MSI",
+      "model": "MPG A850G PCIE5 850W",
+      "specs": {
+        "wattage": "850",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0B4345YV7",
+          "price_eur": 119.99
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "be quiet!",
+      "model": "Pure Power 12 M 750W ATX 3.1",
+      "specs": {
+        "wattage": "750",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BT2YZGZK",
+          "price_eur": 124.59
         }
       ]
     },
@@ -621,7 +4087,7 @@
         {
           "store": "amazon",
           "asin": "B0DT2WJ226",
-          "price_eur": 125
+          "price_eur": 125.61
         }
       ]
     },
@@ -638,7 +4104,54 @@
         {
           "store": "amazon",
           "asin": "B0C6F2LM22",
-          "price_eur": 135
+          "price_eur": 134.9
+        }
+      ]
+    },
+    {
+      "category": "psu",
+      "brand": "NZXT",
+      "model": "C1200 Gold 1200W ATX 3.1",
+      "specs": {
+        "wattage": "1200",
+        "efficiency": "80 Plus Gold",
+        "modularity": "fully modular"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DCHZYWL1",
+          "price_eur": 173.69
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "Fractal Design",
+      "model": "Focus G Window Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B06XQ5JSRR",
+          "price_eur": 52.76
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "NZXT",
+      "model": "H3 Flow Micro-ATX",
+      "specs": {
+        "form_factor": "micro_atx"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DQPMJ6MJ",
+          "price_eur": 54.9
         }
       ]
     },
@@ -653,7 +4166,7 @@
         {
           "store": "amazon",
           "asin": "B0CFYKNHW7",
-          "price_eur": 60
+          "price_eur": 59.9
         }
       ]
     },
@@ -668,22 +4181,22 @@
         {
           "store": "amazon",
           "asin": "B0C2JL6PNC",
-          "price_eur": 70
+          "price_eur": 67.9
         }
       ]
     },
     {
       "category": "case",
-      "brand": "NZXT",
-      "model": "H5 Flow Mid-Tower",
+      "brand": "Corsair",
+      "model": "3000D RGB Airflow Mid-Tower",
       "specs": {
         "form_factor": "ATX"
       },
       "links": [
         {
           "store": "amazon",
-          "asin": "B0D2MK6NML",
-          "price_eur": 75
+          "asin": "B0C2JMTX2J",
+          "price_eur": 71.35
         }
       ]
     },
@@ -698,7 +4211,157 @@
         {
           "store": "amazon",
           "asin": "B0CZVN6KY5",
-          "price_eur": 70
+          "price_eur": 71.9
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "NZXT",
+      "model": "H5 Flow Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D2MK6NML",
+          "price_eur": 74.49
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "Corsair",
+      "model": "Frame 4000D Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DFHQ5HVL",
+          "price_eur": 79.9
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "NZXT",
+      "model": "H6 Flow Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0C89FCDFP",
+          "price_eur": 79.99
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "Fractal Design",
+      "model": "Pop 2 Air Solid Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FDQWMC9F",
+          "price_eur": 84.9
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "NZXT",
+      "model": "H7 Flow Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CV4R1TWS",
+          "price_eur": 99.9
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "Corsair",
+      "model": "Frame 5000D RS Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0F3XNXCMV",
+          "price_eur": 99.9
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "NZXT",
+      "model": "H5 Flow RGB Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D2MJT1FY",
+          "price_eur": 99.99
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "be quiet!",
+      "model": "Light Base 500 Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FV38L6LT",
+          "price_eur": 101.33
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "Corsair",
+      "model": "Frame 4000D RS ARGB Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DFHNV7TK",
+          "price_eur": 101.9
+        }
+      ]
+    },
+    {
+      "category": "case",
+      "brand": "Corsair",
+      "model": "Frame 4500X RS-R ARGB Mid-Tower",
+      "specs": {
+        "form_factor": "ATX"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FJ2QMQYC",
+          "price_eur": 109.9
         }
       ]
     },
@@ -713,7 +4376,7 @@
         {
           "store": "amazon",
           "asin": "B09V878FXQ",
-          "price_eur": 130
+          "price_eur": 129.6
         }
       ]
     },
@@ -728,7 +4391,37 @@
         {
           "store": "amazon",
           "asin": "B0DQPPKNSS",
-          "price_eur": 130
+          "price_eur": 129.99
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Thermalright",
+      "model": "Peerless Assassin 90 SE Dual-Tower",
+      "specs": {
+        "type": "air"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D59ZHFT5",
+          "price_eur": 18.62
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Thermaltake",
+      "model": "UX400 Single-Tower",
+      "specs": {
+        "type": "air"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FCS6VCLV",
+          "price_eur": 18.9
         }
       ]
     },
@@ -743,7 +4436,22 @@
         {
           "store": "amazon",
           "asin": "B09NSBD1BG",
-          "price_eur": 25
+          "price_eur": 22.9
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Arctic",
+      "model": "Freezer 36 Single-Tower",
+      "specs": {
+        "type": "air"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B09VG6NBSJ",
+          "price_eur": 30.78
         }
       ]
     },
@@ -758,7 +4466,37 @@
         {
           "store": "amazon",
           "asin": "B09NSTR7JZ",
-          "price_eur": 35
+          "price_eur": 34.29
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Thermalright",
+      "model": "Phantom Spirit 120 SE ARGB Dual-Tower",
+      "specs": {
+        "type": "air"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0BR42FD37",
+          "price_eur": 36.2
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Thermalright",
+      "model": "Phantom Spirit 120 SE Dual-Tower",
+      "specs": {
+        "type": "air"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D93ZQH36",
+          "price_eur": 39.9
         }
       ]
     },
@@ -773,7 +4511,69 @@
         {
           "store": "amazon",
           "asin": "B0DB8GF656",
-          "price_eur": 45
+          "price_eur": 44.9
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Thermaltake",
+      "model": "ASTRIA 600 ARGB Dual-Tower",
+      "specs": {
+        "type": "air"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0D8TKGNDZ",
+          "price_eur": 47.52
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "be quiet!",
+      "model": "Pure Rock Pro 3 Single-Tower",
+      "specs": {
+        "type": "air"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DWZF7K1Y",
+          "price_eur": 48.2
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "be quiet!",
+      "model": "Pure Loop 3 240mm AIO",
+      "specs": {
+        "type": "liquid",
+        "radiator_mm": "240"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0FNMN4BM3",
+          "price_eur": 64.9
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Thermaltake",
+      "model": "LA360-S ARGB 360mm AIO",
+      "specs": {
+        "type": "liquid",
+        "radiator_mm": "360"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0CPDTBJMG",
+          "price_eur": 69.9
         }
       ]
     },
@@ -789,7 +4589,7 @@
         {
           "store": "amazon",
           "asin": "B0DLWFBHSL",
-          "price_eur": 70
+          "price_eur": 71.49
         }
       ]
     },
@@ -805,7 +4605,55 @@
         {
           "store": "amazon",
           "asin": "B0DLWGG85P",
-          "price_eur": 85
+          "price_eur": 82.99
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Corsair",
+      "model": "Nautilus 240 RS ARGB 240mm AIO",
+      "specs": {
+        "type": "liquid",
+        "radiator_mm": "240"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DF7D3RGB",
+          "price_eur": 89.99
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "Corsair",
+      "model": "Nautilus 360 RS ARGB 360mm AIO",
+      "specs": {
+        "type": "liquid",
+        "radiator_mm": "360"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DF7C4YPQ",
+          "price_eur": 99.9
+        }
+      ]
+    },
+    {
+      "category": "cooling",
+      "brand": "be quiet!",
+      "model": "Silent Loop 3 360mm AIO",
+      "specs": {
+        "type": "liquid",
+        "radiator_mm": "360"
+      },
+      "links": [
+        {
+          "store": "amazon",
+          "asin": "B0DWZJNH28",
+          "price_eur": 137.99
         }
       ]
     },
@@ -821,120 +4669,7 @@
         {
           "store": "amazon",
           "asin": "B0DF7CZ9D8",
-          "price_eur": 200
-        }
-      ]
-    },
-    {
-      "category": "mouse",
-      "brand": "Razer",
-      "model": "DeathAdder Essential - Kabelgebundene Gaming-Maus",
-      "specs": {
-        "weight_g": "2",
-        "wireless": false
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B092R5MCB3",
-          "price_eur": 20
-        }
-      ]
-    },
-    {
-      "category": "mouse",
-      "brand": "Razer",
-      "model": "Viper V3 HyperSpeed - Kabellose Esports Gaming-Maus - Focus",
-      "specs": {
-        "weight_g": "10",
-        "wireless": true
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0CBCPB2T1",
-          "price_eur": 60
-        }
-      ]
-    },
-    {
-      "category": "keyboard",
-      "brand": "Cherry",
-      "model": "MX Board 3.0 S, Mechanische Gaming-Tastatur",
-      "specs": {
-        "type": "15.6",
-        "backlight": "RGB"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B08JTK1FZ5",
-          "price_eur": 10
-        }
-      ]
-    },
-    {
-      "category": "keyboard",
-      "brand": "Corsair",
-      "model": "K70 CORE RGB Mechanische Gaming-Tastatur",
-      "specs": {
-        "backlight": "RGB"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0CH8VQNJC",
-          "price_eur": 90
-        }
-      ]
-    },
-    {
-      "category": "monitor",
-      "brand": "AOC",
-      "model": "27G42E 27 Zoll FHD Gaming Monitor, 180Hz, Fast IPS Panel,",
-      "specs": {
-        "resolution": "1920x1080",
-        "size_inches": "27",
-        "refresh_hz": "180"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0DS2MMXWY",
-          "price_eur": 95
-        }
-      ]
-    },
-    {
-      "category": "monitor",
-      "brand": "ASUS",
-      "model": "ROG Strix XG27UCS 27 Zoll Gaming Monitor",
-      "specs": {
-        "resolution": "3840 x 2160",
-        "size_inches": "27",
-        "refresh_hz": "160",
-        "response_ms": "1"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0D22YHV2H",
-          "price_eur": 300
-        }
-      ]
-    },
-    {
-      "category": "toolkit",
-      "brand": "Jorest",
-      "model": "117 in 1 Precision Mechanic Screwdriver Set",
-      "specs": {
-          "type": "screwdriver"
-      },
-      "links": [
-        {
-          "store": "amazon",
-          "asin": "B0DSJCSB48",
-          "price_eur": 18
+          "price_eur": 199.4
         }
       ]
     }

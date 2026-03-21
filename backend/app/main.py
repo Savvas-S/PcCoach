@@ -102,8 +102,12 @@ _ENV_VAR_TYPOS: dict[str, str] = {
 }
 
 
+_tracer_provider = None
+
+
 def _init_tracing() -> None:
     """Instrument the Anthropic SDK with Arize AX tracing (if configured)."""
+    global _tracer_provider
     if not settings.arize_api_key or not settings.arize_space_id:
         log.info("Arize tracing: disabled (ARIZE_API_KEY or ARIZE_SPACE_ID not set)")
         return
@@ -111,16 +115,28 @@ def _init_tracing() -> None:
         from arize.otel import Endpoint, register
         from openinference.instrumentation.anthropic import AnthropicInstrumentor
 
-        tracer_provider = register(
+        _tracer_provider = register(
             space_id=settings.arize_space_id,
             api_key=settings.arize_api_key.get_secret_value(),
             project_name="pccoach",
             endpoint=Endpoint.ARIZE_EUROPE,
         )
-        AnthropicInstrumentor().instrument(tracer_provider=tracer_provider)
+        AnthropicInstrumentor().instrument(tracer_provider=_tracer_provider)
         log.info("Arize tracing: enabled (project=pccoach)")
     except Exception:
         log.exception("Arize tracing: failed to initialize — continuing without tracing")
+
+
+def _shutdown_tracing() -> None:
+    """Flush and shut down the tracer provider so buffered spans are exported."""
+    if _tracer_provider is None:
+        return
+    try:
+        _tracer_provider.force_flush(timeout_millis=5_000)
+        _tracer_provider.shutdown()
+        log.info("Arize tracing: shut down (spans flushed)")
+    except Exception:
+        log.exception("Arize tracing: error during shutdown")
 
 
 @asynccontextmanager
@@ -167,6 +183,7 @@ async def lifespan(app: FastAPI):
         "set" if settings.database_url else "unset",
     )
     yield
+    _shutdown_tracing()
 
 
 _is_production = settings.environment == "production"

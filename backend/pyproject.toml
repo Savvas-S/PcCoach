@@ -29,6 +29,9 @@ dev = [
     "ruff>=0.6.0",
 ]
 
+[tool.uv.sources]
+pccoach-engine = { path = "../engine", editable = true }
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -45,6 +48,7 @@ select = ["E", "F", "I", "UP"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+testpaths = ["tests"]
 
 [dependency-groups]
 dev = [
