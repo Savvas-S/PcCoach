@@ -8,13 +8,17 @@ ENV UV_SYSTEM_PYTHON=1 \
     UV_COMPILE_BYTECODE=1
 
 # Install dependencies from lock file (reproducible builds)
-COPY pyproject.toml uv.lock ./
+COPY backend/pyproject.toml backend/uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
+# Install engine package
+COPY engine/ ./engine/
+RUN pip install ./engine/
+
 # Copy source and Alembic migrations
-COPY alembic.ini ./
-COPY alembic/ ./alembic/
-COPY app/ ./app/
+COPY backend/alembic.ini ./
+COPY backend/alembic/ ./alembic/
+COPY backend/app/ ./app/
 
 EXPOSE 8000
 

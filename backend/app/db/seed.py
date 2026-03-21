@@ -218,6 +218,7 @@ async def seed_catalog(db: AsyncSession) -> None:
             category=item["category"],
             brand=item["brand"],
             model=item["model"],
+            normalized_model=item.get("normalized_model", item["model"]),
             specs=item["specs"],
             in_stock=True,
         )

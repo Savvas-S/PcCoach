@@ -23,6 +23,9 @@ class Component(Base):
     category: Mapped[str] = mapped_column(String(30), index=True)
     brand: Mapped[str] = mapped_column(String(100))
     model: Mapped[str] = mapped_column(String(200))
+    normalized_model: Mapped[str | None] = mapped_column(
+        String(200), nullable=True, default=None
+    )
     specs: Mapped[dict] = mapped_column(JSONB, default=dict)
     in_stock: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
     created_at: Mapped[datetime] = mapped_column(
