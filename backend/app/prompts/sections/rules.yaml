@@ -45,33 +45,30 @@ content: |
   ## Component Suggestions (Upgrade & Downgrade)
 
   The main build is always the most ideal choice for the user's budget and goal.
-  After finalising it, check for two optional suggestions:
+  After finalising it, check for two optional suggestions.
+
+  CRITICAL: Both suggestions are strictly optional. Most builds will have NEITHER.
+  Do NOT include a suggestion just to explain why one isn't possible — simply omit it.
+  The server rejects any suggestion where the price difference exceeds the cap.
 
   ### Upgrade suggestion (GPU or CPU only)
-  If the next performance tier up would noticeably improve the result for the user's goal
-  and the ACTUAL catalog price difference is under €75, populate upgrade_suggestion.
-  - Calculate extra_cost_eur as: upgrade component price minus current component price
-    (both from the catalog). The server verifies this — wrong values are rejected.
-  - Only suggest if the gain is genuinely significant (e.g. handles 4K where the current
-    pick only handles 1440p, meaningfully higher frame rates, or a newer generation with
-    better efficiency)
-  - OMIT upgrade_suggestion entirely if no next-tier component exists within €75 extra.
-    Do NOT force a suggestion — it is better to have none than a bad one.
-  - Skip if the current component already maxes out the use case
-  - Skip if the budget range is already at the top tier
-  - Use upgrade_component_id from catalog results
+  Include ONLY if ALL of the following are true:
+  1. A next-tier component exists in the catalog you already scouted
+  2. The catalog price difference (upgrade price − current price) is between €1 and €75
+  3. The gain is genuinely significant (e.g. handles 4K where current only handles 1440p)
+  4. The current component does NOT already max out the use case
+  5. The budget range is NOT already at the top tier
+
+  If ANY condition fails → do NOT include upgrade_suggestion at all. No explanation needed.
+  Set extra_cost_eur to the exact catalog price difference. The server verifies this.
 
   ### Downgrade suggestion (GPU, CPU, PSU, or storage only)
-  If a step-down component would save the user a meaningful amount while still adequately
-  serving their stated goal, and the ACTUAL catalog price difference is under €100, populate downgrade_suggestion.
-  - Calculate savings_eur as: current component price minus downgrade component price
-    (both from the catalog). The server verifies this — wrong values are rejected.
-  - Only suggest if the downgrade still meets the use case well (e.g. a 5000 MB/s NVMe
-    is more than enough when 7000 MB/s was recommended; a slightly lower PSU tier still
-    covers the system TDP safely; a one-tier-down GPU still handles 1440p at good framerates)
-  - OMIT downgrade_suggestion entirely if no step-down component saves under €100.
-    Do NOT force a suggestion — it is better to have none than a bad one.
-  - Frame it clearly as a trade-off: the main build is more ideal; the downgrade is
-    adequate but slightly below the optimum
-  - Skip if the saving is trivial or the downgrade would noticeably compromise the goal
-  - Use downgrade_component_id from catalog results
+  Include ONLY if ALL of the following are true:
+  1. A step-down component exists in the catalog you already scouted
+  2. The catalog price difference (current price − downgrade price) is between €1 and €100
+  3. The downgrade still meets the use case adequately
+  4. The saving is meaningful (not trivial)
+
+  If ANY condition fails → do NOT include downgrade_suggestion at all. No explanation needed.
+  Set savings_eur to the exact catalog price difference. The server verifies this.
+  Frame it as a trade-off: the main build is more ideal; the downgrade is adequate.

@@ -168,9 +168,12 @@ SUBMIT_BUILD_TOOL = {
                     "extra_cost_eur": {
                         "type": "number",
                         "minimum": 0.01,
+                        "maximum": 75,
                         "description": (
                             "Exact price difference: upgrade price minus "
-                            "current price (from catalog). Must be ≤ 75."
+                            "current price (from catalog). Must be ≤ 75. "
+                            "If no upgrade exists within €75, omit the "
+                            "entire upgrade_suggestion."
                         ),
                     },
                     "reason": {"type": "string"},
@@ -206,9 +209,12 @@ SUBMIT_BUILD_TOOL = {
                     "savings_eur": {
                         "type": "number",
                         "minimum": 0.01,
+                        "maximum": 100,
                         "description": (
                             "Exact price difference: current price minus "
-                            "downgrade price (from catalog). Must be ≤ 100."
+                            "downgrade price (from catalog). Must be ≤ 100. "
+                            "If no downgrade saves under €100, omit the "
+                            "entire downgrade_suggestion."
                         ),
                     },
                     "reason": {"type": "string"},
