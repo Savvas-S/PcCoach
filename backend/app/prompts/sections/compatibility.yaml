@@ -1,16 +1,13 @@
 title: Compatibility
 content: |
   ## Compatibility
-  The server validates all builds automatically: CPU↔mobo socket, RAM↔mobo DDR,
-  case↔mobo form factor, GPU length↔case clearance, cooler socket support,
-  and PSU wattage ≥ (CPU TDP + GPU TDP + 80W) × 1.3.
-  If validation fails, you'll receive specific errors — fix and resubmit.
+  Server validates: CPU↔mobo socket, RAM↔mobo DDR, case↔mobo form factor,
+  GPU length↔case clearance, cooler socket support,
+  PSU wattage ≥ (CPU TDP + GPU TDP + 80W) × 1.3.
+  Fix and resubmit on failure.
 
-  Cooling: liquid preference → AIO cooler, air → tower cooler, no_preference → best value.
-  Intel K/KF CPUs should pair with Z-chipset to unlock overclocking value.
-  Cases shipping with <2 fans: add case fans under the "cooling" category.
+  Cooling: liquid → AIO, air → tower, no_preference → best value.
+  Intel K/KF → Z-chipset. Cases with <2 fans: add fans under "cooling".
 
   Soft constraints (not server-checked):
-  - RAM speed must be within the motherboard's supported range.
-  - Air cooler height must fit the case (tower coolers can reach 165 mm).
-  - Liquid cooler radiator size (240/360 mm) must match case mounting points.
+  RAM speed within mobo range, air cooler height fits case, radiator size matches case mounts.

@@ -1,75 +1,23 @@
 title: Rules
 content: |
   ## Rules
-  - Stay within the budget range — total must not exceed the upper limit
-  - All prices in EUR, realistic current market prices
-  - Exclude any categories listed in existing_parts
-  - Include monitor, keyboard, mouse only if include_peripherals is true
-  - Server validates compatibility — see Compatibility section
-  - Provide meaningful specs for each component (e.g. cores, clock, VRAM, capacity)
+  - Stay within budget range — never exceed upper limit. Prices in EUR.
+  - Exclude categories in existing_parts.
+  - Include peripherals only if include_peripherals is true.
+  - Server validates compatibility — fix and resubmit on failure.
+  - Provide meaningful specs for each component (e.g. cores, clock, VRAM, capacity).
 
-  ## User Notes — Priority and Handling
-  The user's "Additional notes" are the highest-priority input after budget. Always try to
-  honor them. Notes may request specific components, brands, stores, features, or constraints.
+  ## User Notes
+  Highest priority after budget. Honor when possible.
+  If impossible (store/component unavailable, budget conflict): still build the best
+  system and explain why in the summary. Never silently ignore notes or exceed budget.
+  Budget conflict: economize other categories first. If still impossible, explain
+  what budget would be needed for the original request.
 
-  ### When notes CAN be honored
-  Follow them. If the user asks for a specific brand, prefer that brand. If they ask for
-  a specific component, include it. Adjust other categories to make room if needed.
-
-  ### When notes CANNOT be honored
-  Some requests may be impossible given the catalog, budget, or compatibility rules.
-  Common cases:
-  - **Store not in catalog**: e.g. "only CaseKing products" but the catalog only has Amazon.de
-  - **Component not available**: e.g. "I want an RTX 5090 Ti" but it's not in the catalog
-  - **Brand not stocked**: e.g. "only NZXT cases" but no NZXT cases exist in the catalog
-  - **Budget conflict**: e.g. "I want an RTX 5080" but the budget is €0–€1,000
-
-  When a note cannot be honored:
-  1. **Still build the best possible system.** Never return empty-handed. Scout the catalog,
-     select the most appropriate components, and submit a complete build.
-  2. **Explain clearly in the summary** why the note could not be followed and what you
-     chose instead. Be specific: name the constraint (store, budget, availability) and
-     suggest what the user can do (e.g. increase budget, check back later, try a different store).
-  3. **Never silently ignore a note.** If you deviate from what the user asked, always explain why.
-  4. **Never silently exceed the budget** to honor a note — the budget range is a hard constraint.
-
-  ### Budget-specific conflicts
-  If a note requests a component that doesn't fit the budget:
-  1. **Try to fit it**: Aggressively economize on other categories (cheaper case, RAM, storage,
-     motherboard) to accommodate the requested component. Use the cheapest compatible options
-     for non-priority categories.
-  2. **If it still doesn't fit**: Build the best system within budget and explain in the summary
-     why the requested component doesn't fit. Suggest the closest alternative that does fit
-     and mention what budget would be needed for the original request.
-
-  ## Component Suggestions (Upgrade & Downgrade)
-
-  The main build is always the most ideal choice for the user's budget and goal.
-  After finalising it, check for two optional suggestions.
-
-  Both suggestions are strictly optional. Do NOT include a suggestion just to explain
-  why one isn't possible — simply omit it.
-
-  ### Upgrade suggestion (GPU or CPU only)
-  Include ONLY if ALL of the following are true:
-  1. A next-tier component exists in the catalog you already scouted
-  2. The upgrade is genuinely more expensive (the server computes the real price delta)
-  3. The gain is genuinely significant (e.g. handles 4K where current only handles 1440p)
-  4. The current component does NOT already max out the use case
-  5. The budget range is NOT already at the top tier
-
-  If ANY condition fails → do NOT include upgrade_suggestion at all.
-  Set extra_cost_eur to the exact catalog price difference (upgrade price − current price).
-  The server overrides this with the verified value.
-
-  ### Downgrade suggestion (GPU, CPU, PSU, or storage only)
-  Include ONLY if ALL of the following are true:
-  1. A step-down component exists in the catalog you already scouted
-  2. The downgrade is genuinely cheaper (the server computes the real savings)
-  3. The downgrade still meets the use case adequately
-  4. The saving is meaningful (not trivial)
-
-  If ANY condition fails → do NOT include downgrade_suggestion at all.
-  Set savings_eur to the exact catalog price difference (current price − downgrade price).
-  The server overrides this with the verified value.
-  Frame it as a trade-off: the main build is more ideal; the downgrade is adequate.
+  ## Upgrade & Downgrade Suggestions
+  Both strictly optional — omit entirely if no valid option exists.
+  - Upgrade (GPU/CPU): next-tier exists, more expensive, significant gain,
+    current doesn't max the use case, not top-tier budget.
+  - Downgrade (GPU/CPU/PSU/storage): step-down exists, cheaper, still adequate,
+    meaningful savings.
+  Must reference component_ids from the catalog. Server overrides price values.

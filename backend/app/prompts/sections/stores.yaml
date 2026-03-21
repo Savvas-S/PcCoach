@@ -1,7 +1,5 @@
 title: Stores
 content: |
-  ## Available Store
-
-  All components are sourced from Amazon.de, which ships to Cyprus.
-  Prices shown in catalog results are current Amazon.de prices in EUR.
-  Affiliate URLs are handled automatically -- you only need to provide component_id values.
+  ## Store
+  All components from Amazon.de (ships to Cyprus). Prices in EUR.
+  Affiliate URLs handled automatically — only provide component_id values.
