@@ -150,8 +150,12 @@ SUBMIT_BUILD_TOOL = {
                 },
             },
             "upgrade_suggestion": {
-                "type": "object",
-                "description": "Optional upgrade (under €75 extra)",
+                "type": ["object", "null"],
+                "description": (
+                    "Optional. ONLY include if a next-tier component exists "
+                    "in the catalog within €75 of the current pick. "
+                    "Set to null or omit entirely if no valid upgrade exists."
+                ),
                 "properties": {
                     "component_category": {
                         "type": "string",
@@ -161,7 +165,14 @@ SUBMIT_BUILD_TOOL = {
                     "upgrade_component_id": {
                         "type": "integer",
                     },
-                    "extra_cost_eur": {"type": "number", "minimum": 0.01},
+                    "extra_cost_eur": {
+                        "type": "number",
+                        "minimum": 0.01,
+                        "description": (
+                            "Exact price difference: upgrade price minus "
+                            "current price (from catalog). Must be ≤ 75."
+                        ),
+                    },
                     "reason": {"type": "string"},
                 },
                 "required": [
@@ -173,8 +184,13 @@ SUBMIT_BUILD_TOOL = {
                 ],
             },
             "downgrade_suggestion": {
-                "type": "object",
-                "description": "Optional downgrade that saves money",
+                "type": ["object", "null"],
+                "description": (
+                    "Optional. ONLY include if a step-down component exists "
+                    "in the catalog that is CHEAPER than the current pick "
+                    "and saves under €100. "
+                    "Set to null or omit entirely if no valid downgrade exists."
+                ),
                 "properties": {
                     "component_category": {
                         "type": "string",
@@ -183,8 +199,18 @@ SUBMIT_BUILD_TOOL = {
                     "current_name": {"type": "string"},
                     "downgrade_component_id": {
                         "type": "integer",
+                        "description": (
+                            "Must be a CHEAPER component than the current pick."
+                        ),
                     },
-                    "savings_eur": {"type": "number", "minimum": 0.01},
+                    "savings_eur": {
+                        "type": "number",
+                        "minimum": 0.01,
+                        "description": (
+                            "Exact price difference: current price minus "
+                            "downgrade price (from catalog). Must be ≤ 100."
+                        ),
+                    },
                     "reason": {"type": "string"},
                 },
                 "required": [
