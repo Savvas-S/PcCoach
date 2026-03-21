@@ -118,7 +118,7 @@ async function parseError(res: Response, fallback: string): Promise<string> {
   }
 }
 
-export type BuildPhase = "scouting" | "selecting" | "validating" | "repairing";
+export type BuildPhase = "scouting" | "selecting" | "validating" | "repairing" | "summarizing";
 
 export interface BuildProgress {
   phase: BuildPhase;

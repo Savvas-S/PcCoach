@@ -2,7 +2,9 @@
 
 ## Architecture Overview
 
-FastAPI application powering an agentic AI tool loop. Claude queries a product catalog through tools, selects components, and the server validates compatibility before returning results via SSE streaming.
+FastAPI application with two build paths (toggled by `USE_BUILD_ENGINE`):
+1. **Engine path** (recommended): deterministic component selection via `pccoach-engine` + single Claude summary call
+2. **Agentic path** (legacy fallback): Claude queries a product catalog through tools, selects components via agentic tool loop
 
 ```
 app/
@@ -10,6 +12,8 @@ app/
 │   ├── router.py              # Mounts builder + search routers under /api/v1
 │   ├── builder.py             # POST /build (SSE stream), GET /build/{id}
 │   └── search.py              # POST /search, in-memory cache, clear_search_cache()
+├── adapters/
+│   └── catalog_adapter.py     # SqlAlchemyCatalogAdapter (implements engine CatalogPort)
 ├── db/
 │   ├── models.py              # ORM: Component, AffiliateLink, Build
 │   ├── all_products.json      # Scraped product catalog (~200 products, 8 categories)
@@ -17,7 +21,7 @@ app/
 ├── models/
 │   └── builder.py             # Pydantic: BuildRequest, BuildResult, enums, validators
 ├── services/
-│   ├── claude.py              # ClaudeService: agentic loop, tool schemas, result building
+│   ├── claude.py              # ClaudeService: agentic loop + summarize_build() for engine path
 │   ├── catalog.py             # CatalogService: scout_all, query_for_tool, resolve_components
 │   └── build_validator.py     # BuildValidator: socket, DDR, form factor, PSU, GPU checks
 ├── security/
@@ -36,7 +40,8 @@ app/
 │       ├── stores.yaml
 │       ├── candidate_selection.yaml
 │       ├── rules.yaml
-│       └── compatibility.yaml
+│       ├── compatibility.yaml
+│       └── summary.yaml       # Summary-only prompt (engine path)
 ├── config.py                  # Settings (pydantic-settings, SecretStr)
 ├── database.py                # init_db(), get_db(), async engine + session factory
 ├── limiter.py                 # slowapi Limiter, _get_client_ip() with proxy trust
@@ -61,6 +66,7 @@ tests/
 | category | String(30) | Indexed. Values: cpu, gpu, motherboard, ram, storage, psu, case, cooling, monitor, keyboard, mouse, toolkit |
 | brand | String(100) | |
 | model | String(200) | |
+| normalized_model | String(200) | Nullable. Used by engine for multi-shop dedup. Defaults to `model` value. |
 | specs | JSONB | Dict of component properties (filtered by `CATEGORY_SPEC_KEYS` on read) |
 | in_stock | Boolean | Indexed, default True |
 | created_at | DateTime(tz) | |
@@ -155,6 +161,30 @@ Prompt section load order: identity → budget_ranges → goals → stores → c
 3. Handle upgrade/downgrade suggestions (resolve their component_ids too)
 4. Run `OutputGuardrail.check()` → may block, warn, or strip
 5. Merge validation warnings
+
+### `summarize_build()` (engine path)
+
+Module-level async function (not a method on ClaudeService). Used when `USE_BUILD_ENGINE=true`.
+- Input: `BuildRequest` + `BuildEngineResult` from engine
+- Makes a single Claude API call (max_tokens=400, timeout=30s) with `summary.yaml` prompt
+- Parses `SUMMARY:` / `UPGRADE_REASON:` / `DOWNGRADE_REASON:` format from response
+- Returns `(summary_text, upgrade_reason, downgrade_reason)`
+- No tools attached — pure text generation
+
+## Engine Integration (`app/adapters/catalog_adapter.py`)
+
+`SqlAlchemyCatalogAdapter` implements the engine's `CatalogPort` Protocol:
+- `get_all_products(category?)` → queries Component table with eager-loaded affiliate_links
+- Maps ORM models to engine `ProductRecord` / `ListingRecord` frozen dataclasses
+- Uses `comp.normalized_model or comp.model` for dedup key
+
+The engine path in `builder.py` (`_build_events_engine`):
+1. Emits SSE `progress(phase="selecting")`
+2. Calls `engine.select_build()` via `SqlAlchemyCatalogAdapter`
+3. Emits SSE `progress(phase="summarizing")`
+4. Calls `summarize_build()` for narrative text
+5. Assembles `BuildResult` from engine output + summary
+6. Runs `OutputGuardrail.check()` before returning
 
 ## CatalogService (`app/services/catalog.py`)
 
@@ -304,5 +334,6 @@ uv run alembic downgrade -1
 Current migrations:
 1. `0001_initial.py` — `builds` table (id, request_hash, result, created_at)
 2. `0002_component_catalog.py` — `components` + `affiliate_links` tables, adds `request` column to builds
+3. `0003_add_normalized_model.py` — adds `normalized_model` column to components, backfills from `model`
 
 `alembic/env.py` reads `DATABASE_URL` from settings at import time.

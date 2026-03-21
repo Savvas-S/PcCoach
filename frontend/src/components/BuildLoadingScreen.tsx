@@ -33,6 +33,7 @@ const PHASE_LABELS: Record<string, { label: string; sub: string }> = {
   selecting: { label: "Selecting components", sub: "Refining choices with filters" },
   validating: { label: "Checking compatibility", sub: "Verifying sockets, DDR, form factor, power" },
   repairing: { label: "Fixing compatibility", sub: "Adjusting component selection" },
+  summarizing: { label: "Writing build summary", sub: "Crafting your recommendation" },
 };
 
 const INITIAL_PHASE = { label: "Analyzing requirements", sub: "Parsing your preferences" };
@@ -148,6 +149,7 @@ export function BuildLoadingScreen({
     if (phase === "selecting") return 0.40 + ratio * 0.20;
     if (phase === "validating") return 0.65 + ratio * 0.20;
     if (phase === "repairing") return 0.65 + ratio * 0.15;
+    if (phase === "summarizing") return 0.60 + ratio * 0.35;
     return 0.10;
   }, [progress, slots.length, revealedSlots.size]);
 

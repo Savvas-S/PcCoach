@@ -10,7 +10,8 @@ Revenue model: affiliate commissions (Amazon.de for MVP, more stores planned) �
 
 | Layer     | Technology                                      |
 |-----------|-------------------------------------------------|
-| Backend   | Python 3.12, FastAPI, Anthropic SDK             |
+| Backend   | Python 3.12, FastAPI, Anthropic SDK              |
+| Engine    | pccoach-engine (standalone Python pkg, zero backend deps) |
 | Database  | PostgreSQL 16 + SQLAlchemy 2 (async) + Alembic  |
 | Frontend  | Next.js 15, React 19, TypeScript, Tailwind CSS  |
 | AI        | Claude (`claude-sonnet-4-6`) via `ClaudeService`|
@@ -46,6 +47,13 @@ PcCoach/
 │   ├── tailwind.config.ts      # Obsidian dark theme
 │   ├── package.json
 │   └── Dockerfile / Dockerfile.dev
+├── engine/                     # See engine/CLAUDE.md for detailed docs
+│   ├── __init__.py             # Public API: select_build()
+│   ├── ports.py                # CatalogPort Protocol (abstract DB interface)
+│   ├── models/                 # Frozen dataclasses: ProductRecord, BuildEngineResult
+│   ├── core/                   # Dedup, families, scorer, selector, optimizer, validator
+│   ├── config/                 # YAML profiles + hardware tiers + loader
+│   └── tests/                  # 107 tests (unit + integration)
 ├── shared/
 │   └── budget_goals.json       # Single source of truth (synced via `make sync-config`)
 ├── docker-compose.yml          # Production (4 services)
@@ -56,6 +64,27 @@ PcCoach/
 ```
 
 ## Core Flow
+
+Two build paths exist, toggled by the `USE_BUILD_ENGINE` env var (default: `false`).
+
+### Engine Path (`USE_BUILD_ENGINE=true`) — Recommended
+
+```
+User fills form → POST /api/v1/build (BuildRequest)
+               → InputGuardrail checks (scope, toxicity, budget, dedup)
+               → Cache check (Build table by request_hash)
+               → Build engine selects components deterministically:
+                   Phase 1 — Selecting: dedup → families → scoring → greedy select → optimize
+               → Claude writes summary (single API call, no tools):
+                   Phase 2 — Summarizing: 2-3 sentence narrative + upgrade/downgrade reasons
+               → OutputGuardrail checks (leak, off-topic, URL allowlist, PII, price)
+               → BuildResult streamed as SSE events
+               → Persisted to DB (Build table)
+```
+
+Cost: ~$0.001-0.003/request. Latency: <5s. Deterministic component selection.
+
+### Agentic Path (`USE_BUILD_ENGINE=false`) — Legacy fallback
 
 ```
 User fills form → POST /api/v1/build (BuildRequest)
@@ -71,10 +100,11 @@ User fills form → POST /api/v1/build (BuildRequest)
                → OutputGuardrail checks (leak, off-topic, URL allowlist, PII, price)
                → BuildResult streamed as SSE events
                → Persisted to DB (Build table)
-               → User clicks affiliate link → buys on Amazon.de → commission
 ```
 
-Both `/api/v1/build` and `/api/v1/search` use the agentic tool loop — Claude queries the catalog via tools and only sees `component_id` values. Affiliate URLs are resolved server-side after selection.
+Cost: ~$0.01/request. Latency: 7-11s. Non-deterministic.
+
+Both paths share the same `BuildResult` model, DB persistence, and output guardrails. `/api/v1/search` still uses the agentic tool loop.
 
 ### SSE Streaming Protocol (`POST /api/v1/build`)
 
@@ -83,7 +113,7 @@ Pre-stream errors (guardrail blocks, rate limits) still return normal HTTP error
 
 | SSE event type | When | Payload |
 |----------------|------|---------|
-| `progress` | After each tool call in the agentic loop | `{"type":"progress","phase":"scouting\|selecting\|validating\|repairing","turn":N,"elapsed_s":N,"categories_scouted":[...],"categories_queried":[...],"tool":"..."}` |
+| `progress` | After each tool call / engine phase | `{"type":"progress","phase":"scouting\|selecting\|validating\|repairing\|summarizing","turn":N,"elapsed_s":N,"categories_scouted":[...],"categories_queried":[...],"tool":"..."}` |
 | `result` | Build complete, guardrails passed | Full `BuildResult` JSON |
 | `error` | Any exception during streaming | `{"status":NNN,"detail":"..."}` |
 | `: keepalive` | Every ~15 s of inactivity | SSE comment (no event/data) |
@@ -125,6 +155,7 @@ make seed         # Seed the component catalog (idempotent, clears search cache)
 make sync-config  # Copy shared/budget_goals.json to all services
 make lock         # Regenerate uv.lock and package-lock.json
 make test         # Run pytest in backend container
+make test-engine  # Run engine tests locally (no Docker needed)
 make lint         # Run ruff check + format check
 make logs         # Tail all container logs
 make deploy       # Production: pull, sync-config, build, migrate, up, seed
@@ -151,6 +182,7 @@ ENVIRONMENT=development
 DATABASE_URL=postgresql+asyncpg://pccoach:<password>@db:5432/pccoach
 MAX_TOOL_TURNS=20               # Max agentic loop iterations
 AGENTIC_LOOP_TIMEOUT=120.0      # Agentic loop wall-clock timeout (seconds)
+USE_BUILD_ENGINE=false          # true = deterministic engine + summary, false = agentic loop
 RATE_LIMIT_AI=2/day             # Shared pool for /build and /search
 RATE_LIMIT_READ=60/minute       # GET /build/{id}
 ARIZE_API_KEY=...               # Optional: LLM observability
@@ -302,6 +334,9 @@ Rate limiting is disabled when `ENVIRONMENT=development`.
 | Max field length (prompt guard) | 2,000 chars | `prompt_guard.py` |
 | Amazon affiliate tag | `thepccoach-21` | `seed.py:_AMAZON_TAG` |
 | Frontend proxy timeout | 120,000 ms | `next.config.js:proxyTimeout` |
+| Engine budget target ratio | 0.85 | `engine/core/selector.py:_BUDGET_TARGET_RATIO` |
+| Engine category flex | 1.5x | `engine/core/selector.py:_CATEGORY_FLEX` |
+| Engine family feasibility | 40% of budget | `engine/core/selector.py:_select_family()` |
 
 ---
 

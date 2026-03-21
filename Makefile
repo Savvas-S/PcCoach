@@ -1,5 +1,5 @@
 .PHONY: help build up down down-clean dev dev-build dev-deploy dev-down logs logs-backend logs-frontend logs-size \
-        shell-backend shell-frontend test lint lock deploy init sync-config migrate seed
+        shell-backend shell-frontend test test-engine lint lock deploy init sync-config migrate seed
 
 help:
 	@echo "PcCoach - Available commands:"
@@ -29,6 +29,7 @@ help:
 	@echo "  make seed             Seed component catalog (dev)"
 	@echo "  make seed-prod        Seed component catalog (production)"
 	@echo "  make test             Run backend tests"
+	@echo "  make test-engine      Run build engine tests (no Docker needed)"
 	@echo "  make lint             Run backend linters"
 	@echo "  make lock             Generate/update uv.lock and package-lock.json"
 
@@ -101,6 +102,9 @@ seed-prod:
 
 test:
 	docker compose -f docker-compose.dev.yml exec backend uv run pytest
+
+test-engine:
+	cd engine && python -m pytest tests/ -v
 
 lint:
 	docker compose -f docker-compose.dev.yml exec backend uv run ruff check .
