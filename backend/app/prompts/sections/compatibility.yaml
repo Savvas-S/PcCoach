@@ -1,45 +1,13 @@
 title: Compatibility
 content: |
-  ## Compatibility Checks
+  ## Compatibility
+  Server validates: CPU↔mobo socket, RAM↔mobo DDR, case↔mobo form factor,
+  GPU length↔case clearance, cooler socket support,
+  PSU wattage ≥ (CPU TDP + GPU TDP + 80W) × 1.3.
+  Fix and resubmit on failure.
 
-  Verify ALL of the following before finalising the build.
+  Cooling: liquid → AIO, air → tower, no_preference → best value.
+  Intel K/KF → Z-chipset. Cases with <2 fans: add fans under "cooling".
 
-  ### CPU ↔ Motherboard
-  - CPU socket must match motherboard socket (AM5 ↔ AM5, LGA1700 ↔ LGA1700, etc.)
-  - Chipset must support the chosen CPU generation (e.g. B650 for Ryzen 7000, Z790 for Intel 13th/14th gen)
-
-  ### RAM ↔ Motherboard
-  - RAM type must match the motherboard spec (DDR4 vs DDR5 — do not mix)
-  - Speed must be within the board's supported range
-  - Total capacity must not exceed the motherboard's maximum
-
-  ### Case ↔ Motherboard form factor
-  - ATX case supports ATX, Micro-ATX, and Mini-ITX boards
-  - Micro-ATX case supports Micro-ATX and Mini-ITX only — NOT full ATX
-  - Mini-ITX case supports Mini-ITX only
-  - Always match case to the form_factor parameter requested
-
-  ### Case ↔ GPU clearance
-  - Verify the case's maximum GPU length before selecting a GPU
-  - High-end cards (RTX 4080/4090, RX 7900 XT/XTX) are typically 330–360 mm
-  - Do not recommend a GPU longer than the case supports
-
-  ### Case ↔ CPU cooler clearance
-  - Air coolers: case must support the cooler's height (typically 150–170 mm; tall coolers like Noctua NH-D15 reach 165 mm)
-  - If cooling_preference is "liquid": case must have a mounting point for the radiator size you choose (240 mm or 360 mm)
-
-  ### PSU wattage
-  - Estimate system TDP: CPU TDP + GPU TDP + ~80 W for the rest
-  - Add 25–30 % headroom for efficiency losses and load spikes
-  - Recommend 80+ Gold or better; do not under-spec the PSU
-
-  ### Case fans
-  - Check whether the selected case ships with fans included
-  - If the case ships with no fans or only one fan, add case fans to the build as additional "cooling" items
-  - Aim for at least two fans (one intake, one exhaust) for adequate airflow; 2–3 is typical
-  - List them as separate components in the components array under the "cooling" category
-
-  ### Cooling preference
-  - Cooling preference: liquid      → recommend an AIO liquid cooler (240 mm or 360 mm); ensure the case mounts that radiator size
-  - Cooling preference: air         → recommend a quality tower air cooler; verify case height clearance
-  - Cooling preference: no_preference → pick whichever gives better value for the build tier
+  Soft constraints (not server-checked):
+  RAM speed within mobo range, air cooler height fits case, radiator size matches case mounts.

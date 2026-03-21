@@ -2,70 +2,23 @@ title: Candidate Selection
 content: |
   ## How to Select Components
 
-  You have access to catalog tools to browse available components.
-  ALL components in the catalog are in stock and ship to Cyprus via Amazon.de.
+  Pre-filtered candidates are in the user message (compatibility-checked).
+  Go DIRECTLY to submit_build. Do NOT call scout_catalog unless a category is missing.
+  query_catalog is ONLY for when zero compatible options exist. Extra calls add ~10s and double cost.
 
-  ### Query Strategy
-
-  **Step 1 -- Scout:**
-  Call scout_catalog with ALL categories you need for the build.
-  This returns up to 50 products per category -- usually enough to decide.
-
-  **Step 2 -- Submit immediately:**
-  Go DIRECTLY to submit_build after scouting. Do NOT call query_catalog.
-  The scout already shows up to 50 products per category -- pick from those results.
-  You can see all brands, sockets, and specs in the scout. Filter mentally, not via tools.
-  query_catalog is ONLY for the rare case where zero compatible options appeared in scout
-  (e.g. an entire category had 0 products, or no motherboard matched the chosen socket).
-  Every extra tool call adds ~10s latency and doubles the cost. Target: scout → submit.
-
-  ### GPU Selection — Price/Performance Is King
-  For gaming builds: always compare GPUs by performance tier relative to price.
-  A higher-tier GPU at a similar or lower price ALWAYS beats a lower-tier GPU
-  with more VRAM or lower TDP. For example:
-  - An RTX 5070 at €326 beats an RX 9060 XT at €335 — the 5070 is ~60% faster
-  - 12GB VRAM is plenty for 1080p/1440p gaming — don't pick a weaker GPU just for extra VRAM
-  - Lower TDP is nice but irrelevant if a faster card costs the same or less
-
-  GPU tier hierarchy (roughly): RTX 5090 > 5080 > 5070 Ti > 9070 XT ≈ 5070 > 9070 > 5060 Ti > 9060 XT ≈ 5060 > 5050 > 4060 > 3050
-  When two GPUs are within €30 of each other, ALWAYS pick the higher tier.
-
-  For non-gaming builds (light_work, heavy_work, designer, architecture):
-  VRAM and specific workload features matter more — weigh accordingly.
-
-  ### Rules
-  - Always call scout_catalog FIRST before any other tool
-  - Use component_id values from scout_catalog or query_catalog results
-  - Do NOT invent component IDs -- only use IDs returned by catalog tools
-  - If a category returns zero results, try broader filters or explain in summary
-  - Ensure cross-category compatibility:
-    - CPU socket must match motherboard socket
-    - RAM DDR type must match motherboard DDR type
-    - Case must fit the motherboard form factor
-    - GPU length must fit the case
-    - PSU wattage must cover estimated system TDP with 30% headroom
-  - The system will validate your selections and reject incompatible builds
-  - If validation fails, you will get specific error messages -- fix and resubmit
+  ### GPU Selection
+  For gaming: pick by performance tier, not VRAM or TDP.
+  Tier hierarchy: RTX 5090 > 5080 > 5070 Ti > 9070 XT ≈ 5070 > 9070 > 5060 Ti > 9060 XT ≈ 5060 > 5050 > 4060 > 3050
+  Within €30: ALWAYS pick the higher tier.
+  Non-gaming: VRAM and workload features matter more.
 
   ### CPU + Motherboard Pairing
-  - Intel K/KF CPUs (unlocked) should be paired with Z-series chipsets (e.g. Z790)
-    to benefit from overclocking. Do NOT pair K CPUs with B760 — it wastes the premium.
-    If Z-series is too expensive, pick the non-K variant instead (e.g. i7-14700F over i7-14700KF).
-  - AMD Ryzen CPUs work well with B650 boards — no special pairing needed.
+  - Intel K/KF → Z-series chipset (not B760). If Z is too expensive, pick non-K CPU instead.
+  - AMD Ryzen → B650 works well.
 
   ### Budget Utilization
-  - The total build price must fall WITHIN the budget range (between floor and ceiling).
-  - Aim for the upper half of the range — spending near the floor wastes the user's budget.
-  - If you have room left, upgrade GPU tier, add more RAM, or get larger storage.
-  - Never exceed the ceiling. If a component pushes you over, pick the next tier down.
+  Total must fall WITHIN the budget range (upper half preferred). Never exceed ceiling.
+  Spare room → upgrade GPU tier, add RAM, or larger storage.
 
-  ### Backtracking
-  If targeted queries reveal poor options for your chosen platform,
-  you may reconsider earlier decisions. For example:
-  - If AM5 motherboards are overpriced, consider switching to Intel
-  - If the chosen GPU doesn't fit the case, look for a shorter GPU or larger case
-  Use query_catalog to explore alternatives before resubmitting.
-
-  ### Upgrade & Downgrade Suggestions
-  - Must reference component_id values from your catalog results
-  - Only suggest components you have actually seen in catalog results
+  Only use component_id values from catalog results. Never invent IDs.
+  If pre-filtered options are poor, call query_catalog for alternatives.
