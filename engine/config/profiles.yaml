@@ -1,0 +1,202 @@
+# Build strategy profiles — the "PC engineer knowledge" as tunable data.
+#
+# Each profile defines:
+#   - selection_order: which categories get first pick at the budget
+#   - budget_allocation: percentage split across categories (must sum to 100)
+#   - priority_specs: weighted scoring functions per category
+#   - tier_guidance: target GPU/CPU tier per budget range
+#   - family_preference: preferred platform order
+#
+# These are the PRIMARY tuning knobs. When hardware meta shifts, update
+# here — no code changes needed.
+
+profiles:
+  high_end_gaming:
+    description: "Top-tier gaming performance, no compromise"
+    family_preference: [AM5_DDR5, LGA1851_DDR5, LGA1700_DDR5]
+    selection_order: [gpu, cpu, motherboard, ram, cooling, storage, psu, case]
+    budget_allocation:
+      gpu: 35
+      cpu: 20
+      motherboard: 10
+      ram: 8
+      storage: 8
+      psu: 7
+      case: 7
+      cooling: 5
+    priority_specs:
+      gpu: {tier_rank: 0.6, vram_gb: 0.3, tdp: -0.1}
+      cpu: {gaming_rank: 0.5, boost_ghz: 0.3, cores: 0.2}
+      ram: {speed_mhz: 0.6, capacity_gb: 0.4}
+      storage: {capacity_gb: 0.5, read_mbps: 0.3, interface_rank: 0.2}
+      motherboard: {chipset_rank: 0.6, feature_score: 0.4}
+      psu: {wattage: 0.7, efficiency_rank: 0.3}
+      case: {feature_score: 1.0}
+      cooling: {cooling_capacity: 0.7, noise: 0.3}
+    tier_guidance:
+      over_3000: {gpu_tier: "5090/5080", cpu_tier: "9950X3D/9800X3D"}
+      2000_3000: {gpu_tier: "5080/5070Ti", cpu_tier: "9800X3D/7800X3D"}
+      1500_2000: {gpu_tier: "5070/5070Ti", cpu_tier: "7800X3D/9600X"}
+
+  mid_range_gaming:
+    description: "Great gaming at a sensible price"
+    family_preference: [AM5_DDR5, AM4_DDR4, LGA1700_DDR5, LGA1851_DDR5]
+    selection_order: [gpu, cpu, motherboard, ram, storage, cooling, psu, case]
+    budget_allocation:
+      gpu: 30
+      cpu: 18
+      motherboard: 10
+      ram: 10
+      storage: 10
+      psu: 8
+      case: 8
+      cooling: 6
+    priority_specs:
+      gpu: {tier_rank: 0.8, vram_gb: 0.2}
+      cpu: {gaming_rank: 0.4, cores: 0.3, boost_ghz: 0.3}
+      ram: {capacity_gb: 0.5, speed_mhz: 0.5}
+      storage: {capacity_gb: 0.6, read_mbps: 0.2, interface_rank: 0.2}
+      motherboard: {chipset_rank: 0.6, feature_score: 0.4}
+      psu: {wattage: 0.7, efficiency_rank: 0.3}
+      case: {feature_score: 1.0}
+      cooling: {cooling_capacity: 0.7, noise: 0.3}
+    tier_guidance:
+      1500_2000: {gpu_tier: "5070/9070XT", cpu_tier: "7800X3D/9600X"}
+      1000_1500: {gpu_tier: "5060/5060Ti/9060XT", cpu_tier: "7600X/7500F/5600X"}
+      0_1000: {gpu_tier: "5050/4060/RX7600", cpu_tier: "5600/5600X/7500F"}
+
+  low_end_gaming:
+    description: "Budget gaming, best bang for buck"
+    family_preference: [AM4_DDR4, AM5_DDR5, LGA1700_DDR5]
+    selection_order: [gpu, cpu, motherboard, ram, storage, psu, case, cooling]
+    budget_allocation:
+      gpu: 32
+      cpu: 18
+      motherboard: 8
+      ram: 10
+      storage: 10
+      psu: 8
+      case: 8
+      cooling: 6
+    priority_specs:
+      gpu: {tier_rank: 0.8, vram_gb: 0.2}
+      cpu: {gaming_rank: 0.5, cores: 0.3, boost_ghz: 0.2}
+      ram: {capacity_gb: 0.6, speed_mhz: 0.4}
+      storage: {capacity_gb: 0.7, read_mbps: 0.3}
+      motherboard: {chipset_rank: 0.5, feature_score: 0.5}
+      psu: {wattage: 0.7, efficiency_rank: 0.3}
+      case: {feature_score: 1.0}
+      cooling: {cooling_capacity: 0.7, noise: 0.3}
+    tier_guidance:
+      0_1000: {gpu_tier: "5050/4060/RX7600", cpu_tier: "5600/5600X/7500F"}
+
+  light_work:
+    description: "Office, browsing, light productivity"
+    family_preference: [AM5_DDR5, LGA1851_DDR5, LGA1700_DDR5, AM4_DDR4]
+    selection_order: [cpu, ram, storage, motherboard, case, psu, cooling, gpu]
+    budget_allocation:
+      cpu: 25
+      gpu: 10
+      motherboard: 12
+      ram: 15
+      storage: 15
+      psu: 8
+      case: 8
+      cooling: 7
+    priority_specs:
+      cpu: {cores: 0.4, boost_ghz: 0.3, workstation_rank: 0.3}
+      gpu: {tier_rank: 0.5, vram_gb: 0.5}
+      ram: {capacity_gb: 0.6, speed_mhz: 0.4}
+      storage: {capacity_gb: 0.7, read_mbps: 0.3}
+      motherboard: {chipset_rank: 0.5, feature_score: 0.5}
+      psu: {wattage: 0.7, efficiency_rank: 0.3}
+      case: {feature_score: 1.0}
+      cooling: {cooling_capacity: 0.7, noise: 0.3}
+    tier_guidance:
+      0_1000: {gpu_tier: "4060/RX7600", cpu_tier: "5600X/12400F"}
+      1000_1500: {gpu_tier: "4060/RX7600", cpu_tier: "7600X/245K"}
+      1500_2000: {gpu_tier: "5060/4060", cpu_tier: "9600X/245K"}
+
+  heavy_work:
+    description: "Multitasking, VMs, data processing"
+    family_preference: [AM5_DDR5, LGA1851_DDR5, LGA1700_DDR5]
+    selection_order: [cpu, ram, storage, gpu, motherboard, cooling, psu, case]
+    budget_allocation:
+      cpu: 28
+      gpu: 15
+      motherboard: 10
+      ram: 15
+      storage: 12
+      psu: 7
+      case: 7
+      cooling: 6
+    priority_specs:
+      cpu: {cores: 0.5, workstation_rank: 0.3, boost_ghz: 0.2}
+      gpu: {tier_rank: 0.5, vram_gb: 0.5}
+      ram: {capacity_gb: 0.7, speed_mhz: 0.3}
+      storage: {capacity_gb: 0.5, read_mbps: 0.3, interface_rank: 0.2}
+      motherboard: {chipset_rank: 0.6, feature_score: 0.4}
+      psu: {wattage: 0.7, efficiency_rank: 0.3}
+      case: {feature_score: 1.0}
+      cooling: {cooling_capacity: 0.7, noise: 0.3}
+    tier_guidance:
+      1000_1500: {gpu_tier: "4060/RX7600", cpu_tier: "7800X3D/245K"}
+      1500_2000: {gpu_tier: "5070/9070XT", cpu_tier: "9800X3D/285K"}
+      2000_3000: {gpu_tier: "5070/5080", cpu_tier: "9950X3D/285K"}
+      over_3000: {gpu_tier: "5080/5090", cpu_tier: "9950X3D/285K"}
+
+  designer:
+    description: "Creative work — Photoshop, Illustrator, video editing"
+    family_preference: [AM5_DDR5, LGA1851_DDR5, LGA1700_DDR5]
+    selection_order: [gpu, cpu, ram, storage, motherboard, cooling, psu, case]
+    budget_allocation:
+      gpu: 28
+      cpu: 22
+      motherboard: 10
+      ram: 12
+      storage: 10
+      psu: 7
+      case: 6
+      cooling: 5
+    priority_specs:
+      gpu: {vram_gb: 0.5, tier_rank: 0.4, tdp: 0.1}
+      cpu: {cores: 0.5, boost_ghz: 0.3, workstation_rank: 0.2}
+      ram: {capacity_gb: 0.6, speed_mhz: 0.4}
+      storage: {capacity_gb: 0.5, read_mbps: 0.3, interface_rank: 0.2}
+      motherboard: {chipset_rank: 0.6, feature_score: 0.4}
+      psu: {wattage: 0.7, efficiency_rank: 0.3}
+      case: {feature_score: 1.0}
+      cooling: {cooling_capacity: 0.7, noise: 0.3}
+    tier_guidance:
+      1000_1500: {gpu_tier: "4060/RX7600", cpu_tier: "7800X3D/245K"}
+      1500_2000: {gpu_tier: "5070/9070XT", cpu_tier: "7800X3D/9600X"}
+      2000_3000: {gpu_tier: "5080/5070Ti", cpu_tier: "9800X3D/285K"}
+      over_3000: {gpu_tier: "5080/5090", cpu_tier: "9950X3D/285K"}
+
+  architecture:
+    description: "CAD, 3D rendering, large project files"
+    family_preference: [AM5_DDR5, LGA1851_DDR5, LGA1700_DDR5]
+    selection_order: [cpu, gpu, ram, storage, motherboard, cooling, psu, case]
+    budget_allocation:
+      cpu: 25
+      gpu: 25
+      motherboard: 10
+      ram: 15
+      storage: 10
+      psu: 6
+      case: 5
+      cooling: 4
+    priority_specs:
+      gpu: {vram_gb: 0.6, tier_rank: 0.3, tdp: 0.1}
+      cpu: {cores: 0.5, workstation_rank: 0.3, boost_ghz: 0.2}
+      ram: {capacity_gb: 0.7, speed_mhz: 0.3}
+      storage: {capacity_gb: 0.5, read_mbps: 0.3, interface_rank: 0.2}
+      motherboard: {chipset_rank: 0.6, feature_score: 0.4}
+      psu: {wattage: 0.7, efficiency_rank: 0.3}
+      case: {feature_score: 1.0}
+      cooling: {cooling_capacity: 0.7, noise: 0.3}
+    tier_guidance:
+      1000_1500: {gpu_tier: "4060/RX7600", cpu_tier: "7800X3D/245K"}
+      1500_2000: {gpu_tier: "5070/9070XT", cpu_tier: "9800X3D/285K"}
+      2000_3000: {gpu_tier: "5080/5070Ti", cpu_tier: "9950X3D/285K"}
+      over_3000: {gpu_tier: "5090/5080", cpu_tier: "9950X3D/285K"}

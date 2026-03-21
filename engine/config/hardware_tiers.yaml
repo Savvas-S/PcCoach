@@ -1,0 +1,82 @@
+# Hardware performance tier rankings.
+# Lower number = higher tier. Used by the scorer to match products
+# to tier guidance in build profiles.
+#
+# Update this file when new hardware launches — no code changes needed.
+
+gpu_tiers:
+  "RTX 5090": 1
+  "RTX 5080": 2
+  "RTX 5070 Ti": 3
+  "RX 9070 XT": 4
+  "RTX 5070": 4
+  "RX 9070": 5
+  "RTX 5060 Ti": 6
+  "RX 9060 XT": 7
+  "RTX 5060": 7
+  "RTX 5050": 8
+  "RTX 4060": 9
+  "RX 7600": 10
+  "RTX 3050": 11
+
+cpu_gaming_tiers:
+  "Ryzen 7 9800X3D": 1
+  "Ryzen 7 7800X3D": 2
+  "Core Ultra 9 285K": 3
+  "Core i7-14700K": 3
+  "Core Ultra 5 245K": 4
+  "Ryzen 5 9600X": 4
+  "Ryzen 5 7600X3D": 4
+  "Ryzen 5 7600X": 5
+  "Core i5-14600K": 5
+  "Ryzen 9 9950X3D": 2
+  "Ryzen 9 9950X": 3
+  "Ryzen 5 9600": 6
+  "Core i5-14400F": 6
+  "Ryzen 5 7500F": 7
+  "Core i5-12600KF": 7
+  "Ryzen 7 5800X": 8
+  "Ryzen 7 5700X": 8
+  "Ryzen 5 5600X": 9
+  "Ryzen 5 5600": 9
+  "Core i5-12400F": 10
+
+cpu_workstation_tiers:
+  "Ryzen 9 9950X3D": 1
+  "Ryzen 9 9950X": 1
+  "Core i9-14900K": 1
+  "Core Ultra 9 285K": 2
+  "Ryzen 9 9900X": 2
+  "Ryzen 9 7950X": 2
+  "Ryzen 7 9800X3D": 3
+  "Ryzen 7 7800X3D": 3
+  "Core i7-14700K": 4
+  "Core Ultra 5 245K": 5
+  "Ryzen 7 5800X": 5
+  "Ryzen 7 5700X": 5
+  "Ryzen 5 9600X": 6
+  "Ryzen 5 7600X": 6
+  "Core i5-14600K": 6
+  "Ryzen 5 5600X": 7
+  "Core i5-14400F": 7
+  "Ryzen 5 7500F": 8
+  "Core i5-12600KF": 8
+  "Ryzen 5 5600": 9
+  "Core i5-12400F": 9
+
+chipset_rank:
+  "X870E": 1
+  "X870": 2
+  "X670E": 2
+  "X670": 3
+  "B650E": 3
+  "Z890": 2
+  "Z790": 3
+  "B860": 4
+  "B650": 4
+  "Z690": 4
+  "B760": 5
+  "B550": 6
+  "X570": 6
+  "A520": 7
+  "H610": 8
