@@ -13,6 +13,7 @@ from app.models.builder import (
     UserGoal,
 )
 from app.services.candidate_filter import (
+    _FLOOR_DAMPER,
     _MAX_PER_CATEGORY,
     CandidateFilter,
 )
@@ -665,6 +666,74 @@ class TestFilterCandidates:
         assert "case" not in result
         assert "cpu" in result
 
+    async def test_cross_socket_cleanup_removes_orphaned_mobos(self):
+        """Motherboards for sockets with no CPUs should be removed."""
+        products = {
+            "cpu": [
+                # Only AM5 CPUs (AM4 CPUs filtered out by price floor or budget)
+                _product(
+                    1, "AMD", "Ryzen 5 9600X", {"socket": "AM5", "tdp": "65"}, 200
+                ),
+            ],
+            "gpu": [
+                _product(
+                    2,
+                    "MSI",
+                    "GeForce RTX 5060",
+                    {"tdp": "150", "length_mm": "280"},
+                    300,
+                )
+            ],
+            "motherboard": [
+                _product(
+                    3,
+                    "MSI",
+                    "B650",
+                    {"socket": "AM5", "form_factor": "ATX", "ddr_type": "DDR5"},
+                    150,
+                ),
+                _product(
+                    4,
+                    "MSI",
+                    "B550",
+                    {"socket": "AM4", "form_factor": "ATX", "ddr_type": "DDR4"},
+                    100,
+                ),
+            ],
+            "ram": [
+                _product(5, "Corsair", "DDR5", {"ddr_type": "DDR5"}, 80),
+                _product(6, "Kingston", "DDR4", {"ddr_type": "DDR4"}, 60),
+            ],
+            "storage": [_product(7, "Samsung", "SSD", {}, 100)],
+            "psu": [_product(8, "Corsair", "RM650", {"wattage": "650"}, 80)],
+            "case": [
+                _product(
+                    9,
+                    "NZXT",
+                    "H5",
+                    {"form_factor": "ATX", "max_gpu_length": "400"},
+                    80,
+                )
+            ],
+            "cooling": [
+                _product(
+                    10, "Noctua", "NH-D15", {"type": "air", "socket_support": "AM5"}, 90
+                )
+            ],
+        }
+
+        catalog = _mock_catalog(products)
+        cf = CandidateFilter(catalog=catalog)
+        req = _request(cpu_brand=CPUBrand.no_preference)
+
+        result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
+
+        # Only AM5 CPU present → AM4 motherboard should be removed
+        assert len(result["motherboard"]) == 1
+        assert result["motherboard"][0].specs["socket"] == "AM5"
+        # RAM should only be DDR5 (since only AM5/DDR5 mobo remains)
+        assert all(r.specs.get("ddr_type") == "DDR5" for r in result["ram"])
+
 
 # ---------------------------------------------------------------------------
 # Price floor logic
@@ -677,15 +746,21 @@ class TestPriceFloor:
         floor = CandidateFilter._price_floor("0_1000", "low_end_gaming", "gpu")
         assert floor == 0.0
 
-    def test_mid_budget_gpu_floor(self):
-        """1500_2000 mid_range_gaming GPU: 1500 × 0.35 = 525."""
+    def test_mid_budget_gpu_floor_gaming_exempt(self):
+        """Gaming GPU floor is always 0 — Claude picks by tier, not price."""
         floor = CandidateFilter._price_floor("1500_2000", "mid_range_gaming", "gpu")
-        assert floor == 525.0
+        assert floor == 0.0
+
+    def test_non_gaming_gpu_floor_applied(self):
+        """Non-gaming goals still get a GPU price floor (damped)."""
+        # heavy_work GPU: 2000 × 0.20 × 0.5 = 200
+        floor = CandidateFilter._price_floor("2000_3000", "heavy_work", "gpu")
+        assert floor == 2000.0 * 0.20 * _FLOOR_DAMPER
 
     def test_high_budget_cpu_floor(self):
-        """over_3000 high_end_gaming CPU: 3000 × 0.18 = 540."""
+        """over_3000 high_end_gaming CPU: 3000 × 0.18 × 0.5 = 270."""
         floor = CandidateFilter._price_floor("over_3000", "high_end_gaming", "cpu")
-        assert floor == 540.0
+        assert floor == 3000.0 * 0.18 * _FLOOR_DAMPER
 
     def test_unknown_goal_no_floor(self):
         floor = CandidateFilter._price_floor("2000_3000", "unknown_goal", "gpu")
@@ -709,31 +784,39 @@ class TestApplyPriceFloor:
         assert len(result) == 5
 
     def test_floor_excludes_cheap(self):
-        items = [
-            _product(1, price=100.0),
-            _product(2, price=200.0),
-            _product(3, price=300.0),
-            _product(4, price=400.0),
-            _product(5, price=500.0),
-        ]
+        """Floor keeps items above threshold when enough remain."""
+        items = [_product(i, price=50.0 + i * 50) for i in range(12)]
+        # Prices: 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600
+        # Floor at 250 → items 4..11 pass (8 items, 67% retention) → apply
         result = CandidateFilter._apply_price_floor(items, 250.0)
-        assert len(result) == 3
+        assert len(result) == 8
         assert all(p.price_eur >= 250.0 for p in result)
 
-    def test_fallback_when_fewer_than_3_remain(self):
-        """If floor leaves < 3 items but catalog has >= 3, return all."""
-        items = [
-            _product(1, price=100.0),
-            _product(2, price=150.0),
-            _product(3, price=200.0),
-            _product(4, price=250.0),
-        ]
-        # Floor at 240 would leave only 1 item — fallback to all 4
-        result = CandidateFilter._apply_price_floor(items, 240.0)
-        assert len(result) == 4
+    def test_fallback_when_fewer_than_min_items_remain(self):
+        """If floor leaves < _FLOOR_MIN_ITEMS but catalog has enough, return all."""
+        items = [_product(i, price=50.0 + i * 50) for i in range(10)]
+        # Floor at 400 would leave only items with price >= 400
+        # Only items 7 (400), 8 (450), 9 (500) pass → 3 < 5 → fallback
+        result = CandidateFilter._apply_price_floor(items, 400.0)
+        assert len(result) == 10
+
+    def test_fallback_when_below_50_percent_retention(self):
+        """If floor removes more than half the items, fallback to all."""
+        items = [_product(i, price=100.0 + i * 10) for i in range(10)]
+        # Floor at 160 → items 6..9 pass (4 items = 40%) → fallback
+        result = CandidateFilter._apply_price_floor(items, 160.0)
+        assert len(result) == 10
+
+    def test_no_fallback_when_enough_remain(self):
+        """If floor keeps >= _FLOOR_MIN_ITEMS and >= 50%, apply normally."""
+        items = [_product(i, price=100.0 + i * 10) for i in range(10)]
+        # Floor at 120 → items 2..9 pass (8 items = 80%) → apply
+        result = CandidateFilter._apply_price_floor(items, 120.0)
+        assert len(result) == 8
+        assert all(p.price_eur >= 120.0 for p in result)
 
     def test_no_fallback_when_catalog_small(self):
-        """If catalog itself has < 3 items, apply the floor normally."""
+        """If catalog itself has < _FLOOR_MIN_ITEMS, apply the floor normally."""
         items = [
             _product(1, price=100.0),
             _product(2, price=500.0),
@@ -839,9 +922,7 @@ class TestPriceFloorIntegration:
 
         result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
 
-        # GPU floor: 3000 × 0.35 = €1050 → only RTX 5090 (€1200) passes
-        # But that leaves < 3 items while catalog has 4 → fallback returns all 4
-        # Actually: 4 GPUs total, only 1 >= 1050 → < 3 → fallback
+        # GPU floor: gaming goal → exempt (floor = 0) → all 4 GPUs pass
         assert len(result["gpu"]) == 4
 
     async def test_entry_budget_sees_all(self):
@@ -912,8 +993,8 @@ class TestPriceFloorIntegration:
         assert len(result["cpu"]) == 2
         assert len(result["gpu"]) == 1
 
-    async def test_mid_budget_filters_cheap_gpus(self):
-        """Mid budget should exclude cheap GPUs when enough remain above floor."""
+    async def test_mid_budget_gaming_gpu_no_floor(self):
+        """Gaming GPU floor is exempt — all GPUs should pass."""
         products = {
             "cpu": [
                 _product(
@@ -995,7 +1076,6 @@ class TestPriceFloorIntegration:
 
         catalog = _mock_catalog(products)
         cf = CandidateFilter(catalog=catalog)
-        # 1500_2000 mid_range_gaming: GPU floor = 1500 × 0.35 = €525
         req = _request(
             cpu_brand=CPUBrand.amd,
             budget_range=BudgetRange.range_1500_2000,
@@ -1004,10 +1084,8 @@ class TestPriceFloorIntegration:
 
         result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
 
-        # GPU floor €525 → GTX 1650 (€150), RTX 5060 (€300) excluded
-        # RTX 5070 (€550), RTX 5070 Ti (€650), RTX 5080 (€800) remain → 3 items ≥ 3
-        assert len(result["gpu"]) == 3
-        assert all(p.price_eur >= 525.0 for p in result["gpu"])
+        # Gaming goal → GPU floor exempt → all 5 GPUs visible
+        assert len(result["gpu"]) == 5
 
     async def test_heavy_work_goal_different_allocation(self):
         """Non-gaming goal (heavy_work) weights CPU/RAM higher, GPU lower."""
@@ -1100,15 +1178,19 @@ class TestPriceFloorIntegration:
 
         result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
 
-        # GPU floor = 2000 × 0.20 = €400 → RTX 5060 (€300) excluded
-        # RTX 5070 (€550), RTX 5080 (€800) remain → 2 < 3, but catalog has 3 → fallback
+        # GPU floor = 2000 × 0.20 × 0.5 = €200 (non-gaming goal, damped)
+        # All 3 GPUs are above €200 → all pass
         assert len(result["gpu"]) == 3
 
-        # CPU floor = 2000 × 0.25 = €500 → only Ryzen 9 7950X (€550) passes
-        # 1 < 3, catalog has 4 → fallback
-        assert len(result["cpu"]) == 4
+        # CPU floor = 2000 × 0.25 × 0.5 = €250 (damped)
+        # Ryzen 5 7600 (€200) excluded, 3 remain (€300, €400, €550)
+        # 3/4 = 75% retention (≥50%), catalog has 4 (< 5 min items) → no fallback
+        assert len(result["cpu"]) == 3
+        assert all(c.price_eur >= 250.0 for c in result["cpu"])
 
-        # RAM floor = 2000 × 0.15 = €300 → all below → fallback
+        # RAM floor = 2000 × 0.15 × 0.5 = €150 (damped)
+        # DDR5 64GB (€250) passes, DDR5 32GB (€100), DDR5 16GB (€60) excluded
+        # 1 out of 3 = 33% → fallback
         assert len(result["ram"]) == 3
 
     async def test_compatibility_filter_then_price_floor(self):
@@ -1183,8 +1265,8 @@ class TestPriceFloorIntegration:
         catalog = _mock_catalog(products)
         cf = CandidateFilter(catalog=catalog)
         # AMD preference: compatibility filter keeps only 3 AMD CPUs
-        # CPU floor = 1500 × 0.20 = €300 → Ryzen 5 7600 (€200) excluded
-        # 2 remain (€350, €500) < 3 threshold, but post-compat set has 3 → fallback
+        # CPU floor = 1500 × 0.20 × 0.5 = €150 (damped)
+        # All 3 AMD CPUs (€200, €350, €500) are above €150 → all pass
         req = _request(
             cpu_brand=CPUBrand.amd,
             budget_range=BudgetRange.range_1500_2000,
@@ -1193,8 +1275,7 @@ class TestPriceFloorIntegration:
 
         result = await cf.filter_candidates(req, REQUIRED_CATS, MagicMock())
 
-        # Compatibility filter removed Intel CPUs → 3 AMD CPUs remain
-        # Price floor leaves 2 < 3, original post-compat has 3 → fallback to all 3
+        # All 3 AMD CPUs pass the damped floor
         assert len(result["cpu"]) == 3
         assert all(c.brand == "AMD" for c in result["cpu"])
 

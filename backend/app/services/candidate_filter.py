@@ -29,6 +29,25 @@ log = logging.getLogger(__name__)
 # Max candidates per category after filtering
 _MAX_PER_CATEGORY = 15
 
+# Damping factor for price floors — halve the proportional share so that
+# good-value components slightly below the "ideal" allocation still appear.
+_FLOOR_DAMPER = 0.5
+
+# Fallback thresholds for _apply_price_floor.
+# If fewer than _FLOOR_MIN_ITEMS survive, or less than _FLOOR_MIN_RATIO of
+# the original list survives, the floor is considered too aggressive and we
+# return the full (unfiltered) list instead.
+_FLOOR_MIN_ITEMS = 5
+_FLOOR_MIN_RATIO = 0.5
+
+# Gaming goals — GPU price floor is skipped for these because the prompt
+# teaches Claude to pick by performance tier, not by price.
+_GAMING_GOALS = frozenset({
+    "high_end_gaming",
+    "mid_range_gaming",
+    "low_end_gaming",
+})
+
 # Budget range → lower bound in EUR (floor calculation uses the low end)
 _BUDGET_LOWER: dict[str, float] = {
     "0_1000": 0.0,  # no floor for entry-level
@@ -184,6 +203,13 @@ class CandidateFilter:
             valid_sockets,
             requested_ff_rank,
         )
+
+        # Phase 2b: Remove motherboards whose socket has no matching CPU
+        cpu_sockets = {
+            c.specs.get("socket") for c in cpus if c.specs.get("socket")
+        }
+        if cpu_sockets:
+            mobos = [m for m in mobos if m.specs.get("socket") in cpu_sockets]
 
         # Phase 3: Filter RAM (depends on motherboard DDR types)
         mobo_ddr_types = {
@@ -424,11 +450,24 @@ class CandidateFilter:
 
     @staticmethod
     def _price_floor(budget_range: str, goal: str, category: str) -> float:
-        """Return minimum price for a category given budget and goal."""
+        """Return minimum price for a category given budget and goal.
+
+        Uses half the proportional share so Claude still sees good-value
+        options slightly below the "ideal" allocation.  For example,
+        mid_range_gaming 1000_1500 CPU: 1000 × 0.20 × 0.5 = €100 instead
+        of €200, which keeps budget CPUs in the candidate set.
+
+        GPU is exempt from price floors for gaming goals because the prompt
+        teaches Claude to pick by performance tier, not by price.  A cheap
+        GPU that outperforms an expensive one should always be visible.
+        """
+        # GPU exempt from floor for gaming goals — Claude picks by tier
+        if category == "gpu" and goal in _GAMING_GOALS:
+            return 0.0
         budget_lower = _BUDGET_LOWER.get(budget_range, 0.0)
         goal_shares = _GOAL_CATEGORY_SHARE.get(goal, {})
         share = goal_shares.get(category, 0.0)
-        return budget_lower * share
+        return budget_lower * share * _FLOOR_DAMPER
 
     @staticmethod
     def _apply_price_floor(
@@ -437,14 +476,21 @@ class CandidateFilter:
     ) -> list[ToolCatalogResult]:
         """Keep items at or above the price floor.
 
-        Falls back to all items if floor is too restrictive (< 3 remain).
+        Falls back to all items when filtering is too aggressive:
+        - fewer than 5 items remain, OR
+        - fewer than 50 % of the original items survive.
+        This ensures Claude always has meaningful choice.
         """
         if floor <= 0.0:
             return items
         filtered = [i for i in items if i.price_eur >= floor]
-        if len(filtered) < 3 and len(items) >= 3:
-            return items  # fallback: sparse catalog
-        return filtered if filtered else items
+        if not filtered:
+            return items
+        too_few = len(filtered) < _FLOOR_MIN_ITEMS and len(items) >= _FLOOR_MIN_ITEMS
+        too_sparse = len(items) > 0 and len(filtered) / len(items) < _FLOOR_MIN_RATIO
+        if too_few or too_sparse:
+            return items  # fallback: floor was too aggressive
+        return filtered
 
     # ------------------------------------------------------------------
     # Helper methods
