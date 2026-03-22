@@ -1,0 +1,484 @@
+{
+  "features": [
+    {
+      "id": "F001",
+      "category": "backend",
+      "description": "Agentic tool loop with scout/query/submit phases",
+      "acceptance_criteria": [
+        "Claude calls scout_catalog to browse products per category",
+        "Claude calls query_catalog for targeted refinement when needed",
+        "Claude calls submit_build to finalize component selection",
+        "Loop respects max_tool_turns (20) and timeout (120s)"
+      ],
+      "passes": true,
+      "notes": "Core agentic loop fully implemented in claude.py"
+    },
+    {
+      "id": "F002",
+      "category": "backend",
+      "description": "Build compatibility validation (socket, DDR, form factor, PSU, GPU)",
+      "acceptance_criteria": [
+        "Socket match enforced between CPU and motherboard",
+        "DDR type match enforced between RAM and motherboard",
+        "Form factor rank check (motherboard fits in case)",
+        "GPU length check against case max_gpu_length",
+        "PSU wattage sufficiency check with 1.3x headroom"
+      ],
+      "passes": true,
+      "notes": "BuildValidator with 7 rules, repair flow up to 1 attempt"
+    },
+    {
+      "id": "F003",
+      "category": "backend",
+      "description": "Input guardrails (blocklist, budget, duplicate detection)",
+      "acceptance_criteria": [
+        "Toxicity blocklist catches abuse patterns",
+        "Budget range validated (€50–€100k)",
+        "Duplicate request detection via SHA-256 hash + TTLCache (3 per 600s per IP)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F004",
+      "category": "backend",
+      "description": "Output guardrails (prompt leak, off-topic, URL allowlist, PII, price)",
+      "acceptance_criteria": [
+        "Prompt leak detection blocks system prompt exposure",
+        "Off-topic/refusal detection blocks non-hardware responses",
+        "Affiliate URL allowlist strips non-Amazon URLs",
+        "Price sanity strips invalid prices and warns on budget overage",
+        "PII strip removes phone, email, external URLs from summary"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F005",
+      "category": "backend",
+      "description": "SSE streaming for build progress events",
+      "acceptance_criteria": [
+        "SSE stream returns progress events with phase/turn/elapsed",
+        "Result event contains full BuildResult JSON",
+        "Error events sent as SSE (not HTTP status) after stream starts",
+        "Keepalive comments sent every 15s of inactivity"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F006",
+      "category": "backend",
+      "description": "Build result caching via request_hash in PostgreSQL",
+      "acceptance_criteria": [
+        "Identical requests return cached result without calling Claude",
+        "Cached results bypass rate limit and duplicate detection",
+        "Build results persisted with unique request_hash"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F007",
+      "category": "backend",
+      "description": "Component search endpoint (POST /api/v1/search)",
+      "acceptance_criteria": [
+        "Accepts category + description and returns single component recommendation",
+        "Uses agentic tool loop with search-specific tools",
+        "In-memory cache (30 min TTL, 128 entries)",
+        "Shares rate limit pool with /build"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F008",
+      "category": "backend",
+      "description": "Rate limiting (shared AI pool + read limits)",
+      "acceptance_criteria": [
+        "POST /build and POST /search share single rate limit pool",
+        "GET /build/{id} has separate rate limit",
+        "Rate limiting disabled in development environment",
+        "Configurable via RATE_LIMIT_AI and RATE_LIMIT_READ env vars"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F009",
+      "category": "backend",
+      "description": "Product catalog seeding from JSON + hardcoded peripherals",
+      "acceptance_criteria": [
+        "Loads ~200 products from all_products.json",
+        "Appends hardcoded peripherals (monitors, keyboards, mice)",
+        "Idempotent seeding (checks row count before insert)",
+        "Clears search cache after seeding"
+      ],
+      "passes": true,
+      "notes": "277 total components across 11 categories"
+    },
+    {
+      "id": "F010",
+      "category": "backend",
+      "description": "Prompt sanitization and injection defence",
+      "acceptance_criteria": [
+        "User input truncated to 2000 chars",
+        "XML-like tags stripped from input",
+        "Injection patterns detected and logged",
+        "Structural chars neutralized (backticks, dashes)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F011",
+      "category": "backend",
+      "description": "Database migrations with Alembic",
+      "acceptance_criteria": [
+        "Initial migration creates builds table",
+        "Second migration creates components + affiliate_links tables",
+        "Migrations run via make migrate"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F012",
+      "category": "backend",
+      "description": "Comprehensive test suite (7 test files)",
+      "acceptance_criteria": [
+        "Tests cover API, guardrails, validator, catalog, tool loop, models, seeding",
+        "In-memory SQLite with JSONB→JSON fallback",
+        "Mocked Anthropic API",
+        "All tests pass with pytest"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F013",
+      "category": "frontend",
+      "description": "Build form with budget/goal selection and preferences",
+      "acceptance_criteria": [
+        "5 budget ranges selectable",
+        "7 user goals filtered per budget via budget_goals.json",
+        "Form factor, CPU brand, GPU brand, cooling preferences",
+        "Existing parts exclusion checkboxes",
+        "Optional notes textarea (500 char max)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F014",
+      "category": "frontend",
+      "description": "SSE streaming progress display with slot reveals",
+      "acceptance_criteria": [
+        "BuildLoadingScreen shows 8 core component slots",
+        "Slots reveal progressively with 350ms intervals",
+        "Progress bar with phase-weighted calculation",
+        "Elapsed timer displays mm:ss"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F015",
+      "category": "frontend",
+      "description": "Build result page with component cards and affiliate links",
+      "acceptance_criteria": [
+        "Component cards show name, brand, specs, price",
+        "Affiliate links validated against allowlist before rendering",
+        "Upgrade/downgrade suggestions displayed",
+        "Shareable URL with copy button",
+        "sessionStorage caching for post-submit navigation"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F016",
+      "category": "frontend",
+      "description": "Component search page (find single component)",
+      "acceptance_criteria": [
+        "12 category icons selectable",
+        "Description textarea with category-specific placeholders",
+        "Single component result with affiliate link and price",
+        "60s timeout independent from build"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F017",
+      "category": "frontend",
+      "description": "Homepage with hero, how-it-works, example builds, trust signals",
+      "acceptance_criteria": [
+        "Hero section with CTAs to /build and /find",
+        "3-step how-it-works grid",
+        "4 example build cards with budget/goal links",
+        "Trust signals section"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F018",
+      "category": "frontend",
+      "description": "Static pages (about, contact, privacy, terms)",
+      "acceptance_criteria": [
+        "About page with affiliate disclosure",
+        "Contact page with email and FAQ",
+        "Privacy policy page",
+        "Terms of service page"
+      ],
+      "passes": true,
+      "notes": "Contact page has fake phone number (+357 25 000 000) that needs fixing"
+    },
+    {
+      "id": "F019",
+      "category": "frontend",
+      "description": "3 editorial guide articles",
+      "acceptance_criteria": [
+        "Cyprus summer PC build guide",
+        "Amazon.de shipping guide",
+        "€1000 sweet spot build guide",
+        "EditorialSection component on homepage links to guides"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F020",
+      "category": "frontend",
+      "description": "Obsidian dark theme with gold accents and animations",
+      "acceptance_criteria": [
+        "Consistent color palette (obsidian-bg through obsidian-muted)",
+        "Gold accent #C9A84C used for primary actions",
+        "Ambient background with aurora animations",
+        "Respects prefers-reduced-motion"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F021",
+      "category": "frontend",
+      "description": "SEO basics (sitemap, robots.txt, metadata)",
+      "acceptance_criteria": [
+        "sitemap.ts generates sitemap for all pages",
+        "robots.ts blocks /api/ and /build/ from crawlers",
+        "Layout exports metadata with title and description"
+      ],
+      "passes": true,
+      "notes": "OG meta tags missing on static pages (about, contact, privacy, terms)"
+    },
+    {
+      "id": "F022",
+      "category": "frontend",
+      "description": "Favicon and brand assets",
+      "acceptance_criteria": [
+        "favicon.ico present in public/ directory",
+        "Apple touch icon present"
+      ],
+      "passes": false,
+      "notes": "public/ directory is empty — no favicon, no brand assets"
+    },
+    {
+      "id": "F023",
+      "category": "frontend",
+      "description": "Per-page affiliate disclosure on result pages",
+      "acceptance_criteria": [
+        "Build result page shows affiliate disclosure above buy buttons",
+        "Search result page shows affiliate disclosure above buy buttons"
+      ],
+      "passes": false,
+      "notes": "Required for Amazon Associates compliance — see TO-DO.md Part 1.2"
+    },
+    {
+      "id": "F024",
+      "category": "frontend",
+      "description": "OG meta tags on all static and dynamic pages",
+      "acceptance_criteria": [
+        "About, contact, privacy, terms pages export openGraph metadata",
+        "Build result pages have dynamic OG title/description",
+        "Guide pages have OG metadata"
+      ],
+      "passes": false,
+      "notes": "Guides have metadata; static pages and build results do not"
+    },
+    {
+      "id": "F025",
+      "category": "frontend",
+      "description": "Examples page with pre-built sample builds",
+      "acceptance_criteria": [
+        "4-5 static example builds at different price points",
+        "Component lists matching real build result format",
+        "Affiliate links on example builds",
+        "Linked from homepage"
+      ],
+      "passes": false,
+      "notes": "Not started — TO-DO.md Part 3"
+    },
+    {
+      "id": "F026",
+      "category": "frontend",
+      "description": "Guides index page listing all articles",
+      "acceptance_criteria": [
+        "Dedicated /guides page listing all articles",
+        "Title, description, and link for each guide",
+        "Linked from footer navigation"
+      ],
+      "passes": false,
+      "notes": "Individual guides exist but no index page"
+    },
+    {
+      "id": "F027",
+      "category": "frontend",
+      "description": "Fix fake phone number on contact page",
+      "acceptance_criteria": [
+        "Contact page shows real phone number or no phone number at all",
+        "No placeholder/fake numbers displayed to users"
+      ],
+      "passes": false,
+      "notes": "Currently shows +357 25 000 000 — TO-DO.md Part 1.1"
+    },
+    {
+      "id": "F028",
+      "category": "frontend",
+      "description": "Footer affiliate disclosure covers all stores",
+      "acceptance_criteria": [
+        "Footer text mentions Amazon Associates and EU retailers generically",
+        "Not limited to just Amazon Associates"
+      ],
+      "passes": false,
+      "notes": "Current footer only mentions Amazon — TO-DO.md Part 1.3"
+    },
+    {
+      "id": "F029",
+      "category": "integration",
+      "description": "Telegram bot integration",
+      "acceptance_criteria": [
+        "Bot accepts build requests via Telegram",
+        "Bot communicates with backend API",
+        "Bot sends build results back to user"
+      ],
+      "passes": false,
+      "notes": "Scaffold exists (telegram_bot/) but functionality not verified"
+    },
+    {
+      "id": "F030",
+      "category": "infrastructure",
+      "description": "Docker Compose production setup (4 services)",
+      "acceptance_criteria": [
+        "PostgreSQL, backend, frontend, telegram-bot services defined",
+        "Health checks on all services",
+        "Resource limits (RAM caps) on each service",
+        "Persistent volume for database"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F031",
+      "category": "infrastructure",
+      "description": "Docker Compose development setup with hot reload",
+      "acceptance_criteria": [
+        "Source volumes mounted for backend and frontend",
+        "Database accessible on localhost:5432",
+        "Hot reload works for both services"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F032",
+      "category": "infrastructure",
+      "description": "Nginx reverse proxy with SSL (production)",
+      "acceptance_criteria": [
+        "setup-nginx.sh configures thepccoach.com domain",
+        "SSL via Certbot with auto-renewal",
+        "Proxy to backend:8000 and frontend:3000",
+        "SSE-compatible (buffering OFF, 120s timeout)"
+      ],
+      "passes": true,
+      "notes": "Script exists and is well-structured"
+    },
+    {
+      "id": "F033",
+      "category": "infrastructure",
+      "description": "Arize AX observability integration",
+      "acceptance_criteria": [
+        "Arize tracing initializes when ARIZE_API_KEY is set",
+        "Traces captured for Anthropic SDK calls",
+        "Gracefully disabled when keys not set"
+      ],
+      "passes": true,
+      "notes": "Optional — works when env vars provided"
+    },
+    {
+      "id": "F034",
+      "category": "infrastructure",
+      "description": "Makefile with all dev/deploy/test commands",
+      "acceptance_criteria": [
+        "make dev, make test, make lint, make deploy all functional",
+        "make sync-config propagates shared config",
+        "make migrate runs Alembic migrations",
+        "make seed seeds the catalog"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F035",
+      "category": "backend",
+      "description": "Automated product price refresh",
+      "acceptance_criteria": [
+        "Scraper runs on a schedule to update prices",
+        "Stale products flagged or removed",
+        "Price changes reflected in catalog"
+      ],
+      "passes": false,
+      "notes": "Prices are snapshot from scrape date — no automated refresh"
+    },
+    {
+      "id": "F036",
+      "category": "backend",
+      "description": "Multi-store affiliate support (ComputerUniverse, Caseking)",
+      "acceptance_criteria": [
+        "Affiliate links from multiple stores in database",
+        "URL allowlist includes additional store hosts",
+        "Claude prompt mentions available stores"
+      ],
+      "passes": false,
+      "notes": "Architecture supports it but only Amazon.de implemented"
+    },
+    {
+      "id": "F037",
+      "category": "backend",
+      "description": "Build statistics endpoint (GET /api/v1/stats)",
+      "acceptance_criteria": [
+        "Returns builds_generated count",
+        "Usable by frontend for trust signal display"
+      ],
+      "passes": false,
+      "notes": "No stats endpoint exists yet — TO-DO.md Part 5.1"
+    },
+    {
+      "id": "F038",
+      "category": "frontend",
+      "description": "Build counter trust signal on homepage",
+      "acceptance_criteria": [
+        "Homepage shows builds generated count",
+        "Fetches from /api/v1/stats endpoint",
+        "Shows floor value when count is low"
+      ],
+      "passes": false,
+      "notes": "Depends on F037 — TO-DO.md Part 5.1"
+    },
+    {
+      "id": "F039",
+      "category": "backend",
+      "description": "Mini-ITX case options in catalog",
+      "acceptance_criteria": [
+        "At least 3 mini-ITX cases in product catalog",
+        "Mini-ITX builds can be completed without missing case"
+      ],
+      "passes": false,
+      "notes": "No mini-ITX cases scraped — 2 mini-ITX motherboards exist but no matching cases"
+    },
+    {
+      "id": "F040",
+      "category": "backend",
+      "description": "Scraped peripherals (monitors, keyboards, mice)",
+      "acceptance_criteria": [
+        "Peripherals loaded from scraped JSON, not hardcoded",
+        "ASINs and prices verified against Amazon.de",
+        "At least 10 monitors, 5 keyboards, 5 mice"
+      ],
+      "passes": false,
+      "notes": "Currently hardcoded in seed.py with unverified ASINs"
+    }
+  ]
+}

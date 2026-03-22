@@ -1,5 +1,17 @@
 # PcCoach — Claude Code Guide
 
+## Session Rules (MUST follow)
+
+1. Always run `bash init.sh` before starting any work — abort if it fails
+2. Read `docs/progress.md` and `docs/features.json` before picking a task
+3. Work on one feature at a time — pick the highest-priority failing feature
+4. Never push to `master` directly — always work on a feature branch
+5. Never modify the database schema without noting it in `docs/progress.md`
+6. Always commit with a descriptive message after completing a feature
+7. Always update `docs/progress.md` and `docs/features.json` before ending a session
+8. Never leave the app in a broken state — fix what you break before moving on
+9. Context lives in: this file, `docs/progress.md`, `docs/features.json`
+
 ## Project Overview
 
 PcCoach is an AI-powered PC build recommendation tool for the Cyprus market (Limassol).
